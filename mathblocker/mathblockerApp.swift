@@ -27,17 +27,17 @@ struct mathblockerApp: App {
 
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
     @State private var showUnlockChallenge = false
-
-    init() {
-        // Preload question bank in background so Practice tab is instant
-        Task.detached(priority: .utility) {
-            await QuestionBank.shared.load()
-        }
-    }
+    @State private var showSplash = true
 
     var body: some Scene {
         WindowGroup {
-            if hasCompletedOnboarding {
+            if showSplash {
+                SplashView {
+                    withAnimation(.easeInOut(duration: 0.4)) {
+                        showSplash = false
+                    }
+                }
+            } else if hasCompletedOnboarding {
                 MainTabView()
                     .sheet(isPresented: $showUnlockChallenge) {
                         UnlockChallengeView()
@@ -50,8 +50,10 @@ struct mathblockerApp: App {
                     .onAppear {
                         checkForUnlockRequest()
                     }
+                    .transition(.opacity)
             } else {
                 OnboardingView()
+                    .transition(.opacity)
             }
         }
         .modelContainer(sharedModelContainer)
@@ -63,7 +65,6 @@ struct mathblockerApp: App {
         else { return }
 
         let requestDate = Date(timeIntervalSince1970: timestamp)
-        // Only honor requests from the last 30 seconds
         if Date.now.timeIntervalSince(requestDate) < 30 {
             showUnlockChallenge = true
             defaults.removeObject(forKey: "unlockRequestTimestamp")

@@ -232,7 +232,8 @@ struct MathChallengeView: View {
     }
 
     private func choiceLetter(_ index: Int) -> String {
-        ["A", "B", "C", "D"][index]
+        let letters = ["A", "B", "C", "D", "E", "F"]
+        return index < letters.count ? letters[index] : "\(index + 1)"
     }
 }
 

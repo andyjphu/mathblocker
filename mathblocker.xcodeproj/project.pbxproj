@@ -8,14 +8,10 @@
 
 /* Begin PBXBuildFile section */
 		5A95AF302F87BB8E00A12617 /* DeviceActivity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A95AF2F2F87BB8E00A12617 /* DeviceActivity.framework */; };
-		5A95AF342F87BB8E00A12617 /* dam.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 5A95AF2D2F87BB8E00A12617 /* dam.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		5A95AF3E2F87BC0100A12617 /* DeviceActivity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A95AF2F2F87BB8E00A12617 /* DeviceActivity.framework */; };
-		5A95AF462F87BC0100A12617 /* dame.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 5A95AF3D2F87BC0100A12617 /* dame.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		5A95AF512F87BC3600A12617 /* ManagedSettings.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A95AF502F87BC3600A12617 /* ManagedSettings.framework */; };
-		5A95AF592F87BC3600A12617 /* shconf.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 5A95AF4F2F87BC3600A12617 /* shconf.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		5A95AF632F87BC5100A12617 /* ManagedSettings.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A95AF502F87BC3600A12617 /* ManagedSettings.framework */; };
 		5A95AF652F87BC5100A12617 /* ManagedSettingsUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A95AF642F87BC5100A12617 /* ManagedSettingsUI.framework */; };
-		5A95AF6D2F87BC5100A12617 /* shconfig.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 5A95AF622F87BC5100A12617 /* shconfig.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -33,34 +29,6 @@
 			remoteGlobalIDString = 5A61C0382F87A5C100EAA886;
 			remoteInfo = mathblocker;
 		};
-		5A95AF322F87BB8E00A12617 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 5A61C0312F87A5C100EAA886 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 5A95AF2C2F87BB8E00A12617;
-			remoteInfo = dam;
-		};
-		5A95AF442F87BC0100A12617 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 5A61C0312F87A5C100EAA886 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 5A95AF3C2F87BC0100A12617;
-			remoteInfo = dame;
-		};
-		5A95AF572F87BC3600A12617 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 5A61C0312F87A5C100EAA886 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 5A95AF4E2F87BC3600A12617;
-			remoteInfo = shconf;
-		};
-		5A95AF6B2F87BC5100A12617 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 5A61C0312F87A5C100EAA886 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 5A95AF612F87BC5100A12617;
-			remoteInfo = shconfig;
-		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -70,7 +38,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				);
+			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -272,7 +240,7 @@
 			buildRules = (
 			);
 			dependencies = (
-				);
+			);
 			fileSystemSynchronizedGroups = (
 				5A61C03B2F87A5C100EAA886 /* mathblocker */,
 			);
@@ -591,26 +559,6 @@
 			isa = PBXTargetDependency;
 			target = 5A61C0382F87A5C100EAA886 /* mathblocker */;
 			targetProxy = 5A61C0532F87A5C400EAA886 /* PBXContainerItemProxy */;
-		};
-		5A95AF332F87BB8E00A12617 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 5A95AF2C2F87BB8E00A12617 /* dam */;
-			targetProxy = 5A95AF322F87BB8E00A12617 /* PBXContainerItemProxy */;
-		};
-		5A95AF452F87BC0100A12617 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 5A95AF3C2F87BC0100A12617 /* dame */;
-			targetProxy = 5A95AF442F87BC0100A12617 /* PBXContainerItemProxy */;
-		};
-		5A95AF582F87BC3600A12617 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 5A95AF4E2F87BC3600A12617 /* shconf */;
-			targetProxy = 5A95AF572F87BC3600A12617 /* PBXContainerItemProxy */;
-		};
-		5A95AF6C2F87BC5100A12617 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 5A95AF612F87BC5100A12617 /* shconfig */;
-			targetProxy = 5A95AF6B2F87BC5100A12617 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
