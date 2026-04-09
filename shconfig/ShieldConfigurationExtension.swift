@@ -33,7 +33,7 @@ class ShieldConfigurationExtension: ShieldConfigurationDataSource {
         ShieldConfiguration(
             backgroundBlurStyle: .systemUltraThinMaterial,
             backgroundColor: UIColor(red: 0.96, green: 0.94, blue: 0.90, alpha: 0.85),
-            icon: UIImage(named: "shield-icon"),
+            icon: UIImage(named: "shield-icon") ?? UIImage(systemName: "leaf"),
             title: ShieldConfiguration.Label(
                 text: "you hit your limit",
                 color: UIColor(red: 0.15, green: 0.15, blue: 0.13, alpha: 1.0)
