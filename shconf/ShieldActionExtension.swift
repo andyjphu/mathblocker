@@ -6,30 +6,56 @@
 //
 
 import ManagedSettings
+import Foundation
 
-// Override the functions below to customize the shield actions used in various situations.
-// The system provides a default response for any functions that your subclass doesn't override.
-// Make sure that your class name matches the NSExtensionPrincipalClass in your Info.plist.
 class ShieldActionExtension: ShieldActionDelegate {
-    override func handle(action: ShieldAction, for application: ApplicationToken, completionHandler: @escaping (ShieldActionResponse) -> Void) {
-        // Handle the action as needed.
+
+    private let suiteName = "group.andyjphu.mathblocker"
+
+    override func handle(action: ShieldAction,
+                         for application: ApplicationToken,
+                         completionHandler: @escaping (ShieldActionResponse) -> Void) {
         switch action {
         case .primaryButtonPressed:
-            completionHandler(.close)
-        case .secondaryButtonPressed:
+            signalUnlockRequest()
             completionHandler(.defer)
+        case .secondaryButtonPressed:
+            completionHandler(.none)
         @unknown default:
-            fatalError()
+            completionHandler(.none)
         }
     }
-    
-    override func handle(action: ShieldAction, for webDomain: WebDomainToken, completionHandler: @escaping (ShieldActionResponse) -> Void) {
-        // Handle the action as needed.
-        completionHandler(.close)
+
+    override func handle(action: ShieldAction,
+                         for webDomain: WebDomainToken,
+                         completionHandler: @escaping (ShieldActionResponse) -> Void) {
+        switch action {
+        case .primaryButtonPressed:
+            signalUnlockRequest()
+            completionHandler(.defer)
+        case .secondaryButtonPressed:
+            completionHandler(.none)
+        @unknown default:
+            completionHandler(.none)
+        }
     }
-    
-    override func handle(action: ShieldAction, for category: ActivityCategoryToken, completionHandler: @escaping (ShieldActionResponse) -> Void) {
-        // Handle the action as needed.
-        completionHandler(.close)
+
+    override func handle(action: ShieldAction,
+                         for category: ActivityCategoryToken,
+                         completionHandler: @escaping (ShieldActionResponse) -> Void) {
+        switch action {
+        case .primaryButtonPressed:
+            signalUnlockRequest()
+            completionHandler(.defer)
+        case .secondaryButtonPressed:
+            completionHandler(.none)
+        @unknown default:
+            completionHandler(.none)
+        }
+    }
+
+    private func signalUnlockRequest() {
+        let defaults = UserDefaults(suiteName: suiteName)
+        defaults?.set(Date().timeIntervalSince1970, forKey: "unlockRequestTimestamp")
     }
 }
