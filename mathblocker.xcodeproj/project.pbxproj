@@ -6,6 +6,18 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		5A95AF302F87BB8E00A12617 /* DeviceActivity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A95AF2F2F87BB8E00A12617 /* DeviceActivity.framework */; };
+		5A95AF342F87BB8E00A12617 /* dam.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 5A95AF2D2F87BB8E00A12617 /* dam.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		5A95AF3E2F87BC0100A12617 /* DeviceActivity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A95AF2F2F87BB8E00A12617 /* DeviceActivity.framework */; };
+		5A95AF462F87BC0100A12617 /* dame.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 5A95AF3D2F87BC0100A12617 /* dame.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		5A95AF512F87BC3600A12617 /* ManagedSettings.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A95AF502F87BC3600A12617 /* ManagedSettings.framework */; };
+		5A95AF592F87BC3600A12617 /* shconf.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 5A95AF4F2F87BC3600A12617 /* shconf.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		5A95AF632F87BC5100A12617 /* ManagedSettings.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A95AF502F87BC3600A12617 /* ManagedSettings.framework */; };
+		5A95AF652F87BC5100A12617 /* ManagedSettingsUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A95AF642F87BC5100A12617 /* ManagedSettingsUI.framework */; };
+		5A95AF6D2F87BC5100A12617 /* shconfig.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 5A95AF622F87BC5100A12617 /* shconfig.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		5A61C0492F87A5C400EAA886 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -21,13 +33,89 @@
 			remoteGlobalIDString = 5A61C0382F87A5C100EAA886;
 			remoteInfo = mathblocker;
 		};
+		5A95AF322F87BB8E00A12617 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5A61C0312F87A5C100EAA886 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 5A95AF2C2F87BB8E00A12617;
+			remoteInfo = dam;
+		};
+		5A95AF442F87BC0100A12617 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5A61C0312F87A5C100EAA886 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 5A95AF3C2F87BC0100A12617;
+			remoteInfo = dame;
+		};
+		5A95AF572F87BC3600A12617 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5A61C0312F87A5C100EAA886 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 5A95AF4E2F87BC3600A12617;
+			remoteInfo = shconf;
+		};
+		5A95AF6B2F87BC5100A12617 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5A61C0312F87A5C100EAA886 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 5A95AF612F87BC5100A12617;
+			remoteInfo = shconfig;
+		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		5A95AF382F87BB8E00A12617 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				5A95AF592F87BC3600A12617 /* shconf.appex in Embed Foundation Extensions */,
+				5A95AF342F87BB8E00A12617 /* dam.appex in Embed Foundation Extensions */,
+				5A95AF462F87BC0100A12617 /* dame.appex in Embed Foundation Extensions */,
+				5A95AF6D2F87BC5100A12617 /* shconfig.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		5A61C0392F87A5C100EAA886 /* mathblocker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = mathblocker.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5A61C0482F87A5C400EAA886 /* mathblockerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = mathblockerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		5A61C0522F87A5C400EAA886 /* mathblockerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = mathblockerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		5A95AF2D2F87BB8E00A12617 /* dam.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = dam.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		5A95AF2F2F87BB8E00A12617 /* DeviceActivity.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DeviceActivity.framework; path = System/Library/Frameworks/DeviceActivity.framework; sourceTree = SDKROOT; };
+		5A95AF3D2F87BC0100A12617 /* dame.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = dame.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		5A95AF4F2F87BC3600A12617 /* shconf.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = shconf.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		5A95AF502F87BC3600A12617 /* ManagedSettings.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ManagedSettings.framework; path = System/Library/Frameworks/ManagedSettings.framework; sourceTree = SDKROOT; };
+		5A95AF622F87BC5100A12617 /* shconfig.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = shconfig.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		5A95AF642F87BC5100A12617 /* ManagedSettingsUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ManagedSettingsUI.framework; path = System/Library/Frameworks/ManagedSettingsUI.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		5A95AF472F87BC0100A12617 /* Exceptions for "dame" folder in "dame" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 5A95AF3C2F87BC0100A12617 /* dame */;
+		};
+		5A95AF5A2F87BC3600A12617 /* Exceptions for "shconf" folder in "shconf" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 5A95AF4E2F87BC3600A12617 /* shconf */;
+		};
+		5A95AF6E2F87BC5100A12617 /* Exceptions for "shconfig" folder in "shconfig" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 5A95AF612F87BC5100A12617 /* shconfig */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		5A61C03B2F87A5C100EAA886 /* mathblocker */ = {
@@ -43,6 +131,35 @@
 		5A61C0552F87A5C400EAA886 /* mathblockerUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = mathblockerUITests;
+			sourceTree = "<group>";
+		};
+		5A95AF312F87BB8E00A12617 /* dam */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = dam;
+			sourceTree = "<group>";
+		};
+		5A95AF3F2F87BC0100A12617 /* dame */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				5A95AF472F87BC0100A12617 /* Exceptions for "dame" folder in "dame" target */,
+			);
+			path = dame;
+			sourceTree = "<group>";
+		};
+		5A95AF522F87BC3600A12617 /* shconf */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				5A95AF5A2F87BC3600A12617 /* Exceptions for "shconf" folder in "shconf" target */,
+			);
+			path = shconf;
+			sourceTree = "<group>";
+		};
+		5A95AF662F87BC5100A12617 /* shconfig */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				5A95AF6E2F87BC5100A12617 /* Exceptions for "shconfig" folder in "shconfig" target */,
+			);
+			path = shconfig;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -69,6 +186,39 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		5A95AF2A2F87BB8E00A12617 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5A95AF302F87BB8E00A12617 /* DeviceActivity.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5A95AF3A2F87BC0100A12617 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5A95AF3E2F87BC0100A12617 /* DeviceActivity.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5A95AF4C2F87BC3600A12617 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5A95AF512F87BC3600A12617 /* ManagedSettings.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5A95AF5F2F87BC5100A12617 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5A95AF632F87BC5100A12617 /* ManagedSettings.framework in Frameworks */,
+				5A95AF652F87BC5100A12617 /* ManagedSettingsUI.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -78,6 +228,11 @@
 				5A61C03B2F87A5C100EAA886 /* mathblocker */,
 				5A61C04B2F87A5C400EAA886 /* mathblockerTests */,
 				5A61C0552F87A5C400EAA886 /* mathblockerUITests */,
+				5A95AF312F87BB8E00A12617 /* dam */,
+				5A95AF3F2F87BC0100A12617 /* dame */,
+				5A95AF522F87BC3600A12617 /* shconf */,
+				5A95AF662F87BC5100A12617 /* shconfig */,
+				5A95AF2E2F87BB8E00A12617 /* Frameworks */,
 				5A61C03A2F87A5C100EAA886 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -88,8 +243,22 @@
 				5A61C0392F87A5C100EAA886 /* mathblocker.app */,
 				5A61C0482F87A5C400EAA886 /* mathblockerTests.xctest */,
 				5A61C0522F87A5C400EAA886 /* mathblockerUITests.xctest */,
+				5A95AF2D2F87BB8E00A12617 /* dam.appex */,
+				5A95AF3D2F87BC0100A12617 /* dame.appex */,
+				5A95AF4F2F87BC3600A12617 /* shconf.appex */,
+				5A95AF622F87BC5100A12617 /* shconfig.appex */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		5A95AF2E2F87BB8E00A12617 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				5A95AF2F2F87BB8E00A12617 /* DeviceActivity.framework */,
+				5A95AF502F87BC3600A12617 /* ManagedSettings.framework */,
+				5A95AF642F87BC5100A12617 /* ManagedSettingsUI.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -102,10 +271,15 @@
 				5A61C0352F87A5C100EAA886 /* Sources */,
 				5A61C0362F87A5C100EAA886 /* Frameworks */,
 				5A61C0372F87A5C100EAA886 /* Resources */,
+				5A95AF382F87BB8E00A12617 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				5A95AF332F87BB8E00A12617 /* PBXTargetDependency */,
+				5A95AF452F87BC0100A12617 /* PBXTargetDependency */,
+				5A95AF582F87BC3600A12617 /* PBXTargetDependency */,
+				5A95AF6C2F87BC5100A12617 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				5A61C03B2F87A5C100EAA886 /* mathblocker */,
@@ -163,6 +337,94 @@
 			productReference = 5A61C0522F87A5C400EAA886 /* mathblockerUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		5A95AF2C2F87BB8E00A12617 /* dam */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5A95AF352F87BB8E00A12617 /* Build configuration list for PBXNativeTarget "dam" */;
+			buildPhases = (
+				5A95AF292F87BB8E00A12617 /* Sources */,
+				5A95AF2A2F87BB8E00A12617 /* Frameworks */,
+				5A95AF2B2F87BB8E00A12617 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				5A95AF312F87BB8E00A12617 /* dam */,
+			);
+			name = dam;
+			packageProductDependencies = (
+			);
+			productName = dam;
+			productReference = 5A95AF2D2F87BB8E00A12617 /* dam.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		5A95AF3C2F87BC0100A12617 /* dame */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5A95AF482F87BC0100A12617 /* Build configuration list for PBXNativeTarget "dame" */;
+			buildPhases = (
+				5A95AF392F87BC0100A12617 /* Sources */,
+				5A95AF3A2F87BC0100A12617 /* Frameworks */,
+				5A95AF3B2F87BC0100A12617 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				5A95AF3F2F87BC0100A12617 /* dame */,
+			);
+			name = dame;
+			packageProductDependencies = (
+			);
+			productName = dame;
+			productReference = 5A95AF3D2F87BC0100A12617 /* dame.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		5A95AF4E2F87BC3600A12617 /* shconf */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5A95AF5B2F87BC3600A12617 /* Build configuration list for PBXNativeTarget "shconf" */;
+			buildPhases = (
+				5A95AF4B2F87BC3600A12617 /* Sources */,
+				5A95AF4C2F87BC3600A12617 /* Frameworks */,
+				5A95AF4D2F87BC3600A12617 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				5A95AF522F87BC3600A12617 /* shconf */,
+			);
+			name = shconf;
+			packageProductDependencies = (
+			);
+			productName = shconf;
+			productReference = 5A95AF4F2F87BC3600A12617 /* shconf.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		5A95AF612F87BC5100A12617 /* shconfig */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5A95AF6F2F87BC5100A12617 /* Build configuration list for PBXNativeTarget "shconfig" */;
+			buildPhases = (
+				5A95AF5E2F87BC5100A12617 /* Sources */,
+				5A95AF5F2F87BC5100A12617 /* Frameworks */,
+				5A95AF602F87BC5100A12617 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				5A95AF662F87BC5100A12617 /* shconfig */,
+			);
+			name = shconfig;
+			packageProductDependencies = (
+			);
+			productName = shconfig;
+			productReference = 5A95AF622F87BC5100A12617 /* shconfig.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -184,6 +446,18 @@
 						CreatedOnToolsVersion = 26.4;
 						TestTargetID = 5A61C0382F87A5C100EAA886;
 					};
+					5A95AF2C2F87BB8E00A12617 = {
+						CreatedOnToolsVersion = 26.4;
+					};
+					5A95AF3C2F87BC0100A12617 = {
+						CreatedOnToolsVersion = 26.4;
+					};
+					5A95AF4E2F87BC3600A12617 = {
+						CreatedOnToolsVersion = 26.4;
+					};
+					5A95AF612F87BC5100A12617 = {
+						CreatedOnToolsVersion = 26.4;
+					};
 				};
 			};
 			buildConfigurationList = 5A61C0342F87A5C100EAA886 /* Build configuration list for PBXProject "mathblocker" */;
@@ -203,6 +477,10 @@
 				5A61C0382F87A5C100EAA886 /* mathblocker */,
 				5A61C0472F87A5C400EAA886 /* mathblockerTests */,
 				5A61C0512F87A5C400EAA886 /* mathblockerUITests */,
+				5A95AF2C2F87BB8E00A12617 /* dam */,
+				5A95AF3C2F87BC0100A12617 /* dame */,
+				5A95AF4E2F87BC3600A12617 /* shconf */,
+				5A95AF612F87BC5100A12617 /* shconfig */,
 			);
 		};
 /* End PBXProject section */
@@ -223,6 +501,34 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		5A61C0502F87A5C400EAA886 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5A95AF2B2F87BB8E00A12617 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5A95AF3B2F87BC0100A12617 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5A95AF4D2F87BC3600A12617 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5A95AF602F87BC5100A12617 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -253,6 +559,34 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		5A95AF292F87BB8E00A12617 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5A95AF392F87BC0100A12617 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5A95AF4B2F87BC3600A12617 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5A95AF5E2F87BC5100A12617 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -265,6 +599,26 @@
 			isa = PBXTargetDependency;
 			target = 5A61C0382F87A5C100EAA886 /* mathblocker */;
 			targetProxy = 5A61C0532F87A5C400EAA886 /* PBXContainerItemProxy */;
+		};
+		5A95AF332F87BB8E00A12617 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 5A95AF2C2F87BB8E00A12617 /* dam */;
+			targetProxy = 5A95AF322F87BB8E00A12617 /* PBXContainerItemProxy */;
+		};
+		5A95AF452F87BC0100A12617 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 5A95AF3C2F87BC0100A12617 /* dame */;
+			targetProxy = 5A95AF442F87BC0100A12617 /* PBXContainerItemProxy */;
+		};
+		5A95AF582F87BC3600A12617 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 5A95AF4E2F87BC3600A12617 /* shconf */;
+			targetProxy = 5A95AF572F87BC3600A12617 /* PBXContainerItemProxy */;
+		};
+		5A95AF6C2F87BC5100A12617 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 5A95AF612F87BC5100A12617 /* shconfig */;
+			targetProxy = 5A95AF6B2F87BC5100A12617 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -538,6 +892,238 @@
 			};
 			name = Release;
 		};
+		5A95AF362F87BB8E00A12617 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = dam/dam.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = Q6YN8K63U3;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = dam/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = dam;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = andyjphu.mathblocker.dam;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		5A95AF372F87BB8E00A12617 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = dam/dam.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = Q6YN8K63U3;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = dam/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = dam;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = andyjphu.mathblocker.dam;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		5A95AF492F87BC0100A12617 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = dame/dame.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = Q6YN8K63U3;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = dame/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = dame;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = andyjphu.mathblocker.dame;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		5A95AF4A2F87BC0100A12617 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = dame/dame.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = Q6YN8K63U3;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = dame/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = dame;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = andyjphu.mathblocker.dame;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		5A95AF5C2F87BC3600A12617 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = shconf/shconf.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = Q6YN8K63U3;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = shconf/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = shconf;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = andyjphu.mathblocker.shconf;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		5A95AF5D2F87BC3600A12617 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = shconf/shconf.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = Q6YN8K63U3;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = shconf/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = shconf;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = andyjphu.mathblocker.shconf;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		5A95AF702F87BC5100A12617 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = shconfig/shconfig.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = Q6YN8K63U3;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = shconfig/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = shconfig;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = andyjphu.mathblocker.shconfig;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		5A95AF712F87BC5100A12617 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = shconfig/shconfig.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = Q6YN8K63U3;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = shconfig/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = shconfig;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = andyjphu.mathblocker.shconfig;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -573,6 +1159,42 @@
 			buildConfigurations = (
 				5A61C0632F87A5C400EAA886 /* Debug */,
 				5A61C0642F87A5C400EAA886 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		5A95AF352F87BB8E00A12617 /* Build configuration list for PBXNativeTarget "dam" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5A95AF362F87BB8E00A12617 /* Debug */,
+				5A95AF372F87BB8E00A12617 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		5A95AF482F87BC0100A12617 /* Build configuration list for PBXNativeTarget "dame" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5A95AF492F87BC0100A12617 /* Debug */,
+				5A95AF4A2F87BC0100A12617 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		5A95AF5B2F87BC3600A12617 /* Build configuration list for PBXNativeTarget "shconf" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5A95AF5C2F87BC3600A12617 /* Debug */,
+				5A95AF5D2F87BC3600A12617 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		5A95AF6F2F87BC5100A12617 /* Build configuration list for PBXNativeTarget "shconfig" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5A95AF702F87BC5100A12617 /* Debug */,
+				5A95AF712F87BC5100A12617 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

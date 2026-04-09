@@ -12,7 +12,9 @@ import SwiftData
 struct mathblockerApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
-            Item.self,
+            QuestionAttempt.self,
+            DailyStats.self,
+            UserSettings.self,
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
@@ -23,10 +25,41 @@ struct mathblockerApp: App {
         }
     }()
 
+    @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
+    @State private var showUnlockChallenge = false
+
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            if hasCompletedOnboarding {
+                MainTabView()
+                    .sheet(isPresented: $showUnlockChallenge) {
+                        UnlockChallengeView()
+                    }
+                    .onOpenURL { url in
+                        if url.scheme == AppGroupConstants.urlScheme && url.host == "unlock" {
+                            showUnlockChallenge = true
+                        }
+                    }
+                    .onAppear {
+                        checkForUnlockRequest()
+                    }
+            } else {
+                OnboardingView()
+            }
         }
         .modelContainer(sharedModelContainer)
+    }
+
+    private func checkForUnlockRequest() {
+        guard let defaults = AppGroupConstants.sharedDefaults,
+              let timestamp = defaults.object(forKey: "unlockRequestTimestamp") as? Double
+        else { return }
+
+        let requestDate = Date(timeIntervalSince1970: timestamp)
+        // Only honor requests from the last 30 seconds
+        if Date.now.timeIntervalSince(requestDate) < 30 {
+            showUnlockChallenge = true
+            defaults.removeObject(forKey: "unlockRequestTimestamp")
+        }
     }
 }
