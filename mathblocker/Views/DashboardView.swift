@@ -8,12 +8,16 @@
 import SwiftUI
 import SwiftData
 
+/// Dashboard answering one question: "how much time do I have,
+/// and how do I get more?"
 struct DashboardView: View {
-    @Environment(\.modelContext) private var modelContext
     @Query(sort: \DailyStats.date, order: .reverse) private var allStats: [DailyStats]
     @Query private var settings: [UserSettings]
 
+    var goToPractice: () -> Void
+
     private var budgetMinutes: Int { settings.first?.dailyTimeBudgetMinutes ?? 30 }
+    private var perCorrect: Int { settings.first?.minutesPerCorrectAnswer ?? 2 }
 
     private var todayStats: DailyStats? {
         let today = Calendar.current.startOfDay(for: .now)
@@ -39,52 +43,25 @@ struct DashboardView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(spacing: 20) {
-                    // Hero card
-                    heroCard
+                VStack(spacing: 24) {
+                    // Hero: time earned
+                    heroSection
 
-                    // Stats grid
-                    LazyVGrid(columns: [.init(.flexible()), .init(.flexible())], spacing: 14) {
-                        StatCard(
-                            title: "solved today",
-                            value: "\(todayStats?.questionsCorrect ?? 0)",
-                            subtitle: "of \(todayStats?.questionsAttempted ?? 0) attempted",
-                            icon: "checkmark.circle.fill",
-                            color: .green
-                        )
+                    // CTA
+                    practiceButton
 
-                        StatCard(
-                            title: "accuracy",
-                            value: String(format: "%.0f%%", (todayStats?.accuracy ?? 0) * 100),
-                            subtitle: "today",
-                            icon: "target",
-                            color: .orange
-                        )
+                    // Secondary stats
+                    statsRow
 
-                        StatCard(
-                            title: "time earned",
-                            value: "\(todayStats?.minutesEarned ?? 0)m",
-                            subtitle: "today",
-                            icon: "clock.fill",
-                            color: .accent
-                        )
+                    // Monitoring status
+                    monitoringPill
 
-                        StatCard(
-                            title: "streak",
-                            value: "\(streak)",
-                            subtitle: streak == 1 ? "day" : "days",
-                            icon: "flame.fill",
-                            color: .red
-                        )
-                    }
-                    .padding(.horizontal)
-
-                    // Recent history
+                    // Weekly history
                     if allStats.count > 1 {
                         recentHistory
                     }
                 }
-                .padding(.top, 8)
+                .padding(.top, 12)
             }
             .scrollContentBackground(.hidden)
             .background { FrostedBackground() }
@@ -93,45 +70,119 @@ struct DashboardView: View {
         }
     }
 
-    // MARK: - Hero Card
+    // MARK: - Hero
 
-    private var heroCard: some View {
-        VStack(spacing: 12) {
-            HStack {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("daily limit")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                    Text("\(budgetMinutes) min")
-                        .font(Theme.titleFont(size: 34))
-                }
-                Spacer()
-                CircularProgress(
-                    progress: min(1.0, Double(todayStats?.minutesEarned ?? 0) / Double(budgetMinutes)),
-                    label: "\(todayStats?.minutesEarned ?? 0)m"
-                )
-                .frame(width: 72, height: 72)
-            }
+    private var heroSection: some View {
+        VStack(spacing: 8) {
+            Text("\(todayStats?.minutesEarned ?? 0)")
+                .font(Theme.titleFont(size: 64))
+                .foregroundStyle(.primary)
 
-            // Status pill
-            HStack(spacing: 6) {
-                let monitoring = MonitoringManager.shared.isMonitoring
-                Circle()
-                    .fill(monitoring ? .green : .orange)
-                    .frame(width: 8, height: 8)
-                Text(monitoring ? "monitoring on" : "monitoring off")
+            Text("minutes earned today")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+
+            if budgetMinutes > 0 {
+                let earned = todayStats?.minutesEarned ?? 0
+                let remaining = max(0, budgetMinutes - earned)
+                Text(earned >= budgetMinutes ? "you've hit your limit — solve more to keep going" : "\(remaining) min until your apps get blocked")
                     .font(.caption)
-                    .foregroundStyle(.secondary)
-                Spacer()
+                    .foregroundStyle(earned >= budgetMinutes ? .orange : .secondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.top, 2)
             }
         }
-        .padding(20)
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 28)
+        .padding(.horizontal, 24)
         .background(Theme.cardBackground)
         .clipShape(RoundedRectangle(cornerRadius: 16))
         .padding(.horizontal)
     }
 
-    // MARK: - Recent History
+    // MARK: - CTA
+
+    private var practiceButton: some View {
+        Button {
+            goToPractice()
+        } label: {
+            HStack {
+                Text("solve problems")
+                    .fontWeight(.semibold)
+                Image(systemName: "arrow.right")
+            }
+            .font(.body)
+            .foregroundStyle(.white)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 14)
+            .background(.accent)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+        }
+        .padding(.horizontal)
+    }
+
+    // MARK: - Stats Row
+
+    private var statsRow: some View {
+        HStack(spacing: 12) {
+            miniStat(
+                value: "\(todayStats?.questionsCorrect ?? 0)/\(todayStats?.questionsAttempted ?? 0)",
+                label: "solved",
+                icon: "checkmark.circle.fill",
+                color: .green
+            )
+
+            miniStat(
+                value: String(format: "%.0f%%", (todayStats?.accuracy ?? 0) * 100),
+                label: "accuracy",
+                icon: "target",
+                color: .orange
+            )
+
+            miniStat(
+                value: "\(streak)",
+                label: streak == 1 ? "day" : "days",
+                icon: "flame.fill",
+                color: .red
+            )
+        }
+        .padding(.horizontal)
+    }
+
+    private func miniStat(value: String, label: String, icon: String, color: Color) -> some View {
+        VStack(spacing: 6) {
+            Image(systemName: icon)
+                .foregroundStyle(color)
+                .font(.caption)
+
+            Text(value)
+                .font(Theme.titleFont(size: 20))
+
+            Text(label)
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 14)
+        .background(Theme.cardBackground)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+
+    // MARK: - Monitoring
+
+    private var monitoringPill: some View {
+        HStack(spacing: 6) {
+            let monitoring = MonitoringManager.shared.isMonitoring
+            Circle()
+                .fill(monitoring ? .green : .orange)
+                .frame(width: 8, height: 8)
+            Text(monitoring ? "monitoring on" : "monitoring off")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    // MARK: - History
 
     private var recentHistory: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -163,6 +214,6 @@ struct DashboardView: View {
 }
 
 #Preview {
-    DashboardView()
+    DashboardView(goToPractice: {})
         .modelContainer(for: [QuestionAttempt.self, DailyStats.self, UserSettings.self], inMemory: true)
 }
