@@ -17,8 +17,7 @@ struct OnboardingView: View {
 
     var body: some View {
         ZStack {
-            Color(.systemBackground)
-                .ignoresSafeArea()
+            FrostedBackground()
 
             TabView(selection: $currentPage) {
                 welcomePage.tag(0)
@@ -40,11 +39,11 @@ struct OnboardingView: View {
 
             Image(systemName: "brain.head.profile")
                 .font(.system(size: 80))
-                .foregroundStyle(.blue)
+                .foregroundStyle(.accent)
                 .padding(.bottom, 8)
 
             Text("MathBlocker")
-                .font(.system(size: 38, weight: .bold, design: .rounded))
+                .font(.system(size: 38, weight: .bold, design: .serif))
 
             Text("trade math for screen time.\nsounds fair, right?")
                 .font(.title3)
@@ -73,7 +72,7 @@ struct OnboardingView: View {
 
                 stepRow(icon: "clock.badge.exclamationmark", color: .orange, title: "use up your time", subtitle: "apps get blocked when you go over")
 
-                stepRow(icon: "function", color: .blue, title: "do some math", subtitle: "answer questions to earn more time")
+                stepRow(icon: "function", color: .accent, title: "do some math", subtitle: "answer questions to earn more time")
 
                 stepRow(icon: "star.fill", color: .yellow, title: "level up", subtitle: "track your progress over time")
             }
@@ -94,7 +93,7 @@ struct OnboardingView: View {
 
             Image(systemName: "shield.checkered")
                 .font(.system(size: 60))
-                .foregroundStyle(.blue)
+                .foregroundStyle(.accent)
 
             Text("screen time access")
                 .font(.title)
@@ -132,7 +131,7 @@ struct OnboardingView: View {
                         .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 16)
-                        .background(.blue)
+                        .background(.accent)
                         .clipShape(RoundedRectangle(cornerRadius: 14))
                 }
 
@@ -185,7 +184,7 @@ struct OnboardingView: View {
                         .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 16)
-                        .background(.purple)
+                        .background(.accent.opacity(0.8))
                         .clipShape(RoundedRectangle(cornerRadius: 14))
                 }
                 .familyActivityPicker(
@@ -253,7 +252,7 @@ struct OnboardingView: View {
                     .foregroundStyle(.white)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 16)
-                    .background(.blue)
+                    .background(.accent)
                     .clipShape(RoundedRectangle(cornerRadius: 14))
             }
         }
@@ -271,7 +270,7 @@ struct OnboardingView: View {
                 .foregroundStyle(.white)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 16)
-                .background(.blue)
+                .background(.accent)
                 .clipShape(RoundedRectangle(cornerRadius: 14))
         }
     }
@@ -296,7 +295,7 @@ struct OnboardingView: View {
     private func featureRow(icon: String, text: String) -> some View {
         HStack(spacing: 12) {
             Image(systemName: icon)
-                .foregroundStyle(.blue)
+                .foregroundStyle(.accent)
                 .frame(width: 28)
             Text(text)
                 .font(.subheadline)

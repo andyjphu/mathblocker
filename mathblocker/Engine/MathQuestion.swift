@@ -7,6 +7,8 @@
 
 import Foundation
 
+/// A single math question with multiple-choice answers.
+/// Used by both the bundled question bank and the procedural generator.
 nonisolated struct MathQuestion: Identifiable, Sendable {
     let id = UUID()
     let text: String

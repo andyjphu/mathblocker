@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// JSON-decodable question from the bundled questions.json dataset.
 struct BundledQuestion: Codable, Sendable {
     let question: String
     let choices: [String]
@@ -16,6 +17,8 @@ struct BundledQuestion: Codable, Sendable {
     let source: String
 }
 
+/// Thread-safe store of bundled math questions loaded from questions.json.
+/// Pre-indexes by difficulty for fast random selection.
 actor QuestionBank {
     static let shared = QuestionBank()
 

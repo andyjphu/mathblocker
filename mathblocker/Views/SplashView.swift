@@ -14,8 +14,7 @@ struct SplashView: View {
 
     var body: some View {
         ZStack {
-            Color(.systemBackground)
-                .ignoresSafeArea()
+            FrostedBackground()
 
             VStack(spacing: 28) {
                 Spacer()
@@ -31,11 +30,11 @@ struct SplashView: View {
                 } else {
                     Image(systemName: "brain.head.profile")
                         .font(.system(size: 72))
-                        .foregroundStyle(.blue)
+                        .foregroundStyle(.accent)
                 }
 
                 Text("MathBlocker")
-                    .font(.system(size: 32, weight: .bold, design: .rounded))
+                    .font(.system(size: 32, weight: .bold, design: .serif))
 
                 Spacer()
 
@@ -43,7 +42,7 @@ struct SplashView: View {
                 VStack(spacing: 10) {
                     ProgressView(value: progress)
                         .progressViewStyle(.linear)
-                        .tint(.blue)
+                        .tint(.accent)
                         .frame(width: 200)
 
                     Text(progress < 1.0 ? "loading..." : "ready")
@@ -64,9 +63,10 @@ struct SplashView: View {
             progress = 0.3
         }
 
-        // Load the question bank
+        // Load question bank and rationales
         let bank = QuestionBank.shared
         await bank.load()
+        await RationaleBank.shared.load()
 
         // Animate to 100%
         withAnimation(.easeOut(duration: 0.3)) {

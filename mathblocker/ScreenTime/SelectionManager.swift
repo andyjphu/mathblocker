@@ -8,6 +8,8 @@
 import FamilyControls
 import Foundation
 
+/// Persists the user's FamilyActivitySelection (which apps to block)
+/// to the shared app group so extensions can read it.
 @Observable
 class SelectionManager {
     static let shared = SelectionManager()

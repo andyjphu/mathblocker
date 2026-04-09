@@ -7,7 +7,6 @@
 
 import SwiftUI
 import SwiftData
-import DeviceActivity
 import FamilyControls
 
 struct SettingsView: View {
@@ -32,26 +31,34 @@ struct SettingsView: View {
             List {
                 // Screen Time section
                 screenTimeSection
+                    .listRowBackground(Theme.cardBackground)
 
                 // Time settings
                 timeSection
+                    .listRowBackground(Theme.cardBackground)
 
                 // Difficulty
                 difficultySection
+                    .listRowBackground(Theme.cardBackground)
 
                 // Data
                 dataSection
+                    .listRowBackground(Theme.cardBackground)
 
                 // Debug
-                debugSection
+                DebugSection()
+                    .listRowBackground(Theme.cardBackground)
             }
+            .scrollContentBackground(.hidden)
+            .background { FrostedBackground(image: "olive-mountain") }
+            .toolbarBackground(.hidden, for: .navigationBar)
             .navigationTitle("Settings")
-            .confirmationDialog("Reset all stats?", isPresented: $showingResetConfirmation, titleVisibility: .visible) {
-                Button("Reset", role: .destructive) { resetStats() }
-                Button("Cancel", role: .cancel) {}
-            } message: {
-                Text("this wipes all your stats and history. no undo.")
-            }
+        }
+        .confirmationDialog("Reset all stats?", isPresented: $showingResetConfirmation, titleVisibility: .visible) {
+            Button("Reset", role: .destructive) { resetStats() }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("this wipes all your stats and history. no undo.")
         }
     }
 
@@ -148,7 +155,7 @@ struct SettingsView: View {
 
             Stepper(value: Bindable(currentSettings).minutesPerCorrectAnswer, in: 0...10) {
                 HStack {
-                    Label("Per Correct Answer", systemImage: "plus.circle")
+                    Label("Per Right Answer", systemImage: "plus.circle")
                     Spacer()
                     Text("\(currentSettings.minutesPerCorrectAnswer) min")
                         .foregroundStyle(.secondary)
@@ -200,31 +207,6 @@ struct SettingsView: View {
         }
     }
 
-    private var debugSection: some View {
-        Section {
-            let log = AppGroupConstants.sharedDefaults?.string(forKey: "extensionLog") ?? "No logs yet"
-            let selection = AppGroupConstants.sharedDefaults?.data(forKey: AppGroupConstants.selectionKey)
-            let budget = AppGroupConstants.sharedDefaults?.integer(forKey: AppGroupConstants.budgetMinutesKey) ?? -1
-
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Monitoring: \(monitoringManager.isMonitoring ? "ON" : "OFF")")
-                Text("Budget in AppGroup: \(budget) min")
-                Text("Selection saved: \(selection != nil ? "Yes (\(selection!.count) bytes)" : "No")")
-                Text("Activities: \(DeviceActivityCenter().activities.map(\.rawValue).joined(separator: ", ").isEmpty ? "none" : DeviceActivityCenter().activities.map(\.rawValue).joined(separator: ", "))")
-            }
-            .font(.caption)
-
-            Text(log)
-                .font(.caption2)
-                .foregroundStyle(.secondary)
-
-            Button("Clear Log") {
-                AppGroupConstants.sharedDefaults?.removeObject(forKey: "extensionLog")
-            }
-        } header: {
-            Text("Debug")
-        }
-    }
 
     private func resetStats() {
         try? modelContext.delete(model: QuestionAttempt.self)

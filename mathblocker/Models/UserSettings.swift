@@ -8,6 +8,8 @@
 import Foundation
 import SwiftData
 
+/// User-configurable preferences — daily time budget, difficulty,
+/// questions per session, and monitoring state. Stored via SwiftData.
 @Model
 final class UserSettings {
     var dailyTimeBudgetMinutes: Int

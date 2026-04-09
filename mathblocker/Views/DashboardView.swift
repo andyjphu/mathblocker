@@ -66,7 +66,7 @@ struct DashboardView: View {
                             value: "\(todayStats?.minutesEarned ?? 0)m",
                             subtitle: "today",
                             icon: "clock.fill",
-                            color: .blue
+                            color: .accent
                         )
 
                         StatCard(
@@ -86,7 +86,9 @@ struct DashboardView: View {
                 }
                 .padding(.top, 8)
             }
-            .background(Color(.systemGroupedBackground))
+            .scrollContentBackground(.hidden)
+            .background { FrostedBackground() }
+            .toolbarBackground(.hidden, for: .navigationBar)
             .navigationTitle("MathBlocker")
         }
     }
@@ -101,7 +103,7 @@ struct DashboardView: View {
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                     Text("\(budgetMinutes) min")
-                        .font(.system(size: 34, weight: .bold, design: .rounded))
+                        .font(.system(size: 34, weight: .bold, design: .serif))
                 }
                 Spacer()
                 CircularProgress(
@@ -124,7 +126,7 @@ struct DashboardView: View {
             }
         }
         .padding(20)
-        .background(.regularMaterial)
+        .background(Theme.cardBackground)
         .clipShape(RoundedRectangle(cornerRadius: 16))
         .padding(.horizontal)
     }
@@ -154,71 +156,9 @@ struct DashboardView: View {
             }
         }
         .padding(.vertical, 16)
-        .background(.regularMaterial)
+        .background(Theme.cardBackground)
         .clipShape(RoundedRectangle(cornerRadius: 16))
         .padding(.horizontal)
-    }
-}
-
-// MARK: - Stat Card
-
-struct StatCard: View {
-    let title: String
-    let value: String
-    let subtitle: String
-    let icon: String
-    let color: Color
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Image(systemName: icon)
-                    .foregroundStyle(color)
-                    .font(.subheadline)
-                Spacer()
-            }
-
-            Text(value)
-                .font(.system(size: 28, weight: .bold, design: .rounded))
-
-            Text(title)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-
-            Text(subtitle)
-                .font(.caption2)
-                .foregroundStyle(.tertiary)
-        }
-        .padding(16)
-        .background(.regularMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 14))
-    }
-}
-
-// MARK: - Circular Progress
-
-struct CircularProgress: View {
-    let progress: Double
-    let label: String
-
-    var body: some View {
-        ZStack {
-            Circle()
-                .stroke(.quaternary, lineWidth: 6)
-
-            Circle()
-                .trim(from: 0, to: progress)
-                .stroke(
-                    progress >= 1.0 ? Color.green : Color.blue,
-                    style: StrokeStyle(lineWidth: 6, lineCap: .round)
-                )
-                .rotationEffect(.degrees(-90))
-                .animation(.spring, value: progress)
-
-            Text(label)
-                .font(.caption)
-                .fontWeight(.bold)
-        }
     }
 }
 

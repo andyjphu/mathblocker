@@ -7,6 +7,8 @@
 
 import Foundation
 
+/// Thread-safe store of answer explanations loaded from rationales.json.
+/// Keyed by global question index.
 actor RationaleBank {
     static let shared = RationaleBank()
 

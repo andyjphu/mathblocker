@@ -8,6 +8,8 @@
 import Foundation
 import SwiftData
 
+/// Aggregated stats for a single calendar day — questions attempted,
+/// correct answers, and screen time earned/used.
 @Model
 final class DailyStats {
     var date: Date

@@ -8,6 +8,8 @@
 import FamilyControls
 import SwiftUI
 
+/// Manages Family Controls authorization state.
+/// Wraps AuthorizationCenter and exposes reactive status for the UI.
 @Observable
 class AuthorizationManager {
     static let shared = AuthorizationManager()

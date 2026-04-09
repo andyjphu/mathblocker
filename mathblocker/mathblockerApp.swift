@@ -26,8 +26,6 @@ struct mathblockerApp: App {
     }()
 
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
-    @Environment(\.scenePhase) private var scenePhase
-    @State private var showUnlockChallenge = false
     @State private var showSplash = true
 
     var body: some Scene {
@@ -40,17 +38,6 @@ struct mathblockerApp: App {
                 }
             } else if hasCompletedOnboarding {
                 MainTabView()
-                    .sheet(isPresented: $showUnlockChallenge) {
-                        UnlockChallengeView()
-                    }
-                    .onAppear {
-                        checkForShields()
-                    }
-                    .onChange(of: scenePhase) { _, newPhase in
-                        if newPhase == .active {
-                            checkForShields()
-                        }
-                    }
                     .transition(.opacity)
             } else {
                 OnboardingView()
@@ -60,9 +47,4 @@ struct mathblockerApp: App {
         .modelContainer(sharedModelContainer)
     }
 
-    private func checkForShields() {
-        if ShieldManager.shared.shieldsAreActive && !showUnlockChallenge {
-            showUnlockChallenge = true
-        }
-    }
 }

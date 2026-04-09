@@ -18,7 +18,7 @@ class ShieldActionExtension: ShieldActionDelegate {
         switch action {
         case .primaryButtonPressed:
             signalUnlockRequest()
-            completionHandler(.defer)
+            completionHandler(.close)
         case .secondaryButtonPressed:
             completionHandler(.none)
         @unknown default:
@@ -32,7 +32,7 @@ class ShieldActionExtension: ShieldActionDelegate {
         switch action {
         case .primaryButtonPressed:
             signalUnlockRequest()
-            completionHandler(.defer)
+            completionHandler(.close)
         case .secondaryButtonPressed:
             completionHandler(.none)
         @unknown default:
@@ -46,7 +46,7 @@ class ShieldActionExtension: ShieldActionDelegate {
         switch action {
         case .primaryButtonPressed:
             signalUnlockRequest()
-            completionHandler(.defer)
+            completionHandler(.close)
         case .secondaryButtonPressed:
             completionHandler(.none)
         @unknown default:

@@ -9,6 +9,9 @@ import DeviceActivity
 import FamilyControls
 import Foundation
 
+/// Starts and stops DeviceActivity monitoring schedules.
+/// When the user exceeds their daily time budget, the system triggers
+/// the dame extension which applies shields.
 @Observable
 class MonitoringManager {
     static let shared = MonitoringManager()

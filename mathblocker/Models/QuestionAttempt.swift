@@ -8,6 +8,8 @@
 import Foundation
 import SwiftData
 
+/// A single recorded answer — what the user picked, whether it was right,
+/// and how long they spent. Used for history and analytics.
 @Model
 final class QuestionAttempt {
     var question: String

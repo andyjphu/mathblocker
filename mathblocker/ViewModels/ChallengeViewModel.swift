@@ -1,0 +1,161 @@
+//
+//  ChallengeViewModel.swift
+//  mathblocker
+//
+//  Created by Andy Phu on 4/9/26.
+//
+
+import SwiftUI
+import SwiftData
+
+/// Manages state for a math challenge session — question progression,
+/// scoring, timing, and persistence of results to SwiftData.
+@Observable
+class ChallengeViewModel {
+    var questions: [MathQuestion] = []
+    var currentIndex = 0
+    var selectedAnswer: Int?
+    var results: [Bool] = []
+    var sessionComplete = false
+    var elapsedSeconds: Double = 0
+    var score = 0
+    var minutesPerCorrect = 2
+    var currentRationale: String?
+
+    /// Total screen time earned this session based on correct answers.
+    var minutesEarned: Int { score * minutesPerCorrect }
+
+    private var timer: Timer?
+    private var questionStartTime: Date = .now
+
+    var currentQuestion: MathQuestion? {
+        guard currentIndex < questions.count else { return nil }
+        return questions[currentIndex]
+    }
+
+    var formattedTime: String {
+        let mins = Int(elapsedSeconds) / 60
+        let secs = Int(elapsedSeconds) % 60
+        return String(format: "%d:%02d", mins, secs)
+    }
+
+    deinit {
+        timer?.invalidate()
+    }
+
+    /// Starts a new session by loading questions from the bank (with procedural fallback)
+    /// and resetting all state.
+    func startSession(difficulty: Int = 1, count: Int = 5) {
+        let task = Task {
+            let bank = QuestionBank.shared
+            await bank.load()
+            return await bank.randomQuestions(difficulty: difficulty, count: count)
+        }
+        // Procedural fallback while bank loads
+        questions = QuestionGenerator.generate(difficulty: difficulty, count: count)
+        Task { @MainActor in
+            let bankQuestions = await task.value
+            if !bankQuestions.isEmpty && self.currentIndex == 0 && self.selectedAnswer == nil {
+                self.questions = bankQuestions
+            }
+        }
+        currentIndex = 0
+        selectedAnswer = nil
+        results = []
+        sessionComplete = false
+        score = 0
+        elapsedSeconds = 0
+        questionStartTime = .now
+
+        timer?.invalidate()
+        timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
+            self?.elapsedSeconds += 1
+        }
+    }
+
+    /// Returns the visual state for a given choice index based on the current answer.
+    func choiceState(for index: Int) -> ChoiceState {
+        guard let selected = selectedAnswer, let question = currentQuestion else { return .neutral }
+        if index == question.correctAnswerIndex { return .correct }
+        if index == selected { return .incorrect }
+        return .dimmed
+    }
+
+    /// Records the user's answer, updates score, triggers haptics,
+    /// and loads the rationale asynchronously.
+    func selectAnswer(_ index: Int) {
+        guard selectedAnswer == nil, let question = currentQuestion else { return }
+        selectedAnswer = index
+        let correct = index == question.correctAnswerIndex
+        results.append(correct)
+        if correct {
+            score += 1
+            Haptics.correct()
+        } else {
+            Haptics.incorrect()
+        }
+
+        if let globalIdx = question.globalIndex {
+            Task { @MainActor in
+                self.currentRationale = await RationaleBank.shared.rationale(forIndex: globalIdx)
+            }
+        }
+    }
+
+    /// Persists the current question attempt and advances to the next question,
+    /// or completes the session if all questions are answered.
+    func advance(modelContext: ModelContext) {
+        guard let question = currentQuestion else { return }
+
+        let timeSpent = Date.now.timeIntervalSince(questionStartTime)
+        let attempt = QuestionAttempt(
+            question: question.text,
+            correctAnswer: question.correctAnswer,
+            userAnswer: question.choices[selectedAnswer ?? 0],
+            isCorrect: results.last ?? false,
+            difficulty: question.difficulty,
+            topic: question.topic,
+            timeSpentSeconds: timeSpent
+        )
+        modelContext.insert(attempt)
+
+        selectedAnswer = nil
+        currentRationale = nil
+        currentIndex += 1
+        questionStartTime = .now
+
+        if currentIndex >= questions.count {
+            sessionComplete = true
+            timer?.invalidate()
+            recordDailyStats(modelContext: modelContext)
+        }
+    }
+
+    private func recordDailyStats(modelContext: ModelContext) {
+        let today = Calendar.current.startOfDay(for: .now)
+        let descriptor = FetchDescriptor<DailyStats>(
+            predicate: #Predicate { $0.date == today }
+        )
+
+        let existing = try? modelContext.fetch(descriptor).first
+
+        if let stats = existing {
+            stats.questionsAttempted += questions.count
+            stats.questionsCorrect += score
+            stats.minutesEarned += minutesEarned
+        } else {
+            let stats = DailyStats(
+                date: .now,
+                questionsAttempted: questions.count,
+                questionsCorrect: score,
+                minutesEarned: minutesEarned
+            )
+            modelContext.insert(stats)
+        }
+    }
+}
+
+/// Visual state of a multiple-choice answer button.
+enum ChoiceState {
+    case neutral, correct, incorrect, dimmed
+}

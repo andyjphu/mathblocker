@@ -9,6 +9,8 @@ import Foundation
 import ManagedSettings
 import FamilyControls
 
+/// Applies and removes ManagedSettings shields on user-selected apps.
+/// Shields block app access until the user solves math problems.
 class ShieldManager {
     static let shared = ShieldManager()
 
@@ -38,17 +40,4 @@ class ShieldManager {
         store.shield.applications != nil || store.shield.applicationCategories != nil
     }
 
-    func applyShieldsFromAppGroup() {
-        guard let defaults = AppGroupConstants.sharedDefaults,
-              let data = defaults.data(forKey: AppGroupConstants.selectionKey),
-              let selection = try? JSONDecoder().decode(FamilyActivitySelection.self, from: data)
-        else { return }
-
-        if !selection.applicationTokens.isEmpty {
-            store.shield.applications = selection.applicationTokens
-        }
-        if !selection.categoryTokens.isEmpty {
-            store.shield.applicationCategories = .specific(selection.categoryTokens)
-        }
-    }
 }

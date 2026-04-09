@@ -11,14 +11,14 @@ import SwiftData
 struct MainTabView: View {
     var body: some View {
         TabView {
-            DashboardView()
-                .tabItem {
-                    Label("Dashboard", systemImage: "chart.bar.fill")
-                }
-
             MathChallengeView()
                 .tabItem {
                     Label("Practice", systemImage: "brain.head.profile")
+                }
+
+            DashboardView()
+                .tabItem {
+                    Label("Dashboard", systemImage: "chart.bar.fill")
                 }
 
             SettingsView()
@@ -27,6 +27,8 @@ struct MainTabView: View {
                 }
         }
         .tint(.accentColor)
+        .fontDesign(.serif)
+        .preferredColorScheme(.light)
     }
 }
 
