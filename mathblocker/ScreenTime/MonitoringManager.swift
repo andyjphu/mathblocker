@@ -15,7 +15,10 @@ class MonitoringManager {
 
     private let center = DeviceActivityCenter()
 
-    var isMonitoring = false
+    var isMonitoring: Bool {
+        get { AppGroupConstants.sharedDefaults?.bool(forKey: "isMonitoring") ?? false }
+        set { AppGroupConstants.sharedDefaults?.set(newValue, forKey: "isMonitoring") }
+    }
 
     func startMonitoring(budgetMinutes: Int) {
         let selection = SelectionManager.shared.selection

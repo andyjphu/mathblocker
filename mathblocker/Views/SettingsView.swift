@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import DeviceActivity
 import FamilyControls
 
 struct SettingsView: View {
@@ -40,6 +41,9 @@ struct SettingsView: View {
 
                 // Data
                 dataSection
+
+                // Debug
+                debugSection
             }
             .navigationTitle("Settings")
             .confirmationDialog("Reset all stats?", isPresented: $showingResetConfirmation, titleVisibility: .visible) {
@@ -133,7 +137,7 @@ struct SettingsView: View {
 
     private var timeSection: some View {
         Section {
-            Stepper(value: Bindable(currentSettings).dailyTimeBudgetMinutes, in: 5...120, step: 5) {
+            Stepper(value: Bindable(currentSettings).dailyTimeBudgetMinutes, in: 0...120, step: 5) {
                 HStack {
                     Label("Daily Budget", systemImage: "clock")
                     Spacer()
@@ -142,7 +146,7 @@ struct SettingsView: View {
                 }
             }
 
-            Stepper(value: Bindable(currentSettings).minutesPerCorrectAnswer, in: 1...10) {
+            Stepper(value: Bindable(currentSettings).minutesPerCorrectAnswer, in: 0...10) {
                 HStack {
                     Label("Per Correct Answer", systemImage: "plus.circle")
                     Spacer()
@@ -193,6 +197,32 @@ struct SettingsView: View {
             }
         } header: {
             Text("Data")
+        }
+    }
+
+    private var debugSection: some View {
+        Section {
+            let log = AppGroupConstants.sharedDefaults?.string(forKey: "extensionLog") ?? "No logs yet"
+            let selection = AppGroupConstants.sharedDefaults?.data(forKey: AppGroupConstants.selectionKey)
+            let budget = AppGroupConstants.sharedDefaults?.integer(forKey: AppGroupConstants.budgetMinutesKey) ?? -1
+
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Monitoring: \(monitoringManager.isMonitoring ? "ON" : "OFF")")
+                Text("Budget in AppGroup: \(budget) min")
+                Text("Selection saved: \(selection != nil ? "Yes (\(selection!.count) bytes)" : "No")")
+                Text("Activities: \(DeviceActivityCenter().activities.map(\.rawValue).joined(separator: ", ").isEmpty ? "none" : DeviceActivityCenter().activities.map(\.rawValue).joined(separator: ", "))")
+            }
+            .font(.caption)
+
+            Text(log)
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+
+            Button("Clear Log") {
+                AppGroupConstants.sharedDefaults?.removeObject(forKey: "extensionLog")
+            }
+        } header: {
+            Text("Debug")
         }
     }
 

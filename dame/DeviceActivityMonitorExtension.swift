@@ -19,18 +19,28 @@ class DeviceActivityMonitorExtension: DeviceActivityMonitor {
     private let suiteName = "group.andyjphu.mathblocker"
     private let selectionKey = "activitySelection"
 
+    private func log(_ message: String) {
+        let defaults = UserDefaults(suiteName: suiteName)
+        let existing = defaults?.string(forKey: "extensionLog") ?? ""
+        let timestamp = ISO8601DateFormatter().string(from: Date())
+        defaults?.set(existing + "\n[\(timestamp)] \(message)", forKey: "extensionLog")
+    }
+
     override func intervalDidStart(for activity: DeviceActivityName) {
         super.intervalDidStart(for: activity)
+        log("intervalDidStart: \(activity.rawValue)")
     }
 
     override func intervalDidEnd(for activity: DeviceActivityName) {
         super.intervalDidEnd(for: activity)
+        log("intervalDidEnd: \(activity.rawValue)")
         store.clearAllSettings()
     }
 
     override func eventDidReachThreshold(_ event: DeviceActivityEvent.Name,
                                           activity: DeviceActivityName) {
         super.eventDidReachThreshold(event, activity: activity)
+        log("eventDidReachThreshold: \(event.rawValue)")
         applyShields()
     }
 
