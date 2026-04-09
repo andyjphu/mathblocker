@@ -46,7 +46,7 @@ struct DashboardView: View {
                     // Stats grid
                     LazyVGrid(columns: [.init(.flexible()), .init(.flexible())], spacing: 14) {
                         StatCard(
-                            title: "Solved Today",
+                            title: "solved today",
                             value: "\(todayStats?.questionsCorrect ?? 0)",
                             subtitle: "of \(todayStats?.questionsAttempted ?? 0) attempted",
                             icon: "checkmark.circle.fill",
@@ -54,7 +54,7 @@ struct DashboardView: View {
                         )
 
                         StatCard(
-                            title: "Accuracy",
+                            title: "accuracy",
                             value: String(format: "%.0f%%", (todayStats?.accuracy ?? 0) * 100),
                             subtitle: "today",
                             icon: "target",
@@ -62,7 +62,7 @@ struct DashboardView: View {
                         )
 
                         StatCard(
-                            title: "Time Earned",
+                            title: "time earned",
                             value: "\(todayStats?.minutesEarned ?? 0)m",
                             subtitle: "today",
                             icon: "clock.fill",
@@ -70,7 +70,7 @@ struct DashboardView: View {
                         )
 
                         StatCard(
-                            title: "Streak",
+                            title: "streak",
                             value: "\(streak)",
                             subtitle: streak == 1 ? "day" : "days",
                             icon: "flame.fill",
@@ -97,7 +97,7 @@ struct DashboardView: View {
         VStack(spacing: 12) {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Daily Budget")
+                    Text("daily limit")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                     Text("\(budgetMinutes) min")
@@ -117,7 +117,7 @@ struct DashboardView: View {
                 Circle()
                     .fill(monitoring ? .green : .orange)
                     .frame(width: 8, height: 8)
-                Text(monitoring ? "Monitoring active" : "Monitoring off")
+                Text(monitoring ? "monitoring on" : "monitoring off")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                 Spacer()
@@ -133,7 +133,7 @@ struct DashboardView: View {
 
     private var recentHistory: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("This Week")
+            Text("this week")
                 .font(.headline)
                 .padding(.horizontal)
 

@@ -26,6 +26,7 @@ struct mathblockerApp: App {
     }()
 
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
+    @Environment(\.scenePhase) private var scenePhase
     @State private var showUnlockChallenge = false
     @State private var showSplash = true
 
@@ -42,13 +43,13 @@ struct mathblockerApp: App {
                     .sheet(isPresented: $showUnlockChallenge) {
                         UnlockChallengeView()
                     }
-                    .onOpenURL { url in
-                        if url.scheme == AppGroupConstants.urlScheme && url.host == "unlock" {
-                            showUnlockChallenge = true
-                        }
-                    }
                     .onAppear {
-                        checkForUnlockRequest()
+                        checkForShields()
+                    }
+                    .onChange(of: scenePhase) { _, newPhase in
+                        if newPhase == .active {
+                            checkForShields()
+                        }
                     }
                     .transition(.opacity)
             } else {
@@ -59,15 +60,9 @@ struct mathblockerApp: App {
         .modelContainer(sharedModelContainer)
     }
 
-    private func checkForUnlockRequest() {
-        guard let defaults = AppGroupConstants.sharedDefaults,
-              let timestamp = defaults.object(forKey: "unlockRequestTimestamp") as? Double
-        else { return }
-
-        let requestDate = Date(timeIntervalSince1970: timestamp)
-        if Date.now.timeIntervalSince(requestDate) < 30 {
+    private func checkForShields() {
+        if ShieldManager.shared.shieldsAreActive && !showUnlockChallenge {
             showUnlockChallenge = true
-            defaults.removeObject(forKey: "unlockRequestTimestamp")
         }
     }
 }

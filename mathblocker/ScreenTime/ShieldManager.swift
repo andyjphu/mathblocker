@@ -34,6 +34,10 @@ class ShieldManager {
         store.clearAllSettings()
     }
 
+    var shieldsAreActive: Bool {
+        store.shield.applications != nil || store.shield.applicationCategories != nil
+    }
+
     func applyShieldsFromAppGroup() {
         guard let defaults = AppGroupConstants.sharedDefaults,
               let data = defaults.data(forKey: AppGroupConstants.selectionKey),

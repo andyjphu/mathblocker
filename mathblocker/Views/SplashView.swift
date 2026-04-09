@@ -46,7 +46,7 @@ struct SplashView: View {
                         .tint(.blue)
                         .frame(width: 200)
 
-                    Text(progress < 1.0 ? "Loading questions..." : "Ready!")
+                    Text(progress < 1.0 ? "loading..." : "ready")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }

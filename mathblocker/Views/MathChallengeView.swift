@@ -153,7 +153,7 @@ struct MathChallengeView: View {
                 .foregroundStyle(viewModel.score == viewModel.questions.count ? .yellow : .green)
                 .symbolEffect(.bounce, value: viewModel.sessionComplete)
 
-            Text(viewModel.score == viewModel.questions.count ? "Perfect!" : "Session Complete")
+            Text(viewModel.score == viewModel.questions.count ? "nice, perfect" : "done")
                 .font(.largeTitle)
                 .fontWeight(.bold)
 
@@ -163,7 +163,7 @@ struct MathChallengeView: View {
 
             let earned = viewModel.minutesEarned
             if earned > 0 {
-                Text("+\(earned) minutes earned")
+                Text("+\(earned) min earned")
                     .font(.headline)
                     .foregroundStyle(.blue)
                     .padding(.horizontal, 20)
@@ -179,7 +179,7 @@ struct MathChallengeView: View {
                     Button {
                         onUnlock?(earned)
                     } label: {
-                        Text("Unlock Apps (\(earned) min)")
+                        Text("unlock apps (\(earned) min)")
                             .font(.headline)
                             .foregroundStyle(.white)
                             .frame(maxWidth: .infinity)
@@ -196,7 +196,7 @@ struct MathChallengeView: View {
                         viewModel.startSession(difficulty: diff, count: count)
                     }
                 } label: {
-                    Text("New Session")
+                    Text("go again")
                         .font(.headline)
                         .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)

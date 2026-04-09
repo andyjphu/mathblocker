@@ -46,7 +46,7 @@ struct OnboardingView: View {
             Text("MathBlocker")
                 .font(.system(size: 38, weight: .bold, design: .rounded))
 
-            Text("Earn your screen time\nby sharpening your mind.")
+            Text("trade math for screen time.\nsounds fair, right?")
                 .font(.title3)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
@@ -64,18 +64,18 @@ struct OnboardingView: View {
         VStack(spacing: 32) {
             Spacer()
 
-            Text("How It Works")
+            Text("how it works")
                 .font(.title)
                 .fontWeight(.bold)
 
             VStack(alignment: .leading, spacing: 24) {
-                stepRow(icon: "apps.iphone", color: .purple, title: "Choose apps to limit", subtitle: "Pick which apps get blocked after your daily budget")
+                stepRow(icon: "apps.iphone", color: .purple, title: "pick your apps", subtitle: "choose which apps to limit")
 
-                stepRow(icon: "clock.badge.exclamationmark", color: .orange, title: "Hit your time limit", subtitle: "A shield blocks those apps when time runs out")
+                stepRow(icon: "clock.badge.exclamationmark", color: .orange, title: "use up your time", subtitle: "apps get blocked when you go over")
 
-                stepRow(icon: "function", color: .blue, title: "Solve to unlock", subtitle: "Answer math questions to earn more time")
+                stepRow(icon: "function", color: .blue, title: "do some math", subtitle: "answer questions to earn more time")
 
-                stepRow(icon: "star.fill", color: .yellow, title: "Get smarter", subtitle: "Track your streak and watch your skills grow")
+                stepRow(icon: "star.fill", color: .yellow, title: "level up", subtitle: "track your progress over time")
             }
             .padding(.horizontal, 8)
 
@@ -96,11 +96,11 @@ struct OnboardingView: View {
                 .font(.system(size: 60))
                 .foregroundStyle(.blue)
 
-            Text("Screen Time Access")
+            Text("screen time access")
                 .font(.title)
                 .fontWeight(.bold)
 
-            Text("MathBlocker needs Screen Time permission to monitor app usage and block distracting apps.")
+            Text("we need Screen Time permission to track usage and block apps when you're over your limit")
                 .font(.body)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
@@ -158,11 +158,11 @@ struct OnboardingView: View {
                 .font(.system(size: 60))
                 .foregroundStyle(.purple)
 
-            Text("Choose Apps to Block")
+            Text("pick your apps")
                 .font(.title)
                 .fontWeight(.bold)
 
-            Text("Select which apps should be blocked after your daily time budget runs out.")
+            Text("these are the apps that get blocked once you hit your daily limit")
                 .font(.body)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
@@ -221,19 +221,19 @@ struct OnboardingView: View {
                 .font(.system(size: 80))
                 .foregroundStyle(.green)
 
-            Text("You're Ready")
+            Text("you're good to go")
                 .font(.title)
                 .fontWeight(.bold)
 
-            Text("Start solving math problems to earn screen time. You can adjust everything in Settings anytime.")
+            Text("everything's set up. you can tweak it all in settings whenever.")
                 .font(.body)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 16)
 
             VStack(alignment: .leading, spacing: 12) {
-                featureRow(icon: "lock.shield", text: "Set a Screen Time Passcode for best protection")
-                featureRow(icon: "hand.raised.fill", text: "You control everything — change anytime")
+                featureRow(icon: "lock.shield", text: "set a Screen Time passcode for extra protection")
+                featureRow(icon: "hand.raised.fill", text: "you're in control — change anything anytime")
             }
             .padding(.top, 8)
 
@@ -248,7 +248,7 @@ struct OnboardingView: View {
                     hasCompletedOnboarding = true
                 }
             } label: {
-                Text("Get Started")
+                Text("let's go")
                     .font(.headline)
                     .foregroundStyle(.white)
                     .frame(maxWidth: .infinity)

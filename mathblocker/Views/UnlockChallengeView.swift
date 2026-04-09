@@ -20,7 +20,7 @@ struct UnlockChallengeView: View {
             MathChallengeView(onUnlock: { minutesEarned in
                 handleUnlock(minutes: minutesEarned)
             })
-            .navigationTitle("Unlock Challenge")
+            .navigationTitle("unlock")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {

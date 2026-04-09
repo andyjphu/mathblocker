@@ -50,7 +50,7 @@ struct SettingsView: View {
                 Button("Reset", role: .destructive) { resetStats() }
                 Button("Cancel", role: .cancel) {}
             } message: {
-                Text("This will delete all question history and daily stats. This cannot be undone.")
+                Text("this wipes all your stats and history. no undo.")
             }
         }
     }
@@ -124,11 +124,11 @@ struct SettingsView: View {
             Text("App Blocking")
         } footer: {
             if !authManager.isAuthorized {
-                Text("Authorize Screen Time access to select apps to block and enable monitoring.")
+                Text("authorize Screen Time to get started")
             } else if !selectionManager.hasSelection {
-                Text("Choose which apps to block when your daily time budget runs out.")
+                Text("pick which apps get blocked when you go over your limit")
             } else if !monitoringManager.isMonitoring {
-                Text("Enable monitoring to start tracking usage and blocking apps after your budget is hit.")
+                Text("turn on monitoring to start tracking and blocking")
             }
         }
     }
