@@ -43,7 +43,7 @@ struct OnboardingView: View {
                 .padding(.bottom, 8)
 
             Text("MathBlocker")
-                .font(.system(size: 38, weight: .bold, design: .serif))
+                .font(Theme.titleFont(size: 38))
 
             Text("trade math for screen time.\nsounds fair, right?")
                 .font(.title3)
@@ -64,8 +64,7 @@ struct OnboardingView: View {
             Spacer()
 
             Text("how it works")
-                .font(.title)
-                .fontWeight(.bold)
+                .font(Theme.titleFont(size: 28))
 
             VStack(alignment: .leading, spacing: 24) {
                 stepRow(icon: "apps.iphone", color: .purple, title: "pick your apps", subtitle: "choose which apps to limit")
@@ -96,8 +95,7 @@ struct OnboardingView: View {
                 .foregroundStyle(.accent)
 
             Text("screen time access")
-                .font(.title)
-                .fontWeight(.bold)
+                .font(Theme.titleFont(size: 28))
 
             Text("we need Screen Time permission to track usage and block apps when you're over your limit")
                 .font(.body)
@@ -158,8 +156,7 @@ struct OnboardingView: View {
                 .foregroundStyle(.purple)
 
             Text("pick your apps")
-                .font(.title)
-                .fontWeight(.bold)
+                .font(Theme.titleFont(size: 28))
 
             Text("these are the apps that get blocked once you hit your daily limit")
                 .font(.body)
@@ -221,8 +218,7 @@ struct OnboardingView: View {
                 .foregroundStyle(.green)
 
             Text("you're good to go")
-                .font(.title)
-                .fontWeight(.bold)
+                .font(Theme.titleFont(size: 28))
 
             Text("everything's set up. you can tweak it all in settings whenever.")
                 .font(.body)

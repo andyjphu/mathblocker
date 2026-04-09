@@ -26,7 +26,7 @@ struct StatCard: View {
             }
 
             Text(value)
-                .font(.system(size: 28, weight: .bold, design: .serif))
+                .font(Theme.titleFont(size: 28))
 
             Text(title)
                 .font(.caption)

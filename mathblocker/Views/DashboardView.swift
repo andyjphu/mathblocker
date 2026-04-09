@@ -103,7 +103,7 @@ struct DashboardView: View {
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                     Text("\(budgetMinutes) min")
-                        .font(.system(size: 34, weight: .bold, design: .serif))
+                        .font(Theme.titleFont(size: 34))
                 }
                 Spacer()
                 CircularProgress(

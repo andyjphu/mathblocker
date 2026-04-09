@@ -34,7 +34,7 @@ struct SplashView: View {
                 }
 
                 Text("MathBlocker")
-                    .font(.system(size: 32, weight: .bold, design: .serif))
+                    .font(Theme.titleFont(size: 32))
 
                 Spacer()
 

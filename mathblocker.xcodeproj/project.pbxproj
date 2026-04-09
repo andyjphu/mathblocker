@@ -104,11 +104,21 @@
 			);
 			target = 5A95AF612F87BC5100A12617 /* shconfig */;
 		};
+		5A61C03C2F87A5C100EAA886 /* Exceptions for "mathblocker" folder in "mathblocker" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 5A61C0382F87A5C100EAA886 /* mathblocker */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		5A61C03B2F87A5C100EAA886 /* mathblocker */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				5A61C03C2F87A5C100EAA886 /* Exceptions for "mathblocker" folder in "mathblocker" target */,
+			);
 			path = mathblocker;
 			sourceTree = "<group>";
 		};
@@ -683,6 +693,7 @@
 				DEVELOPMENT_TEAM = Q6YN8K63U3;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = mathblocker/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -716,6 +727,7 @@
 				DEVELOPMENT_TEAM = Q6YN8K63U3;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = mathblocker/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

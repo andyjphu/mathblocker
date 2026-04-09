@@ -162,8 +162,7 @@ struct MathChallengeView: View {
                 .symbolEffect(.bounce, value: viewModel.sessionComplete)
 
             Text(viewModel.score == viewModel.questions.count ? "nice, perfect" : "done")
-                .font(.largeTitle)
-                .fontWeight(.bold)
+                .font(Theme.titleFont(size: 34))
 
             Text("\(viewModel.score)/\(viewModel.questions.count) correct")
                 .font(.title3)
