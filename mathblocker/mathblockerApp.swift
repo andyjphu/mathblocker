@@ -28,6 +28,13 @@ struct mathblockerApp: App {
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
     @State private var showUnlockChallenge = false
 
+    init() {
+        // Preload question bank in background so Practice tab is instant
+        Task.detached(priority: .utility) {
+            await QuestionBank.shared.load()
+        }
+    }
+
     var body: some Scene {
         WindowGroup {
             if hasCompletedOnboarding {

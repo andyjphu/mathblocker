@@ -70,11 +70,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				5A95AF592F87BC3600A12617 /* shconf.appex in Embed Foundation Extensions */,
-				5A95AF342F87BB8E00A12617 /* dam.appex in Embed Foundation Extensions */,
-				5A95AF462F87BC0100A12617 /* dame.appex in Embed Foundation Extensions */,
-				5A95AF6D2F87BC5100A12617 /* shconfig.appex in Embed Foundation Extensions */,
-			);
+				);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -276,11 +272,7 @@
 			buildRules = (
 			);
 			dependencies = (
-				5A95AF332F87BB8E00A12617 /* PBXTargetDependency */,
-				5A95AF452F87BC0100A12617 /* PBXTargetDependency */,
-				5A95AF582F87BC3600A12617 /* PBXTargetDependency */,
-				5A95AF6C2F87BC5100A12617 /* PBXTargetDependency */,
-			);
+				);
 			fileSystemSynchronizedGroups = (
 				5A61C03B2F87A5C100EAA886 /* mathblocker */,
 			);
@@ -676,7 +668,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -734,7 +726,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -816,7 +808,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = Q6YN8K63U3;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = andyjphu.mathblockerTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -838,7 +830,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = Q6YN8K63U3;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = andyjphu.mathblockerTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
