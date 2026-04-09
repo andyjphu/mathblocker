@@ -52,6 +52,7 @@ struct SplashView: View {
                 .padding(.bottom, 60)
             }
         }
+        .fontDesign(.serif)
         .task {
             await loadWithProgress()
         }

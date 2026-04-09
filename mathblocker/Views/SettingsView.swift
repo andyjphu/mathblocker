@@ -49,6 +49,7 @@ struct SettingsView: View {
                 DebugSection()
                     .listRowBackground(Theme.cardBackground)
             }
+            .fontDesign(.serif)
             .scrollContentBackground(.hidden)
             .background { FrostedBackground(image: "olive-mountain") }
             .toolbarBackground(.hidden, for: .navigationBar)

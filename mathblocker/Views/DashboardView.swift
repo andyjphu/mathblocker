@@ -63,6 +63,7 @@ struct DashboardView: View {
                 }
                 .padding(.top, 12)
             }
+            .fontDesign(.serif)
             .scrollContentBackground(.hidden)
             .background { FrostedBackground() }
             .toolbarBackground(.hidden, for: .navigationBar)

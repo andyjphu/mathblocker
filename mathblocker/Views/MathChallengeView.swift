@@ -27,6 +27,7 @@ struct MathChallengeView: View {
                     questionView
                 }
             }
+            .fontDesign(.serif)
             .background { FrostedBackground(image: "dense-fern") }
             .navigationTitle("Practice")
             .navigationBarTitleDisplayMode(.inline)
