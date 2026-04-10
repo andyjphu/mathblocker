@@ -8,6 +8,8 @@
 import SwiftUI
 import SwiftData
 import DeviceActivity
+import FamilyControls
+import ManagedSettings
 
 /// Dashboard answering one question: "how much time do I have,
 /// and how do I get more?"
@@ -218,12 +220,33 @@ struct DashboardView: View {
     // MARK: - Usage Report
 
     private var usageReport: some View {
-        DeviceActivityReport(.init(rawValue: "totalUsage"))
-            .frame(height: 60)
-            .background(Theme.cardBackground)
-            .clipShape(RoundedRectangle(cornerRadius: 12))
-            .cardShadow()
-            .padding(.horizontal)
+        let selection = SelectionManager.shared.selection
+        let filter = DeviceActivityFilter(
+            segment: .hourly(
+                during: DateInterval(
+                    start: Calendar.current.startOfDay(for: .now),
+                    end: .now
+                )
+            ),
+            users: .all,
+            devices: .init([.iPhone]),
+            applications: selection.applicationTokens,
+            categories: selection.categoryTokens
+        )
+        return ZStack {
+            ShimmerView()
+                .frame(height: 280)
+
+            DeviceActivityReport(
+                DeviceActivityReport.Context("totalUsage"),
+                filter: filter
+            )
+            .frame(height: 280)
+        }
+        .background(Theme.cardBackground)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .cardShadow()
+        .padding(.horizontal)
     }
 
     // MARK: - Monitoring

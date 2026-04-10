@@ -12,8 +12,8 @@ import ExtensionKit
 @main
 struct UsageReportExtension: DeviceActivityReportExtension {
     var body: some DeviceActivityReportScene {
-        TotalUsageScene { totalTime in
-            UsageReportView(totalTime: totalTime)
+        TotalUsageScene { report in
+            UsageReportView(report: report)
         }
     }
 }
