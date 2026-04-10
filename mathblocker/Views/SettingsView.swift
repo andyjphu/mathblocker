@@ -44,10 +44,6 @@ struct SettingsView: View {
                 // Data
                 dataSection
                     .listRowBackground(Theme.cardBackground)
-
-                // Debug
-                DebugSection()
-                    .listRowBackground(Theme.cardBackground)
             }
             .fontDesign(.serif)
             .scrollContentBackground(.hidden)
@@ -189,26 +185,18 @@ struct SettingsView: View {
     private var questionPackSection: some View {
         Section {
             NavigationLink {
-                PacksView()
+                PacksView(selectedSource: .init(
+                    get: { currentSettings.selectedSource },
+                    set: { currentSettings.selectedSource = $0 }
+                ))
             } label: {
                 HStack {
                     Label("Question Packs", systemImage: "book.closed")
                     Spacer()
-                    let installed = PackManager.shared.installedPackIds.count
-                    Text(installed > 0 ? "\(installed) installed" : "default only")
+                    Text(currentSettings.selectedSource.replacingOccurrences(of: "_", with: " "))
                         .foregroundStyle(.secondary)
                 }
             }
-
-            Picker(selection: Bindable(currentSettings).selectedSource) {
-                Text("all").tag("all")
-                ForEach(QuestionBank.shared.availableSourcesSync, id: \.self) { source in
-                    Text(source.replacingOccurrences(of: "_", with: " ")).tag(source)
-                }
-            } label: {
-                Label("Active Pack", systemImage: "play.circle")
-            }
-            .tint(.primary)
         } header: {
             Text("Questions")
         }

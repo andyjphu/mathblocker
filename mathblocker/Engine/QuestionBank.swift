@@ -83,6 +83,8 @@ actor QuestionBank {
         return defaults.stringArray(forKey: "questionBankSources") ?? ["hendrycks_math"]
     }
 
+    private var recentlyShown: Set<String> = []
+
     func randomQuestions(difficulty: Int, count: Int, source: String = "all") -> [MathQuestion] {
         var pool: [BundledQuestion]
 
@@ -100,7 +102,21 @@ actor QuestionBank {
 
         guard !pool.isEmpty else { return [] }
 
-        let selected = pool.shuffled().prefix(count)
+        // Exclude recently shown questions
+        var fresh = pool.filter { !recentlyShown.contains($0.question) }
+        if fresh.count < count {
+            // Pool exhausted — reset and use full pool
+            recentlyShown.removeAll()
+            fresh = pool
+        }
+
+        let selected = Array(fresh.shuffled().prefix(count))
+
+        // Track what we showed
+        for q in selected {
+            recentlyShown.insert(q.question)
+        }
+
         return selected.map { q in
             MathQuestion(
                 text: q.question,

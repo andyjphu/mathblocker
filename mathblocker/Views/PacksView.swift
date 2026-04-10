@@ -7,13 +7,43 @@
 
 import SwiftUI
 
-/// Browse and download question packs from cdn.recursn.com.
+/// Browse, download, select, and delete question packs.
 struct PacksView: View {
+    @Binding var selectedSource: String
     @State private var packManager = PackManager.shared
     @State private var hasLoaded = false
+    @State private var availableSources: [String] = []
 
     var body: some View {
         List {
+            // Active pack selector
+            Section {
+                activeRow(id: "all", name: "all packs", subtitle: "pull from everything installed")
+
+                activeRow(
+                    id: "hendrycks_math",
+                    name: "competition math",
+                    subtitle: "bundled · 5,136 questions",
+                    alwaysAvailable: true
+                )
+
+                ForEach(packManager.availablePacks) { pack in
+                    if pack.id != "hendrycks_math" {
+                        activeRow(
+                            id: pack.id,
+                            name: pack.name.lowercased(),
+                            subtitle: packSubtitle(pack),
+                            pack: pack
+                        )
+                    }
+                }
+            } header: {
+                Text("question packs")
+            } footer: {
+                Text("tap to select · download icon to install · swipe to delete")
+            }
+            .listRowBackground(Theme.cardBackground)
+
             if let error = packManager.errorMessage {
                 Section {
                     Text(error)
@@ -22,21 +52,11 @@ struct PacksView: View {
                 }
                 .listRowBackground(Theme.cardBackground)
             }
-
-            Section {
-                ForEach(packManager.availablePacks) { pack in
-                    packRow(pack)
-                }
-            } header: {
-                Text("available packs")
-            } footer: {
-                Text("packs are downloaded to your device. you can delete them anytime.")
-            }
-            .listRowBackground(Theme.cardBackground)
         }
         .fontDesign(.serif)
         .scrollContentBackground(.hidden)
         .background { FrostedBackground(image: "olive-mountain") }
+        .toolbarBackground(.ultraThinMaterial, for: .navigationBar)
         .navigationTitle("")
         .toolbar {
             ToolbarItem(placement: .principal) {
@@ -52,42 +72,46 @@ struct PacksView: View {
         }
     }
 
-    private func packRow(_ pack: QuestionPack) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack {
+    private func activeRow(
+        id: String,
+        name: String,
+        subtitle: String,
+        alwaysAvailable: Bool = false,
+        pack: QuestionPack? = nil
+    ) -> some View {
+        let isSelected = selectedSource == id
+        let isInstalled = alwaysAvailable || packManager.isInstalled(id)
+        let isDownloading = packManager.downloadingPacks.contains(id)
+
+        return Button {
+            if isInstalled || alwaysAvailable || id == "all" {
+                selectedSource = id
+            }
+        } label: {
+            HStack(spacing: 12) {
+                // Selection indicator
+                Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                    .foregroundStyle(isSelected ? .accent : .secondary)
+                    .font(.title3)
+
+                // Info
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(pack.name)
-                        .font(.headline)
+                    Text(name)
+                        .font(.subheadline)
+                        .fontWeight(isSelected ? .semibold : .regular)
+                        .foregroundStyle(.primary)
 
-                    Text(pack.description)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-
-                    Text("\(pack.count) questions · \(String(format: "%.1f", pack.sizeMB)) MB")
+                    Text(subtitle)
                         .font(.caption2)
-                        .foregroundStyle(.tertiary)
+                        .foregroundStyle(.secondary)
                 }
 
                 Spacer()
 
-                if packManager.downloadingPacks.contains(pack.id) {
+                // Download / status
+                if isDownloading {
                     ProgressView()
-                } else if packManager.isInstalled(pack.id) {
-                    Menu {
-                        Button(role: .destructive) {
-                            packManager.delete(pack.id)
-                            Task {
-                                await QuestionBank.shared.reload()
-                            }
-                        } label: {
-                            Label("delete", systemImage: "trash")
-                        }
-                    } label: {
-                        Image(systemName: "checkmark.circle.fill")
-                            .foregroundStyle(.green)
-                            .font(.title3)
-                    }
-                } else {
+                } else if !isInstalled, let pack {
                     Button {
                         Task {
                             await packManager.download(pack)
@@ -101,6 +125,23 @@ struct PacksView: View {
                 }
             }
         }
-        .padding(.vertical, 4)
+        .swipeActions(edge: .trailing) {
+            if isInstalled && !alwaysAvailable && id != "all" {
+                Button(role: .destructive) {
+                    packManager.delete(id)
+                    if selectedSource == id {
+                        selectedSource = "hendrycks_math"
+                    }
+                    Task { await QuestionBank.shared.reload() }
+                } label: {
+                    Label("delete", systemImage: "trash")
+                }
+            }
+        }
+    }
+
+    private func packSubtitle(_ pack: QuestionPack) -> String {
+        let status = packManager.isInstalled(pack.id) ? "installed" : "\(String(format: "%.1f", pack.sizeMB)) MB"
+        return "\(status) · \(pack.count) questions · \(pack.description)"
     }
 }
