@@ -8,6 +8,7 @@
 import DeviceActivity
 import FamilyControls
 import Foundation
+import os.log
 
 /// Manages two kinds of monitoring schedules:
 /// 1. Daily budget — a screen-time threshold event that fires when the
@@ -18,6 +19,12 @@ import Foundation
 @Observable
 class MonitoringManager {
     static let shared = MonitoringManager()
+
+    @ObservationIgnored
+    private static let logger = Logger(
+        subsystem: "andyjphu.mathblocker",
+        category: "MonitoringManager"
+    )
 
     @ObservationIgnored
     private let center = DeviceActivityCenter()
@@ -45,8 +52,16 @@ class MonitoringManager {
 
     init() {
         // Restore earned-timer state from UserDefaults on launch so the
-        // dashboard shows the correct countdown after a cold start.
-        refreshFromStorage()
+        // dashboard shows the correct countdown after a cold start. Direct
+        // assignment here to avoid crossing actor boundaries from init.
+        let timestamp = AppGroupConstants.sharedDefaults?.double(forKey: "earnedTimerEnd") ?? 0
+        if timestamp > Date.now.timeIntervalSince1970 {
+            self.earnedTimerEnd = Date(timeIntervalSince1970: timestamp)
+            // Schedule expiry via a main-actor hop since Timer must be on main.
+            Task { @MainActor in
+                MonitoringManager.shared.scheduleExpiryTimer()
+            }
+        }
     }
 
     /// Re-read the earned timer end from UserDefaults and publish it via
@@ -63,6 +78,25 @@ class MonitoringManager {
         }
     }
 
+    /// Schedules the Timer that clears `earnedTimerEnd` when the wall-clock
+    /// deadline passes, so the dashboard flips back to the "earned today" view.
+    @MainActor
+    private func scheduleExpiryTimer() {
+        expiryTimer?.invalidate()
+        expiryTimer = nil
+        guard let end = earnedTimerEnd else { return }
+        let interval = end.timeIntervalSinceNow
+        guard interval > 0 else {
+            earnedTimerEnd = nil
+            return
+        }
+        expiryTimer = Timer.scheduledTimer(withTimeInterval: interval, repeats: false) { _ in
+            Task { @MainActor in
+                MonitoringManager.shared.earnedTimerEnd = nil
+            }
+        }
+    }
+
     /// Updates the observable `earnedTimerEnd` and schedules (or cancels)
     /// the local Timer that clears it once the wall-clock deadline passes,
     /// so the dashboard automatically flips back to the "earned today" state
@@ -70,37 +104,62 @@ class MonitoringManager {
     @MainActor
     private func setEarnedTimerEnd(_ date: Date?) {
         earnedTimerEnd = date
-        expiryTimer?.invalidate()
-        expiryTimer = nil
-        guard let end = date else { return }
-        let interval = end.timeIntervalSinceNow
-        guard interval > 0 else {
-            earnedTimerEnd = nil
-            return
-        }
-        expiryTimer = Timer.scheduledTimer(withTimeInterval: interval, repeats: false) { [weak self] _ in
-            Task { @MainActor in
-                self?.earnedTimerEnd = nil
-            }
-        }
+        scheduleExpiryTimer()
     }
 
     // MARK: - Daily Budget
 
     /// Starts daily budget monitoring. iOS will track usage of the user's
     /// selected apps and fire the budget event when usage hits `budgetMinutes`.
+    ///
+    /// `DeviceActivityCenter.startMonitoring` has a nasty side effect: **iOS
+    /// resets the internal event counter every time it's called with the
+    /// same activity name**. So naïvely calling this on every stepper tick
+    /// or every relaunch silently gifts the user a fresh budget.
+    ///
+    /// To keep the counter intact, we guard against duplicate calls: if
+    /// monitoring is already active with the same budget and the same set
+    /// of selected apps, we no-op. The caller (e.g. settings toggle) can
+    /// force a restart by calling `stopMonitoring()` first.
+    ///
+    /// We also no longer unconditionally drop shields on restart — that
+    /// let users bypass an active shield just by bumping the stepper.
     func startMonitoring(budgetMinutes: Int) {
         let selection = SelectionManager.shared.selection
-        guard !selection.applicationTokens.isEmpty || !selection.categoryTokens.isEmpty else { return }
+        let appCount = selection.applicationTokens.count
+        let catCount = selection.categoryTokens.count
+        Self.logger.notice("startMonitoring called: budgetMinutes=\(budgetMinutes, privacy: .public), apps=\(appCount, privacy: .public), categories=\(catCount, privacy: .public)")
+        guard appCount > 0 || catCount > 0 else {
+            Self.logger.notice("startMonitoring: empty selection, bailing out")
+            return
+        }
+
+        // FamilyActivitySelection isn't Hashable; use its JSON encoding as a
+        // stable fingerprint for change detection. Encoding failure falls back
+        // to "always restart" which is safe.
+        let selectionFingerprint = (try? JSONEncoder().encode(selection))?.hashValue
 
         if budgetMinutes <= 0 {
             ShieldManager.shared.applyShields()
             isMonitoring = true
             syncBudgetToAppGroup(budgetMinutes)
+            lastStartedBudgetMinutes = 0
+            lastStartedSelectionHash = selectionFingerprint
+            Self.logger.notice("startMonitoring: budget<=0, applied shields immediately")
             return
         }
 
-        ShieldManager.shared.removeShields()
+        // Idempotency guard: if we already started monitoring today with the
+        // exact same budget and selection, don't restart — that would reset
+        // iOS's usage counter.
+        if isMonitoring,
+           lastStartedBudgetMinutes == budgetMinutes,
+           let fp = selectionFingerprint,
+           lastStartedSelectionHash == fp {
+            syncBudgetToAppGroup(budgetMinutes)
+            Self.logger.notice("startMonitoring: idempotency skip (same budget and selection already registered)")
+            return
+        }
 
         let schedule = DeviceActivitySchedule(
             intervalStart: DateComponents(hour: 0, minute: 0),
@@ -109,11 +168,18 @@ class MonitoringManager {
             warningTime: DateComponents(minute: 5)
         )
 
+        // `includesPastActivity: true` tells iOS to count the user's screen
+        // time from the interval start (midnight) rather than from the moment
+        // this call was made. Without this, any restart of monitoring (app
+        // launch, settings toggle, stepper change) silently gifts the user a
+        // fresh budget because iOS throws away all usage before the restart.
+        // Added in iOS 17.4 — see Apple's `DeviceActivityEvent` docs.
         let budgetEvent = DeviceActivityEvent(
             applications: selection.applicationTokens,
             categories: selection.categoryTokens,
             webDomains: selection.webDomainTokens,
-            threshold: DateComponents(minute: budgetMinutes)
+            threshold: DateComponents(minute: budgetMinutes),
+            includesPastActivity: true
         )
 
         let eventName = DeviceActivityEvent.Name(rawValue: AppGroupConstants.thresholdEventName)
@@ -122,15 +188,29 @@ class MonitoringManager {
             try center.startMonitoring(budgetActivity, during: schedule, events: [eventName: budgetEvent])
             isMonitoring = true
             syncBudgetToAppGroup(budgetMinutes)
+            lastStartedBudgetMinutes = budgetMinutes
+            lastStartedSelectionHash = selectionFingerprint
+            let registered = center.activities.map(\.rawValue).joined(separator: ",")
+            Self.logger.notice("startMonitoring: registered budget event, threshold=\(budgetMinutes, privacy: .public) min, includesPastActivity=true, center.activities=[\(registered, privacy: .public)]")
         } catch {
-            print("MonitoringManager: failed to start budget monitoring: \(error)")
+            Self.logger.error("startMonitoring: center.startMonitoring threw: \(error.localizedDescription, privacy: .public)")
             isMonitoring = false
         }
     }
 
+    /// Remembers the budget + selection we last registered with iOS so we
+    /// can avoid re-registering (which resets the counter).
+    @ObservationIgnored
+    private var lastStartedBudgetMinutes: Int?
+    @ObservationIgnored
+    private var lastStartedSelectionHash: Int?
+
     func stopMonitoring() {
+        Self.logger.notice("stopMonitoring called, tearing down all DeviceActivity schedules")
         center.stopMonitoring()
         isMonitoring = false
+        lastStartedBudgetMinutes = nil
+        lastStartedSelectionHash = nil
         clearEarnedTimer()
     }
 
@@ -175,19 +255,36 @@ class MonitoringManager {
             repeats: false
         )
 
+        // Commit UI state up front so the dashboard countdown shows even if
+        // the iOS DeviceActivitySchedule registration fails (e.g. in the
+        // simulator without full FamilyControls auth). The schedule is only
+        // needed so that `dame` can re-apply shields when the timer expires;
+        // the countdown itself is pure wall-clock and doesn't depend on it.
+        let defaults = AppGroupConstants.sharedDefaults
+        defaults?.set(endDate.timeIntervalSince1970, forKey: "earnedTimerEnd")
+        // Round-trip verification: did the write actually persist?
+        let readBack = defaults?.double(forKey: "earnedTimerEnd") ?? 0
+        Self.logger.notice("startEarnedTimer: wrote \(endDate.timeIntervalSince1970, privacy: .public), read back \(readBack, privacy: .public), match=\(abs(readBack - endDate.timeIntervalSince1970) < 0.001, privacy: .public), defaults=\(defaults != nil, privacy: .public)")
+        Task { @MainActor in
+            setEarnedTimerEnd(endDate)
+        }
+        ShieldManager.shared.removeShields()
+
         do {
             try center.startMonitoring(earnedActivity, during: schedule, events: [:])
-            AppGroupConstants.sharedDefaults?.set(endDate.timeIntervalSince1970, forKey: "earnedTimerEnd")
-            ShieldManager.shared.removeShields()
-            print("MonitoringManager: earned timer ends at \(endDate)")
+            Self.logger.notice("earned timer registered, ends at \(endDate, privacy: .public)")
         } catch {
-            print("MonitoringManager: failed to start earned timer: \(error)")
+            // UI state is already committed above; log and continue.
+            Self.logger.error("failed to register earned timer schedule (countdown will still show, but shields may not re-apply at expiry): \(error.localizedDescription, privacy: .public)")
         }
     }
 
     private func clearEarnedTimer() {
         center.stopMonitoring([earnedActivity])
         AppGroupConstants.sharedDefaults?.removeObject(forKey: "earnedTimerEnd")
+        Task { @MainActor in
+            setEarnedTimerEnd(nil)
+        }
     }
 
     private func syncBudgetToAppGroup(_ minutes: Int) {

@@ -141,6 +141,87 @@ struct MathText: View {
         case math(String, display: Bool) // display = true for $$..$$ or \[..\]
     }
 
+    /// Auto-wraps bare LaTeX fragments in `$..$` when the question author
+    /// forgot to put them inside math delimiters. Preserves existing
+    /// `$..$`, `$$..$$`, `\[..\]`, and `\(..\)` sections verbatim.
+    ///
+    /// Example: `let a_1, a_2, \dots be a sequence` becomes
+    /// `let $a_1$, $a_2$, $\dots$ be a sequence`.
+    private func autoWrapBareLatex(_ input: String) -> String {
+        var result = ""
+        var prose = ""
+        var i = input.startIndex
+
+        func flushProse() {
+            if !prose.isEmpty {
+                result += wrapLatexTokensInProse(prose)
+                prose = ""
+            }
+        }
+
+        while i < input.endIndex {
+            let remaining = input[i...]
+
+            // Preserve \[..\]
+            if remaining.hasPrefix("\\[") {
+                flushProse()
+                if let endRange = input.range(of: "\\]", range: input.index(i, offsetBy: 2)..<input.endIndex) {
+                    result += String(input[i..<endRange.upperBound])
+                    i = endRange.upperBound
+                    continue
+                }
+            }
+            // Preserve \(..\)
+            if remaining.hasPrefix("\\(") {
+                flushProse()
+                if let endRange = input.range(of: "\\)", range: input.index(i, offsetBy: 2)..<input.endIndex) {
+                    result += String(input[i..<endRange.upperBound])
+                    i = endRange.upperBound
+                    continue
+                }
+            }
+            // Preserve $$..$$
+            if remaining.hasPrefix("$$") {
+                flushProse()
+                if let endRange = input.range(of: "$$", range: input.index(i, offsetBy: 2)..<input.endIndex) {
+                    result += String(input[i..<endRange.upperBound])
+                    i = endRange.upperBound
+                    continue
+                }
+            }
+            // Preserve $..$
+            if input[i] == "$" {
+                flushProse()
+                let mathStart = input.index(after: i)
+                if let endRange = input.range(of: "$", range: mathStart..<input.endIndex) {
+                    let closingEnd = input.index(after: endRange.lowerBound)
+                    result += String(input[i..<closingEnd])
+                    i = closingEnd
+                    continue
+                }
+            }
+
+            prose.append(input[i])
+            i = input.index(after: i)
+        }
+
+        flushProse()
+        return result
+    }
+
+    /// Wraps LaTeX-looking tokens in a prose string with `$..$`. Covers
+    /// backslash commands (`\dots`, `\frac{a}{b}`), subscripts (`a_1`,
+    /// `x_{12}`), and superscripts (`x^2`). Word-boundary prefixed to
+    /// avoid wrongly matching `my_var`-style non-math underscores.
+    private func wrapLatexTokensInProse(_ prose: String) -> String {
+        let pattern = #"\\[a-zA-Z]+(?:\{[^}]*\})*|\b[a-zA-Z]_(?:\{[^}]*\}|[a-zA-Z0-9])(?:\^(?:\{[^}]*\}|[a-zA-Z0-9]))?|\b[a-zA-Z]\^(?:\{[^}]*\}|[a-zA-Z0-9])(?:_(?:\{[^}]*\}|[a-zA-Z0-9]))?"#
+        return prose.replacingOccurrences(
+            of: pattern,
+            with: "\\$$0\\$",
+            options: .regularExpression
+        )
+    }
+
     /// Rewrites LaTeX commands that SwiftMath 1.7.3 doesn't support to the closest
     /// supported equivalent. See backlog.md "LaTeX Rendering" for the full list.
     private func rewriteForSwiftMath(_ latex: String) -> String {
@@ -192,6 +273,11 @@ struct MathText: View {
     /// Splits the input into alternating text and math segments.
     /// Recognizes `$..$`, `$$..$$`, `\[..\]`, and `\(..\)`.
     private func parse(_ input: String) -> [Segment] {
+        // Pre-normalize: some MATH-dataset questions leave LaTeX fragments
+        // outside delimiters (e.g. "let a_1, a_2, \dots be a sequence").
+        // Auto-wrap those fragments in `$..$` so the walker below finds them.
+        let input = autoWrapBareLatex(input)
+
         var segments: [Segment] = []
         var current = ""
         var i = input.startIndex

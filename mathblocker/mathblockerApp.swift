@@ -11,6 +11,7 @@ import SwiftData
 @MainActor
 private func refreshShieldState() {
     ShieldManager.shared.refreshState()
+    MonitoringManager.shared.refreshFromStorage()
 }
 
 @main

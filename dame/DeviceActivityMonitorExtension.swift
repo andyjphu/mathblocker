@@ -10,6 +10,7 @@ import ManagedSettings
 import FamilyControls
 import Foundation
 import UserNotifications
+import os.log
 
 /// Handles two activity types:
 /// 1. `mathblocker.daily` — daily budget monitoring. Fires the budget event
@@ -28,11 +29,21 @@ class DeviceActivityMonitorExtension: DeviceActivityMonitor {
     private let earnedActivityName = "mathblocker.earnedTimer"
     private let budgetEventName = "mathblocker.threshold"
 
+    private static let logger = Logger(
+        subsystem: "andyjphu.mathblocker.dame",
+        category: "DeviceActivityMonitor"
+    )
+
     private var defaults: UserDefaults? {
         UserDefaults(suiteName: suiteName)
     }
 
+    /// Logs to both Apple's unified logging (visible in Xcode console and
+    /// Console.app) and to a shared app-group string the main app can
+    /// display in its debug view. `.notice` is used so the messages aren't
+    /// filtered out by Xcode's default log level.
     private func log(_ message: String) {
+        Self.logger.notice("\(message, privacy: .public)")
         let existing = defaults?.string(forKey: "extensionLog") ?? ""
         let timestamp = ISO8601DateFormatter().string(from: Date())
         defaults?.set(existing + "\n[\(timestamp)] \(message)", forKey: "extensionLog")

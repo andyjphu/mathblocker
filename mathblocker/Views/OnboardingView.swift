@@ -16,9 +16,37 @@ struct OnboardingView: View {
     @State private var selectionManager = SelectionManager.shared
     @State private var showingAppPicker = false
 
+    /// Three real-app backgrounds, cycled across the 6 onboarding pages
+    /// so swiping feels like a progression toward the main app.
+    private static let pageBackgrounds = [
+        "clean-salad",   // pages 0, 3 (dashboard image)
+        "dense-fern",    // pages 1, 4 (practice image)
+        "olive-mountain" // pages 2, 5 (settings image)
+    ]
+
+    private var currentBackground: String {
+        Self.pageBackgrounds[currentPage % Self.pageBackgrounds.count]
+    }
+
     var body: some View {
         ZStack {
-            FrostedBackground()
+            // Crossfading background: render all 3 images with opacity tied to current page
+            ZStack {
+                ForEach(Self.pageBackgrounds, id: \.self) { name in
+                    Image(name)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .blur(radius: 4)
+                        .opacity(name == currentBackground ? 0.65 : 0)
+                }
+                Color.white.opacity(0.10)
+                NoiseTexture()
+                    .blendMode(.screen)
+                    .opacity(0.7)
+                    .allowsHitTesting(false)
+            }
+            .ignoresSafeArea()
+            .animation(.easeInOut(duration: 0.6), value: currentBackground)
 
             TabView(selection: $currentPage) {
                 welcomePage.tag(0)

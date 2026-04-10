@@ -10,6 +10,7 @@ import SwiftData
 import DeviceActivity
 import FamilyControls
 import ManagedSettings
+import Combine
 
 /// Dashboard answering one question: "how much time do I have,
 /// and how do I get more?"
@@ -17,6 +18,12 @@ struct DashboardView: View {
     @Query(sort: \DailyStats.date, order: .reverse) private var allStats: [DailyStats]
     @Query private var settings: [UserSettings]
     @State private var showReport = false
+
+    /// `ManagedSettingsStore` doesn't notify cross-process when `dame` writes
+    /// the shield, so we poll every 2s while the dashboard is visible. This
+    /// catches the case where the user is on the dashboard when the threshold
+    /// fires in the extension and shields go up.
+    private let shieldRefreshTimer = Timer.publish(every: 2, on: .main, in: .common).autoconnect()
 
     private var budgetMinutes: Int { settings.first?.dailyTimeBudgetMinutes ?? 30 }
     private var perCorrect: Int { settings.first?.minutesPerCorrectAnswer ?? 2 }
@@ -77,11 +84,18 @@ struct DashboardView: View {
             }
             .fontDesign(.serif)
             .onAppear {
+                // Catch any state the app missed while backgrounded / during startup
+                ShieldManager.shared.refreshState()
+                MonitoringManager.shared.refreshFromStorage()
                 if !showReport {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                         showReport = true
                     }
                 }
+            }
+            .onReceive(shieldRefreshTimer) { _ in
+                // Cross-process sync: `dame` may have just applied shields.
+                ShieldManager.shared.refreshState()
             }
             .scrollContentBackground(.hidden)
             .background { FrostedBackground() }
@@ -99,39 +113,56 @@ struct DashboardView: View {
     // MARK: - Hero
 
     private var heroSection: some View {
-        let earned = todayStats?.minutesEarned ?? 0
         let timerEnd = MonitoringManager.shared.earnedTimerEnd
+        let monitoring = MonitoringManager.shared.isMonitoring
         let shieldsUp = ShieldManager.shared.shieldsAreActive && timerEnd == nil
 
         return VStack(spacing: 16) {
+            // Primary display flips based on current state
             if let endDate = timerEnd {
-                // Active earned timer — show countdown
+                // State 2: active earned timer
                 CountdownView(endDate: endDate)
-            } else {
-                // Show earned today as the hero
+            } else if shieldsUp {
+                // State 3: budget exhausted or earned timer expired
                 VStack(spacing: 4) {
-                    Text("+\(earned)")
+                    Text("time's up")
+                        .font(Theme.titleFont(size: 56))
+                        .foregroundStyle(.orange)
+                    Text("solve math to earn more time")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                }
+            } else if !monitoring {
+                // State 4: not monitoring
+                VStack(spacing: 4) {
+                    Text("paused")
                         .font(Theme.titleFont(size: 64))
-                        .foregroundStyle(earned > 0 ? .accent : .primary)
-
-                    Text("minutes earned today")
+                        .foregroundStyle(.secondary)
+                    Text("turn on blocking in settings to get started")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                }
+            } else {
+                // State 1: fresh budget, free access available
+                VStack(spacing: 4) {
+                    Text("\(budgetMinutes) min")
+                        .font(Theme.titleFont(size: 64))
+                        .foregroundStyle(.accent)
+                    Text("of free app time today")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
             }
 
-            // Budget context
-            Text("\(budgetMinutes) min daily budget")
+            // Persistent mechanic explainer — always visible so the two-part
+            // model (free budget, then earn-to-unlock) stays clear.
+            Text("\(budgetMinutes) min of your real iPhone screen time daily. solve math to earn more when it runs out.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
-
-            // Status line (only when blocked)
-            if shieldsUp {
-                Text("apps are blocked, solve problems to earn time")
-                    .font(.caption)
-                    .foregroundStyle(.orange)
-                    .multilineTextAlignment(.center)
-            }
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 4)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 24)
@@ -217,7 +248,7 @@ struct DashboardView: View {
             .cardShadow()
 
             HStack(spacing: 4) {
-                Text("usage data is rendered privately on-device")
+                Text("your usage stays on this iPhone")
                     .font(.caption2)
                     .foregroundStyle(.tertiary)
                 Link(destination: URL(string: "https://recursn.com/mathblocker/privacy-policy")!) {
@@ -238,7 +269,7 @@ struct DashboardView: View {
             Circle()
                 .fill(monitoring ? .green : .orange)
                 .frame(width: 8, height: 8)
-            Text(monitoring ? "monitoring on" : "monitoring off")
+            Text(monitoring ? "blocking is on" : "blocking is off")
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }

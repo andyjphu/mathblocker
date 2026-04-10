@@ -105,7 +105,12 @@ class ChallengeViewModel {
     /// Persists the current question attempt and advances to the next question,
     /// or completes the session if all questions are answered.
     func advance(modelContext: ModelContext) {
-        guard let question = currentQuestion else { return }
+        // Re-entry guard: a rapid double-tap on "next" would otherwise record a
+        // garbage attempt using `selectedAnswer ?? 0` and `results.last` from the
+        // previous question, and stack up SwiftData inserts that stall the UI.
+        // The button is only visible when `selectedAnswer != nil`, so the first
+        // tap's clearing of it makes subsequent taps a no-op.
+        guard selectedAnswer != nil, !sessionComplete, let question = currentQuestion else { return }
 
         let timeSpent = Date.now.timeIntervalSince(questionStartTime)
         let attempt = QuestionAttempt(

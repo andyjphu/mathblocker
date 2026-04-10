@@ -7,10 +7,12 @@
 
 import SwiftUI
 import DeviceActivity
+import SwiftData
 
 /// Development-only section showing extension logs, monitoring state,
 /// and app group data. Helps diagnose shield/monitoring issues on-device.
 struct DebugSection: View {
+    @Query private var settings: [UserSettings]
     @State private var debugInfo: String = ""
     @State private var debugLog: String = ""
 
@@ -30,6 +32,16 @@ struct DebugSection: View {
             Button("clear log") {
                 AppGroupConstants.sharedDefaults?.removeObject(forKey: "extensionLog")
                 debugLog = "cleared"
+            }
+
+            Button("force re-register monitoring") {
+                // Tear down any existing schedule and start fresh with the
+                // current settings. This is the nuclear-option recovery if
+                // iOS is in a weird state (stale schedule, counter mismatch).
+                MonitoringManager.shared.stopMonitoring()
+                let budget = settings.first?.dailyTimeBudgetMinutes ?? 30
+                MonitoringManager.shared.startMonitoring(budgetMinutes: budget)
+                loadDebugInfo()
             }
         } header: {
             Text("debug")

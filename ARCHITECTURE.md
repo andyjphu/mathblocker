@@ -76,15 +76,50 @@ Adding a property to a `@Model` class without a migration plan crashes the
 app on next launch with `loadIssueModelContainer`. Delete and reinstall
 during development.
 
-### 10. LaTeX rendering requires care
-LaTeXSwiftUI imports MathJax (a JS engine). First render freezes the UI
-for ~500ms while MathJax cold-starts. Pre-warm during splash with a 1x1
-hidden `LaTeX("$x$")` view. SwiftUI optimizes away zero-frame views.
+### 10. LaTeX rendering: SwiftMath, not LaTeXSwiftUI
+We migrated off LaTeXSwiftUI (MathJax under the hood, heavy first-render cost,
+unreliable for our subset) to SwiftMath (native CoreText renderer). SwiftMath
+1.7.3 has two gotchas worth remembering:
+
+- **`MTMathUILabel` inherits `UIView.sizeThatFits(_:)` unchanged.** The
+  library's real sizing flows through `intrinsicContentSize` (which calls
+  its internal `_sizeThatFits(CGSizeZero)` with the parsed math list).
+  SwiftUI wrappers must read `intrinsicContentSize`, not `sizeThatFits(...)`,
+  or every math label renders at 0pt wide.
+- **`MTMathUILabel` sets `layer.isGeometryFlipped = true`**, so
+  `layer.render(in:)` produces an upside-down bitmap. When rasterizing to
+  a UIImage, translate by height and scale Y by -1 before the render call.
+- SwiftMath supports a subset of LaTeX (~237 symbols, 10 environments).
+  `MathText.rewriteForSwiftMath(_:)` rewrites common unsupported commands
+  (`\dfrac` → `\frac`, `\pmod{n}` → `(\text{mod } n)`, `\begin{array}` →
+  `\begin{matrix}`) and `QuestionBank.unsupportedMarkers` filters questions
+  using features we can't rewrite (`\begin{tabular}`, `\begin{align*}`,
+  `[asy]`, etc.).
 
 ### 11. Haptics need pre-warming
 `UINotificationFeedbackGenerator()` initializes the haptic engine on first
 use, blocking the main thread. Use a single shared instance and call
 `prepare()` during splash.
+
+### 12. `@Observable` only tracks STORED properties
+`MonitoringManager.earnedTimerEnd` was originally a computed property that
+read from `UserDefaults` via `AppGroupConstants.sharedDefaults`. The
+`@Observable` macro only instruments stored-property access, so SwiftUI
+never saw the dashboard read it — the countdown never appeared even after
+`startEarnedTimer` wrote the new end time. Fix: make it a stored property,
+populate in `init()` from UserDefaults (direct read, no actor hop from the
+non-isolated initializer), and keep the UserDefaults write as the
+cross-process source of truth for the extensions.
+
+### 13. `simctl spawn defaults write group.X` lies
+`defaults write` via `simctl spawn` writes to the device-level
+`/data/Library/Preferences/` plist, not the app group container. The app
+reads from `/data/Containers/Shared/AppGroup/<uuid>/Library/Preferences/`,
+so the write never takes effect. To inject app group UserDefaults for
+testing, write the plist directly at the app group container path. Find
+the correct `<uuid>` by looking for `MCMMetadataIdentifier == "group.X"`
+in `.com.apple.mobile_container_manager.metadata.plist` under each
+`AppGroup/` subdir.
 
 ---
 
@@ -125,8 +160,20 @@ fixed wall-clock window of additional access.
 
 ### Dashboard countdown
 
-`CountdownView` reads `earnedTimerEnd` from app group and shows
-`endDate - Date.now` updated every second via `Timer.publish`.
+`MonitoringManager.earnedTimerEnd` is a stored `@Observable` property.
+`DashboardView.heroSection` reads it during body evaluation, so SwiftUI
+tracks the dependency and re-renders when the timer starts, stacks, or
+expires. `CountdownView` then ticks `endDate - Date.now` every second
+via `Timer.publish`.
+
+On cold start, `MonitoringManager.init()` seeds the stored property from
+the app group `UserDefaults` (the cross-process source of truth written by
+`startEarnedTimer`). On scene foreground, `refreshFromStorage()` re-reads
+the value in case the dame extension modified it while the app was
+backgrounded. A one-shot `Timer` scheduled inside `setEarnedTimerEnd(_:)`
+clears the stored property automatically at the wall-clock deadline, so
+the dashboard flips back to the "earned today" state without a manual
+refresh.
 
 Accuracy is exact because we know the target wall-clock time.
 
@@ -201,7 +248,7 @@ mathblocker/
 │   │   ├── ChoiceButton.swift
 │   │   ├── StatCard.swift
 │   │   ├── FrostedBackground.swift
-│   │   ├── MathText.swift           # LaTeXSwiftUI wrapper
+│   │   ├── MathText.swift           # SwiftMath wrapper + inline math rasterizer
 │   │   ├── ShimmerView.swift
 │   │   └── CountdownView.swift      # Live countdown for earned timer
 │   ├── Utilities/
@@ -244,4 +291,5 @@ mathblocker/
 - **App group:** `group.andyjphu.mathblocker` shared by all targets
 - **Custom font:** `InstrumentSerif-Regular.ttf` registered via
   `Info.plist UIAppFonts`
-- **Package dependencies:** `LaTeXSwiftUI` (uses MathJax under the hood)
+- **Package dependencies:** `SwiftMath` (native CoreText renderer; see
+  Lesson #10 for caveats)

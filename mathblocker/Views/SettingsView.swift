@@ -45,6 +45,10 @@ struct SettingsView: View {
                 // Data
                 dataSection
                     .listRowBackground(Theme.cardBackground)
+
+                // Debug (diagnose monitoring/shield issues on-device)
+                DebugSection()
+                    .listRowBackground(Theme.cardBackground)
             }
             .fontDesign(.serif)
             .scrollContentBackground(.hidden)
@@ -118,6 +122,10 @@ struct SettingsView: View {
                         get: { monitoringManager.isMonitoring },
                         set: { newValue in
                             if newValue {
+                                // Fresh enable — make sure any old schedule
+                                // is torn down so iOS doesn't keep a stale
+                                // counter, then start clean.
+                                monitoringManager.stopMonitoring()
                                 monitoringManager.startMonitoring(
                                     budgetMinutes: currentSettings.dailyTimeBudgetMinutes
                                 )
@@ -216,13 +224,16 @@ struct SettingsView: View {
                 }
             }
 
-            #if DEBUG
-            NavigationLink {
-                LaTeXTestView()
-            } label: {
-                Label("LaTeX Test", systemImage: "function")
-            }
-            #endif
+            // LaTeX test harness — keep the `LaTeXTestView` component around
+            // for regression testing when we touch SwiftMath, but don't link
+            // to it from Settings. Uncomment during dev if you need it.
+            // #if DEBUG
+            // NavigationLink {
+            //     LaTeXTestView()
+            // } label: {
+            //     Label("LaTeX Test", systemImage: "function")
+            // }
+            // #endif
         } header: {
             Text("Questions")
         }
