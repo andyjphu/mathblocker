@@ -83,7 +83,9 @@ struct DashboardView: View {
                         showReport = true
                     }
                 }
-                Task { await loadUsage() }
+                if #available(iOS 26.4, *) {
+                    Task { await loadUsage() }
+                }
             }
             .scrollContentBackground(.hidden)
             .background { FrostedBackground() }
