@@ -188,37 +188,27 @@ struct SettingsView: View {
 
     private var questionPackSection: some View {
         Section {
-            Picker(selection: Bindable(currentSettings).selectedSource) {
-                Text("all packs").tag("all")
-
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Competition Math")
-                    Text("AMC & AIME style — 5,136 questions")
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
-                }
-                .tag("hendrycks_math")
-
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("MMLU Math")
-                    Text("college-level algebra & geometry — 1,204 questions")
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
-                }
-                .tag("mmlu")
-
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("AQUA-RAT")
-                    Text("word problems & quantitative reasoning — 97,975 questions")
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
-                }
-                .tag("aqua_rat")
+            NavigationLink {
+                PacksView()
             } label: {
-                Label("Question Pack", systemImage: "book.closed")
+                HStack {
+                    Label("Question Packs", systemImage: "book.closed")
+                    Spacer()
+                    let installed = PackManager.shared.installedPackIds.count
+                    Text(installed > 0 ? "\(installed) installed" : "default only")
+                        .foregroundStyle(.secondary)
+                }
+            }
+
+            Picker(selection: Bindable(currentSettings).selectedSource) {
+                Text("all").tag("all")
+                ForEach(QuestionBank.shared.availableSourcesSync, id: \.self) { source in
+                    Text(source.replacingOccurrences(of: "_", with: " ")).tag(source)
+                }
+            } label: {
+                Label("Active Pack", systemImage: "play.circle")
             }
             .tint(.primary)
-            .pickerStyle(.navigationLink)
         } header: {
             Text("Questions")
         }

@@ -7,7 +7,7 @@
 
 import Foundation
 
-/// JSON-decodable question from the bundled questions.json dataset.
+/// JSON-decodable question from bundled or downloaded datasets.
 struct BundledQuestion: Codable, Sendable {
     let question: String
     let choices: [String]
@@ -17,61 +17,103 @@ struct BundledQuestion: Codable, Sendable {
     let source: String
 }
 
-/// Thread-safe store of bundled math questions loaded from questions.json.
-/// Pre-indexes by difficulty for fast random selection.
+/// Thread-safe store of math questions from bundled + downloaded packs.
+/// Loads the default bundle on startup, then merges any downloaded packs.
 actor QuestionBank {
     static let shared = QuestionBank()
 
     private var questions: [BundledQuestion] = []
-    private var byDifficulty: [Int: [BundledQuestion]] = [:]
+    private var bySource: [String: [BundledQuestion]] = [:]
     private var loaded = false
 
+    /// Load bundled questions and any downloaded packs.
     func load() {
         guard !loaded else { return }
-        guard let url = Bundle.main.url(forResource: "questions", withExtension: "json") else {
-            print("QuestionBank: questions.json not found in bundle")
-            return
+
+        // 1. Load bundled default
+        if let url = Bundle.main.url(forResource: "questions", withExtension: "json") {
+            do {
+                let data = try Data(contentsOf: url)
+                let bundled = try JSONDecoder().decode([BundledQuestion].self, from: data)
+                questions.append(contentsOf: bundled)
+                print("QuestionBank: loaded \(bundled.count) bundled questions")
+            } catch {
+                print("QuestionBank: failed to load bundle: \(error)")
+            }
         }
-        do {
-            let data = try Data(contentsOf: url)
-            questions = try JSONDecoder().decode([BundledQuestion].self, from: data)
-            byDifficulty = Dictionary(grouping: questions, by: \.difficulty)
-            loaded = true
-            print("QuestionBank: loaded \(questions.count) questions")
-        } catch {
-            print("QuestionBank: failed to load: \(error)")
+
+        // 2. Load downloaded packs
+        let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+        let packsDir = docs.appendingPathComponent("QuestionPacks", isDirectory: true)
+        if let files = try? FileManager.default.contentsOfDirectory(at: packsDir, includingPropertiesForKeys: nil) {
+            for file in files where file.pathExtension == "json" {
+                do {
+                    let data = try Data(contentsOf: file)
+                    let packQuestions = try JSONDecoder().decode([BundledQuestion].self, from: data)
+                    questions.append(contentsOf: packQuestions)
+                    print("QuestionBank: loaded \(packQuestions.count) from \(file.lastPathComponent)")
+                } catch {
+                    print("QuestionBank: failed to load \(file.lastPathComponent): \(error)")
+                }
+            }
         }
+
+        bySource = Dictionary(grouping: questions, by: \.source)
+        loaded = true
+        // Cache source list for sync access from UI
+        UserDefaults.standard.set(Array(bySource.keys).sorted(), forKey: "questionBankSources")
+        print("QuestionBank: \(questions.count) total questions, \(bySource.keys.count) sources")
+    }
+
+    /// Force reload (after downloading a new pack).
+    func reload() {
+        loaded = false
+        questions = []
+        bySource = [:]
+        load()
     }
 
     var isLoaded: Bool { loaded }
     var totalCount: Int { questions.count }
+    var availableSources: [String] { Array(bySource.keys).sorted() }
+
+    /// Non-isolated access for SwiftUI Picker (reads cached value).
+    nonisolated var availableSourcesSync: [String] {
+        let defaults = UserDefaults.standard
+        return defaults.stringArray(forKey: "questionBankSources") ?? ["hendrycks_math"]
+    }
 
     func randomQuestions(difficulty: Int, count: Int, source: String = "all") -> [MathQuestion] {
-        var pool = byDifficulty[difficulty] ?? byDifficulty[2] ?? []
-        if source != "all" {
-            pool = pool.filter { $0.source == source }
+        var pool: [BundledQuestion]
+
+        if source == "all" {
+            pool = questions
+        } else {
+            pool = bySource[source] ?? []
         }
-        // Fall back to all sources if filtered pool is empty
-        if pool.isEmpty {
-            pool = byDifficulty[difficulty] ?? byDifficulty[2] ?? []
+
+        // Filter by difficulty if there are enough questions
+        let diffFiltered = pool.filter { $0.difficulty == difficulty }
+        if diffFiltered.count >= count {
+            pool = diffFiltered
         }
+
         guard !pool.isEmpty else { return [] }
 
         let selected = pool.shuffled().prefix(count)
         return selected.map { q in
-            let globalIdx = questions.firstIndex(where: { $0.question == q.question })
-            return MathQuestion(
+            MathQuestion(
                 text: q.question,
                 choices: q.choices,
                 correctAnswerIndex: q.correctAnswerIndex,
                 difficulty: q.difficulty,
                 topic: q.topic,
-                globalIndex: globalIdx
+                globalIndex: nil
             )
         }
     }
 
-    func countByDifficulty() -> [Int: Int] {
-        byDifficulty.mapValues(\.count)
+    func countBySource() -> [String: Int] {
+        bySource.mapValues(\.count)
     }
 }
