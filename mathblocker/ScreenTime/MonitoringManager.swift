@@ -50,6 +50,10 @@ class MonitoringManager {
             return
         }
 
+        // We have remaining budget, so make sure shields are cleared
+        // (in case they were left up from a previous block).
+        ShieldManager.shared.removeShields()
+
         let activityName = DeviceActivityName(rawValue: AppGroupConstants.activityName)
 
         let schedule = DeviceActivitySchedule(
@@ -59,13 +63,14 @@ class MonitoringManager {
             warningTime: DateComponents(minute: 5)
         )
 
-        // Sparse window — dame extension dynamically restarts with a fresh
+        // Sparse window. dame extension dynamically restarts with a fresh
         // window when the highest milestone is hit, giving continuous tracking
         // with 5-min granularity at low values and ~30-min at high values.
         let trackingMilestones = [1, 5, 15, 30, 60, 90, 120]
 
-        // Reset offset on initial start
-        AppGroupConstants.sharedDefaults?.set(0, forKey: "monitoringOffset")
+        // Set offset = current usage so dame's threshold events still
+        // produce accurate cumulative numbers after the schedule restart.
+        AppGroupConstants.sharedDefaults?.set(used, forKey: "monitoringOffset")
         var events: [DeviceActivityEvent.Name: DeviceActivityEvent] = [:]
 
         for minutes in trackingMilestones {
@@ -78,13 +83,16 @@ class MonitoringManager {
             )
         }
 
-        // Budget threshold — this is the one that triggers shields
+        // Budget threshold (the one that triggers shields).
+        // iOS resets its counter on restart, so the threshold is what's
+        // remaining from this point, not the total budget.
+        let remainingBudget = max(1, budgetMinutes - used)
         let budgetEventName = DeviceActivityEvent.Name(rawValue: AppGroupConstants.thresholdEventName)
         events[budgetEventName] = DeviceActivityEvent(
             applications: selection.applicationTokens,
             categories: selection.categoryTokens,
             webDomains: selection.webDomainTokens,
-            threshold: DateComponents(minute: budgetMinutes)
+            threshold: DateComponents(minute: remainingBudget)
         )
 
         do {

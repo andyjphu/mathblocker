@@ -25,6 +25,7 @@ on every glance at their phone.
 - [ ] **Home screen widget** — time remaining, streak, questions solved (WidgetKit)
 - [ ] **Focus Filters** — auto-enable blocking when "Study" Focus turns on (FocusFilterIntent)
 - [ ] `denyAppRemoval` — prevent deleting MathBlocker to bypass it
+- [ ] **Screen Time passcode prompt** — guide user through setting an iOS Screen Time passcode in onboarding so they can't disable Family Controls authorization. Need to detect if passcode is set and link to Settings app since we can't set it programmatically.
 
 ### Medium Priority
 - [ ] `webContent.blockedByFilter` — block Safari browsing too, not just apps

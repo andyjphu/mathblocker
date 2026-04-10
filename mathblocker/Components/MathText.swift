@@ -22,12 +22,15 @@ struct MathText: View {
     }
 
     var body: some View {
-        if hasLaTeX {
-            LaTeX(processedText)
-                .fontDesign(.serif)
-        } else {
-            Text(text)
+        Group {
+            if hasLaTeX {
+                LaTeX(processedText)
+                    .fontDesign(.serif)
+            } else {
+                Text(text)
+            }
         }
+        .id(text)
     }
 
     private var processedText: String {
