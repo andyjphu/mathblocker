@@ -17,8 +17,6 @@ struct DashboardView: View {
     @Query(sort: \DailyStats.date, order: .reverse) private var allStats: [DailyStats]
     @Query private var settings: [UserSettings]
 
-    var goToPractice: () -> Void
-
     private var budgetMinutes: Int { settings.first?.dailyTimeBudgetMinutes ?? 30 }
     private var perCorrect: Int { settings.first?.minutesPerCorrectAnswer ?? 2 }
 
@@ -50,9 +48,6 @@ struct DashboardView: View {
                     // Hero: time earned
                     heroSection
 
-                    // CTA
-                    practiceButton
-
                     // Secondary stats
                     statsRow
 
@@ -74,7 +69,7 @@ struct DashboardView: View {
             .fontDesign(.serif)
             .scrollContentBackground(.hidden)
             .background { FrostedBackground() }
-            .toolbarBackground(.hidden, for: .navigationBar)
+            .toolbarBackground(.ultraThinMaterial, for: .navigationBar)
             .navigationTitle("")
             .toolbar {
                 ToolbarItem(placement: .principal) {
@@ -89,46 +84,24 @@ struct DashboardView: View {
 
     private var heroSection: some View {
         let earned = todayStats?.minutesEarned ?? 0
-        let available = budgetMinutes + earned
         let shieldsUp = ShieldManager.shared.shieldsAreActive
 
         return VStack(spacing: 16) {
-            // Available time — the one number that matters
+            // Earned is the number that matters
             VStack(spacing: 4) {
-                Text("\(available)")
+                Text("\(earned)")
                     .font(Theme.titleFont(size: 64))
-                    .foregroundStyle(shieldsUp ? .orange : .primary)
+                    .foregroundStyle(shieldsUp ? .orange : .accent)
 
-                Text("minutes available")
+                Text("minutes earned today")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
 
-            // Breakdown
-            HStack(spacing: 0) {
-                VStack(spacing: 2) {
-                    Text("\(budgetMinutes)")
-                        .font(Theme.titleFont(size: 22))
-                    Text("budget")
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
-                }
-                .frame(maxWidth: .infinity)
-
-                Rectangle()
-                    .fill(.quaternary)
-                    .frame(width: 1, height: 28)
-
-                VStack(spacing: 2) {
-                    Text("+\(earned)")
-                        .font(Theme.titleFont(size: 22))
-                        .foregroundStyle(.accent)
-                    Text("earned")
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
-                }
-                .frame(maxWidth: .infinity)
-            }
+            // Budget context
+            Text("\(budgetMinutes) min daily budget")
+                .font(.caption)
+                .foregroundStyle(.secondary)
 
             // Status line
             if shieldsUp {
@@ -148,26 +121,6 @@ struct DashboardView: View {
     }
 
     // MARK: - CTA
-
-    private var practiceButton: some View {
-        Button {
-            goToPractice()
-        } label: {
-            HStack {
-                Text("solve problems")
-                    .fontWeight(.semibold)
-                Image(systemName: "arrow.right")
-            }
-            .font(.body)
-            .foregroundStyle(.white)
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 14)
-            .background(.accent)
-            .clipShape(RoundedRectangle(cornerRadius: 12))
-        }
-        .cardShadow()
-        .padding(.horizontal)
-    }
 
     // MARK: - Stats Row
 
