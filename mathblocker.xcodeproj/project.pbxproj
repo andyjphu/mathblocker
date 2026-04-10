@@ -74,9 +74,19 @@
 				5A95AF712F87BD0000A12617 /* dame.appex in Embed Foundation Extensions */,
 				5A95AF722F87BD0000A12617 /* shconf.appex in Embed Foundation Extensions */,
 				5A95AF732F87BD0000A12617 /* shconfig.appex in Embed Foundation Extensions */,
-				5A95AFAA2F87BF0000A12617 /* report.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5A95AFAE2F87BF0000A12617 /* Embed ExtensionKit Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(EXTENSIONS_FOLDER_PATH)";
+			dstSubfolderSpec = 16;
+			files = (
+				5A95AFAA2F87BF0000A12617 /* report.appex in Embed ExtensionKit Extensions */,
+			);
+			name = "Embed ExtensionKit Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -294,6 +304,7 @@
 				5A61C0362F87A5C100EAA886 /* Frameworks */,
 				5A61C0372F87A5C100EAA886 /* Resources */,
 				5A95AF382F87BB8E00A12617 /* Embed Foundation Extensions */,
+				5A95AFAE2F87BF0000A12617 /* Embed ExtensionKit Extensions */,
 			);
 			buildRules = (
 			);
