@@ -102,7 +102,8 @@ actor QuestionBank {
 
         guard !pool.isEmpty else { return [] }
 
-        // Exclude recently shown questions
+        // Exclude diagram questions (Asymptote code) and recently shown
+        pool = pool.filter { !$0.question.contains("[asy]") }
         var fresh = pool.filter { !recentlyShown.contains($0.question) }
         if fresh.count < count {
             // Pool exhausted — reset and use full pool

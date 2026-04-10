@@ -22,8 +22,8 @@ struct PacksView: View {
 
                 activeRow(
                     id: "hendrycks_math",
-                    name: "competition math",
-                    subtitle: "bundled · 5,136 questions",
+                    name: "hendrycks math",
+                    subtitle: "bundled · competition math (AMC, AIME) · 5,136 questions",
                     alwaysAvailable: true
                 )
 
