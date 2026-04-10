@@ -9,14 +9,37 @@ import SwiftUI
 import LaTeXSwiftUI
 
 /// Renders text that may contain LaTeX math expressions.
-/// Text wrapped in `$...$` is rendered as math; everything else
-/// uses plain Text with zero LaTeX overhead.
+/// Detects `$...$`, `\[...\]`, `\(...\)`, and bare LaTeX commands
+/// like `\frac`, `\sqrt`, `\cdot`. Falls back to plain Text when
+/// no LaTeX is detected.
 struct MathText: View {
     let text: String
 
+    private var hasLaTeX: Bool {
+        text.contains("$") ||
+        text.contains("\\[") ||
+        text.contains("\\(") ||
+        text.contains("\\frac") ||
+        text.contains("\\sqrt") ||
+        text.contains("\\cdot") ||
+        text.contains("\\text") ||
+        text.contains("\\pi") ||
+        text.contains("\\times")
+    }
+
+    /// Wraps bare LaTeX (no delimiters) in $...$ so LaTeXSwiftUI can render it.
+    private var processedText: String {
+        var t = text
+        // If it has LaTeX commands but no delimiters, wrap the whole thing
+        if !t.contains("$") && !t.contains("\\[") && !t.contains("\\(") {
+            t = "$\(t)$"
+        }
+        return t
+    }
+
     var body: some View {
-        if text.contains("$") {
-            LaTeX(text)
+        if hasLaTeX {
+            LaTeX(processedText)
                 .fontDesign(.serif)
         } else {
             Text(text)

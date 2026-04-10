@@ -9,6 +9,7 @@ import DeviceActivity
 import ManagedSettings
 import FamilyControls
 import Foundation
+import UserNotifications
 
 class DeviceActivityMonitorExtension: DeviceActivityMonitor {
 
@@ -47,6 +48,22 @@ class DeviceActivityMonitorExtension: DeviceActivityMonitor {
     override func eventWillReachThresholdWarning(_ event: DeviceActivityEvent.Name,
                                                   activity: DeviceActivityName) {
         super.eventWillReachThresholdWarning(event, activity: activity)
+        log("eventWillReachThresholdWarning: \(event.rawValue)")
+        sendWarningNotification()
+    }
+
+    private func sendWarningNotification() {
+        let content = UNMutableNotificationContent()
+        content.title = "5 minutes left"
+        content.body = "your blocked apps are about to be locked. open MathBlocker to earn more time."
+        content.sound = .default
+
+        let request = UNNotificationRequest(
+            identifier: "threshold-warning",
+            content: content,
+            trigger: nil // deliver immediately
+        )
+        UNUserNotificationCenter.current().add(request)
     }
 
     override func intervalWillStartWarning(for activity: DeviceActivityName) {
