@@ -16,19 +16,21 @@ struct UsageReportView: View {
         HStack(spacing: 12) {
             Image(systemName: "iphone")
                 .font(.title3)
-                .foregroundStyle(.secondary)
+                .foregroundColor(.gray)
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(totalTime)
                     .font(.system(size: 22, weight: .bold, design: .serif))
+                    .foregroundColor(.black)
 
                 Text("on blocked apps today")
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundColor(.gray)
             }
 
             Spacer()
         }
         .padding(16)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }

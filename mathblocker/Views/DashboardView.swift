@@ -218,12 +218,7 @@ struct DashboardView: View {
     // MARK: - Usage Report
 
     private var usageReport: some View {
-        let today = Calendar.current.startOfDay(for: .now)
-        let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: today)!
-        let filter = DeviceActivityFilter(
-            segment: .daily(during: DateInterval(start: today, end: tomorrow))
-        )
-        return DeviceActivityReport(.init(rawValue: "totalUsage"), filter: filter)
+        DeviceActivityReport(.init(rawValue: "totalUsage"))
             .frame(height: 60)
             .background(Theme.cardBackground)
             .clipShape(RoundedRectangle(cornerRadius: 12))

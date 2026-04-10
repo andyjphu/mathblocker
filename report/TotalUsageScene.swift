@@ -15,12 +15,16 @@ struct TotalUsageScene: DeviceActivityReportScene {
 
     func makeConfiguration(representing data: DeviceActivityResults<DeviceActivityData>) async -> String {
         var totalDuration: TimeInterval = 0
+        var hasData = false
 
         for await activityData in data {
+            hasData = true
             for await segment in activityData.activitySegments {
                 totalDuration += segment.totalActivityDuration
             }
         }
+
+        guard hasData else { return "no data yet" }
 
         let hours = Int(totalDuration) / 3600
         let minutes = (Int(totalDuration) % 3600) / 60
