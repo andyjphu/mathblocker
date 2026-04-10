@@ -25,7 +25,8 @@ struct OnboardingView: View {
                 howItWorksPage.tag(1)
                 authorizePage.tag(2)
                 pickAppsPage.tag(3)
-                readyPage.tag(4)
+                notificationsPage.tag(4)
+                readyPage.tag(5)
             }
             .tabViewStyle(.page(indexDisplayMode: .always))
             .indexViewStyle(.page(backgroundDisplayMode: .always))
@@ -127,12 +128,7 @@ struct OnboardingView: View {
                 nextButton(page: 2)
             } else {
                 Button {
-                    Task {
-                        await authManager.requestAuthorization()
-                        // Also request notifications for "5 min left" warnings
-                        _ = try? await UNUserNotificationCenter.current()
-                            .requestAuthorization(options: [.alert, .sound])
-                    }
+                    Task { await authManager.requestAuthorization() }
                 } label: {
                     Text("Authorize")
                         .font(.headline)
@@ -217,6 +213,66 @@ struct OnboardingView: View {
         .padding(32)
     }
 
+    // MARK: - Notifications
+
+    @State private var notificationsGranted = false
+
+    private var notificationsPage: some View {
+        VStack(spacing: 24) {
+            Spacer()
+
+            Image(systemName: "bell.badge")
+                .font(.system(size: 60))
+                .foregroundStyle(.accent)
+
+            Text("stay in the loop")
+                .font(Theme.titleFont(size: 28))
+
+            Text("we'll send you a heads up when you're about to hit your limit — so you can solve a few problems before your apps get blocked.")
+                .font(.body)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 16)
+
+            if notificationsGranted {
+                Label("notifications enabled", systemImage: "checkmark.circle.fill")
+                    .font(.headline)
+                    .foregroundStyle(.green)
+            }
+
+            Spacer()
+
+            if notificationsGranted {
+                nextButton(page: 4)
+            } else {
+                Button {
+                    Task {
+                        let granted = (try? await UNUserNotificationCenter.current()
+                            .requestAuthorization(options: [.alert, .sound])) ?? false
+                        notificationsGranted = granted
+                    }
+                } label: {
+                    Text("notify me")
+                        .font(.headline)
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                        .background(.accent)
+                        .clipShape(RoundedRectangle(cornerRadius: 14))
+                }
+
+                Button {
+                    withAnimation { currentPage = 5 }
+                } label: {
+                    Text("skip for now")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+            }
+        }
+        .padding(32)
+    }
+
     // MARK: - Ready
 
     private var readyPage: some View {
@@ -245,17 +301,11 @@ struct OnboardingView: View {
             Spacer()
 
             Button {
-                Task {
-                    // Request notification permission
-                    _ = try? await UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound])
-
-                    // Start monitoring if authorized and apps selected
-                    if authManager.isAuthorized && selectionManager.hasSelection {
-                        MonitoringManager.shared.startMonitoring(budgetMinutes: 30)
-                    }
-                    withAnimation {
-                        hasCompletedOnboarding = true
-                    }
+                if authManager.isAuthorized && selectionManager.hasSelection {
+                    MonitoringManager.shared.startMonitoring(budgetMinutes: 30)
+                }
+                withAnimation {
+                    hasCompletedOnboarding = true
                 }
             } label: {
                 Text("let's go")

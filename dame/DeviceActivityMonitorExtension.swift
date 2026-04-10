@@ -34,19 +34,22 @@ class DeviceActivityMonitorExtension: DeviceActivityMonitor {
 
     // MARK: - Usage Tracking
 
-    /// Records that the user consumed their full threshold worth of minutes.
-    /// Called when threshold fires — at that point, usage = whatever threshold was set.
-    private func recordThresholdReached() {
+    /// Records cumulative usage from granular threshold events.
+    /// Each event name is "usage.X" where X is total minutes at that threshold.
+    /// Only updates if the new value is greater than what's already stored,
+    /// to debounce duplicate fires from monitoring restarts.
+    private func recordUsage(minutes: Int) {
         guard let defaults else { return }
-
-        // Reset if it's a new day
         resetIfNewDay()
 
-        let budget = defaults.integer(forKey: "dailyBudgetMinutes")
         let current = defaults.integer(forKey: usageKey)
-        let newTotal = current + max(budget, 1) // add the threshold that was just consumed
-        defaults.set(newTotal, forKey: usageKey)
-        log("usage updated: \(current) + \(budget) = \(newTotal) minutes")
+        guard minutes > current else {
+            log("usage: \(minutes) (skipped, current is \(current))")
+            return
+        }
+
+        defaults.set(minutes, forKey: usageKey)
+        log("usage: \(minutes) minutes")
     }
 
     /// Resets usage counter at the start of a new day.
@@ -80,17 +83,44 @@ class DeviceActivityMonitorExtension: DeviceActivityMonitor {
                                           activity: DeviceActivityName) {
         super.eventDidReachThreshold(event, activity: activity)
         log("eventDidReachThreshold: \(event.rawValue)")
-        recordThresholdReached()
-        applyShields()
 
-        // Prevent clock-change bypass
-        store.dateAndTime.requireAutomaticDateAndTime = true
+        let thresholdEventName = "mathblocker.threshold"
+
+        if event.rawValue.hasPrefix("usage."),
+           let minutes = Int(event.rawValue.replacingOccurrences(of: "usage.", with: "")) {
+            // Granular usage tracking event — update cumulative counter
+            recordUsage(minutes: minutes)
+        }
+
+        if event.rawValue == thresholdEventName {
+            // Debounce: only apply shields if not already active
+            if store.shield.applications == nil && store.shield.applicationCategories == nil {
+                applyShields()
+                store.dateAndTime.requireAutomaticDateAndTime = true
+                log("shields applied")
+            } else {
+                log("shields already active, skipping")
+            }
+        }
     }
 
     override func eventWillReachThresholdWarning(_ event: DeviceActivityEvent.Name,
                                                   activity: DeviceActivityName) {
         super.eventWillReachThresholdWarning(event, activity: activity)
         log("eventWillReachThresholdWarning: \(event.rawValue)")
+
+        // Only send warning for the budget event, not granular tracking events
+        guard event.rawValue == "mathblocker.threshold" else { return }
+
+        // Debounce: only send if last warning was more than 30 min ago
+        let lastWarning = defaults?.double(forKey: "lastWarningTimestamp") ?? 0
+        let now = Date().timeIntervalSince1970
+        guard now - lastWarning > 1800 else {
+            log("warning notification skipped (recently sent)")
+            return
+        }
+        defaults?.set(now, forKey: "lastWarningTimestamp")
+
         sendWarningNotification()
     }
 

@@ -17,8 +17,6 @@ struct DashboardView: View {
     @Query(sort: \DailyStats.date, order: .reverse) private var allStats: [DailyStats]
     @Query private var settings: [UserSettings]
     @State private var showReport = false
-    @State private var usedMinutes: Int = 0
-    @State private var usageError: String?
 
     private var budgetMinutes: Int { settings.first?.dailyTimeBudgetMinutes ?? 30 }
     private var perCorrect: Int { settings.first?.minutesPerCorrectAnswer ?? 2 }
@@ -84,7 +82,6 @@ struct DashboardView: View {
                         showReport = true
                     }
                 }
-                loadUsageFromAppGroup()
             }
             .scrollContentBackground(.hidden)
             .background { FrostedBackground() }
@@ -103,26 +100,28 @@ struct DashboardView: View {
 
     private var heroSection: some View {
         let earned = todayStats?.minutesEarned ?? 0
+        let used = MonitoringManager.shared.usedMinutesToday
+        let remaining = max(0, budgetMinutes + earned - used)
         let shieldsUp = ShieldManager.shared.shieldsAreActive
 
         return VStack(spacing: 16) {
-            // Earned is the hero — the number they control
+            // Remaining is the hero number
             VStack(spacing: 4) {
-                Text("+\(earned)")
+                Text("\(remaining)")
                     .font(Theme.titleFont(size: 64))
-                    .foregroundStyle(earned > 0 ? .accent : .primary)
+                    .foregroundStyle(remaining == 0 ? .orange : .primary)
 
-                Text("minutes earned today")
+                Text("minutes remaining")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
 
-            // Budget context
+            // Breakdown
             HStack(spacing: 0) {
                 VStack(spacing: 2) {
                     Text("\(budgetMinutes)")
                         .font(Theme.titleFont(size: 20))
-                    Text("daily budget")
+                    Text("budget")
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                 }
@@ -133,9 +132,24 @@ struct DashboardView: View {
                     .frame(width: 1, height: 24)
 
                 VStack(spacing: 2) {
-                    Text("\(todayStats?.questionsCorrect ?? 0)/\(todayStats?.questionsAttempted ?? 0)")
+                    Text("+\(earned)")
                         .font(Theme.titleFont(size: 20))
-                    Text("solved today")
+                        .foregroundStyle(.accent)
+                    Text("earned")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity)
+
+                Rectangle()
+                    .fill(.quaternary)
+                    .frame(width: 1, height: 24)
+
+                VStack(spacing: 2) {
+                    Text("\(used)")
+                        .font(Theme.titleFont(size: 20))
+                        .foregroundStyle(.secondary)
+                    Text("used")
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                 }
@@ -251,19 +265,6 @@ struct DashboardView: View {
     }
 
     // MARK: - Usage
-
-    /// Reads usage minutes written by the report extension via app group.
-    private func loadUsageFromAppGroup() {
-        guard let defaults = AppGroupConstants.sharedDefaults else { return }
-        let timestamp = defaults.double(forKey: "reportUsedTimestamp")
-        let today = Calendar.current.startOfDay(for: .now).timeIntervalSince1970
-
-        // Only use if the report wrote data today
-        if timestamp >= today {
-            usedMinutes = defaults.integer(forKey: "reportUsedMinutesToday")
-            usageError = nil
-        }
-    }
 
     // MARK: - History
 

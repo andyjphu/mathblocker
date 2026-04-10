@@ -10,87 +10,88 @@ import FamilyControls
 import Foundation
 
 /// Starts and stops DeviceActivity monitoring schedules.
-/// Uses iOS 26.4's DeviceActivityData.activityData() to read
-/// actual usage and set accurate thresholds.
+/// Registers threshold events at 5-minute intervals so the dame extension
+/// can track cumulative usage and write it to the app group.
 @Observable
 class MonitoringManager {
     static let shared = MonitoringManager()
 
     private let center = DeviceActivityCenter()
+    /// Granularity for usage tracking (minutes).
+    private let trackingInterval = 5
 
     var isMonitoring: Bool {
         get { AppGroupConstants.sharedDefaults?.bool(forKey: "isMonitoring") ?? false }
         set { AppGroupConstants.sharedDefaults?.set(newValue, forKey: "isMonitoring") }
     }
 
-    /// Reads actual usage for today's blocked apps, then starts monitoring
-    /// with the correct remaining threshold.
+    /// Cumulative minutes used today, tracked by the dame extension
+    /// via granular threshold events.
+    var usedMinutesToday: Int {
+        guard let defaults = AppGroupConstants.sharedDefaults else { return 0 }
+        let today = Calendar.current.startOfDay(for: .now).timeIntervalSince1970
+        let lastDate = defaults.double(forKey: "usageTrackingDate")
+        guard lastDate >= today else { return 0 }
+        return defaults.integer(forKey: "cumulativeMinutesUsed")
+    }
+
     func startMonitoring(budgetMinutes: Int) {
         let selection = SelectionManager.shared.selection
         guard !selection.applicationTokens.isEmpty || !selection.categoryTokens.isEmpty else { return }
 
-        if budgetMinutes <= 0 {
+        let used = usedMinutesToday
+
+        // Already over budget — block immediately
+        if budgetMinutes <= 0 || used >= budgetMinutes {
             ShieldManager.shared.applyShields()
             isMonitoring = true
-            syncToAppGroup(budgetMinutes: 0)
+            syncToAppGroup(budgetMinutes: budgetMinutes)
+            print("MonitoringManager: used \(used)m >= budget \(budgetMinutes)m, blocking now")
             return
         }
 
-        // Use iOS 26.4 API to get actual usage before setting threshold
-        Task { @MainActor in
-            let usedMinutes = self.readUsageFromAppGroup()
-
-            if usedMinutes >= budgetMinutes {
-                // Already over budget — block immediately
-                ShieldManager.shared.applyShields()
-                self.isMonitoring = true
-                self.syncToAppGroup(budgetMinutes: budgetMinutes)
-                print("MonitoringManager: usage \(usedMinutes)m >= budget \(budgetMinutes)m, blocking now")
-                return
-            }
-
-            let remaining = budgetMinutes - usedMinutes
-            print("MonitoringManager: usage \(usedMinutes)m, budget \(budgetMinutes)m, threshold \(remaining)m")
-            self.startMonitoringWithThreshold(remaining: remaining, budgetMinutes: budgetMinutes)
-        }
-    }
-
-    private func startMonitoringWithThreshold(remaining: Int, budgetMinutes: Int) {
-        let selection = SelectionManager.shared.selection
         let activityName = DeviceActivityName(rawValue: AppGroupConstants.activityName)
-        let eventName = DeviceActivityEvent.Name(rawValue: AppGroupConstants.thresholdEventName)
 
         let schedule = DeviceActivitySchedule(
             intervalStart: DateComponents(hour: 0, minute: 0),
             intervalEnd: DateComponents(hour: 23, minute: 59),
             repeats: true,
-            warningTime: DateComponents(minute: min(5, remaining))
+            warningTime: DateComponents(minute: 5)
         )
 
-        let event = DeviceActivityEvent(
+        // iOS limits events per schedule (~20 max). Pick a sparse set
+        // of milestones that cover a reasonable usage range.
+        let trackingMilestones = [1, 5, 10, 15, 30, 45, 60, 90, 120, 180, 240, 360, 480, 600]
+        var events: [DeviceActivityEvent.Name: DeviceActivityEvent] = [:]
+
+        for minutes in trackingMilestones {
+            let eventName = DeviceActivityEvent.Name("usage.\(minutes)")
+            events[eventName] = DeviceActivityEvent(
+                applications: selection.applicationTokens,
+                categories: selection.categoryTokens,
+                webDomains: selection.webDomainTokens,
+                threshold: DateComponents(minute: minutes)
+            )
+        }
+
+        // Budget threshold — this is the one that triggers shields
+        let budgetEventName = DeviceActivityEvent.Name(rawValue: AppGroupConstants.thresholdEventName)
+        events[budgetEventName] = DeviceActivityEvent(
             applications: selection.applicationTokens,
             categories: selection.categoryTokens,
             webDomains: selection.webDomainTokens,
-            threshold: DateComponents(minute: remaining)
+            threshold: DateComponents(minute: budgetMinutes)
         )
 
         do {
-            try center.startMonitoring(activityName, during: schedule, events: [eventName: event])
+            try center.startMonitoring(activityName, during: schedule, events: events)
             isMonitoring = true
             syncToAppGroup(budgetMinutes: budgetMinutes)
+            print("MonitoringManager: started with \(events.count) events, budget \(budgetMinutes)m")
         } catch {
             print("MonitoringManager: failed to start: \(error)")
             isMonitoring = false
         }
-    }
-
-    /// Reads usage minutes written by the report extension via app group.
-    private func readUsageFromAppGroup() -> Int {
-        guard let defaults = AppGroupConstants.sharedDefaults else { return 0 }
-        let timestamp = defaults.double(forKey: "reportUsedTimestamp")
-        let today = Calendar.current.startOfDay(for: .now).timeIntervalSince1970
-        guard timestamp >= today else { return 0 }
-        return defaults.integer(forKey: "reportUsedMinutesToday")
     }
 
     func stopMonitoring() {
