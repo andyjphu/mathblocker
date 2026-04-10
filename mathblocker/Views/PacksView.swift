@@ -40,7 +40,7 @@ struct PacksView: View {
             } header: {
                 Text("question packs")
             } footer: {
-                Text("tap to select · download icon to install · swipe to delete")
+                Text("tap to select · downloaded packs can be deleted")
             }
             .listRowBackground(Theme.cardBackground)
 
@@ -108,7 +108,7 @@ struct PacksView: View {
 
                 Spacer()
 
-                // Download / status
+                // Download / delete / status
                 if isDownloading {
                     ProgressView()
                 } else if !isInstalled, let pack {
@@ -122,19 +122,18 @@ struct PacksView: View {
                             .foregroundStyle(.accent)
                             .font(.title3)
                     }
-                }
-            }
-        }
-        .swipeActions(edge: .trailing) {
-            if isInstalled && !alwaysAvailable && id != "all" {
-                Button(role: .destructive) {
-                    packManager.delete(id)
-                    if selectedSource == id {
-                        selectedSource = "hendrycks_math"
+                } else if isInstalled && !alwaysAvailable && id != "all" {
+                    Button {
+                        packManager.delete(id)
+                        if selectedSource == id {
+                            selectedSource = "hendrycks_math"
+                        }
+                        Task { await QuestionBank.shared.reload() }
+                    } label: {
+                        Image(systemName: "trash.circle")
+                            .foregroundStyle(.red.opacity(0.7))
+                            .font(.title3)
                     }
-                    Task { await QuestionBank.shared.reload() }
-                } label: {
-                    Label("delete", systemImage: "trash")
                 }
             }
         }
