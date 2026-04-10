@@ -18,6 +18,7 @@ struct DashboardView: View {
     @Query private var settings: [UserSettings]
     @State private var showReport = false
     @State private var usedMinutes: Int = 0
+    @State private var usageError: String?
 
     private var budgetMinutes: Int { settings.first?.dailyTimeBudgetMinutes ?? 30 }
     private var perCorrect: Int { settings.first?.minutesPerCorrectAnswer ?? 2 }
@@ -166,6 +167,12 @@ struct DashboardView: View {
                     .foregroundStyle(.orange)
                     .multilineTextAlignment(.center)
             }
+
+            if let usageError {
+                Text(usageError)
+                    .font(.caption2)
+                    .foregroundStyle(.red)
+            }
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 24)
@@ -283,22 +290,34 @@ struct DashboardView: View {
         )
 
         var totalSeconds: TimeInterval = 0
+        var segmentCount = 0
+        var appCount = 0
+
         do {
             for try await activityData in DeviceActivityData.activityData(filteredBy: filter, using: .cached) {
                 for await segment in activityData.activitySegments {
+                    segmentCount += 1
+                    totalSeconds += segment.totalActivityDuration
                     for await category in segment.categories {
                         for await app in category.applications {
-                            totalSeconds += app.totalActivityDuration
+                            appCount += 1
                         }
                     }
                 }
             }
+            await MainActor.run {
+                usedMinutes = Int(totalSeconds / 60)
+                if totalSeconds == 0 {
+                    usageError = "api ok, \(segmentCount) segments, \(appCount) apps, 0s total"
+                } else {
+                    usageError = nil
+                }
+            }
         } catch {
-            print("Dashboard: failed to fetch usage: \(error)")
-        }
-
-        await MainActor.run {
-            usedMinutes = Int(totalSeconds / 60)
+            await MainActor.run {
+                usageError = "usage api: \(error.localizedDescription)"
+                usedMinutes = 0
+            }
         }
     }
 
