@@ -293,7 +293,6 @@ struct OnboardingView: View {
                 .padding(.horizontal, 16)
 
             VStack(alignment: .leading, spacing: 12) {
-                featureRow(icon: "lock.shield", text: "set a Screen Time passcode for extra protection")
                 featureRow(icon: "hand.raised.fill", text: "you're in control, change anything anytime")
             }
             .padding(.top, 8)
