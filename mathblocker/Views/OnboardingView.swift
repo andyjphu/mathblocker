@@ -228,7 +228,7 @@ struct OnboardingView: View {
             Text("stay in the loop")
                 .font(Theme.titleFont(size: 28))
 
-            Text("we'll send you a heads up when you're about to hit your limit — so you can solve a few problems before your apps get blocked.")
+            Text("we'll send you a heads up when you're about to hit your limit, so you can solve a few problems before your apps get blocked.")
                 .font(.body)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
@@ -294,7 +294,7 @@ struct OnboardingView: View {
 
             VStack(alignment: .leading, spacing: 12) {
                 featureRow(icon: "lock.shield", text: "set a Screen Time passcode for extra protection")
-                featureRow(icon: "hand.raised.fill", text: "you're in control — change anything anytime")
+                featureRow(icon: "hand.raised.fill", text: "you're in control, change anything anytime")
             }
             .padding(.top, 8)
 

@@ -9,16 +9,25 @@ import SwiftUI
 import LaTeXSwiftUI
 
 /// Renders text that may contain LaTeX math expressions.
-/// Handles three cases:
-/// 1. Properly delimited text (`$...$`, `\[...\]`, `\(...\)`) — pass through
-/// 2. Bare LaTeX commands with no delimiters — wrap in `$...$`
-/// 3. Plain prose — pass through
+/// Only routes through LaTeXSwiftUI when there's actual LaTeX content,
+/// otherwise uses plain Text to avoid parser failures and overhead.
 struct MathText: View {
     let text: String
 
+    private var hasLaTeX: Bool {
+        text.contains("$") ||
+        text.contains("\\[") ||
+        text.contains("\\(") ||
+        containsLaTeXCommand(text)
+    }
+
     var body: some View {
-        LaTeX(processedText)
-            .fontDesign(.serif)
+        if hasLaTeX {
+            LaTeX(processedText)
+                .fontDesign(.serif)
+        } else {
+            Text(text)
+        }
     }
 
     private var processedText: String {
@@ -30,12 +39,9 @@ struct MathText: View {
             t = t.replacingOccurrences(of: "$", with: "")
         }
 
-        // If the string has bare LaTeX commands but no delimiters at all,
-        // wrap the whole thing so LaTeXSwiftUI parses it as math.
+        // Bare LaTeX commands with no delimiters: wrap them
         let hasDelimiters = t.contains("$") || t.contains("\\[") || t.contains("\\(")
-        let hasBareLaTeX = containsLaTeXCommand(t)
-
-        if hasBareLaTeX && !hasDelimiters {
+        if !hasDelimiters && containsLaTeXCommand(t) {
             return "$\(t)$"
         }
 
