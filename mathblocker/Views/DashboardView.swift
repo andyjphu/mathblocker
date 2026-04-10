@@ -17,6 +17,7 @@ struct DashboardView: View {
     @Query(sort: \DailyStats.date, order: .reverse) private var allStats: [DailyStats]
     @Query private var settings: [UserSettings]
     @State private var showReport = false
+    @State private var usedMinutes: Int = 0
 
     private var budgetMinutes: Int { settings.first?.dailyTimeBudgetMinutes ?? 30 }
     private var perCorrect: Int { settings.first?.minutesPerCorrectAnswer ?? 2 }
@@ -82,6 +83,7 @@ struct DashboardView: View {
                         showReport = true
                     }
                 }
+                Task { await loadUsage() }
             }
             .scrollContentBackground(.hidden)
             .background { FrostedBackground() }
@@ -100,24 +102,60 @@ struct DashboardView: View {
 
     private var heroSection: some View {
         let earned = todayStats?.minutesEarned ?? 0
+        let remaining = max(0, budgetMinutes + earned - usedMinutes)
         let shieldsUp = ShieldManager.shared.shieldsAreActive
 
         return VStack(spacing: 16) {
-            // Earned is the number that matters
+            // Remaining is the hero number
             VStack(spacing: 4) {
-                Text("\(earned)")
+                Text("\(remaining)")
                     .font(Theme.titleFont(size: 64))
-                    .foregroundStyle(shieldsUp ? .orange : .accent)
+                    .foregroundStyle(remaining == 0 ? .orange : .primary)
 
-                Text("minutes earned today")
+                Text("minutes remaining")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
 
-            // Budget context
-            Text("\(budgetMinutes) min daily budget")
-                .font(.caption)
-                .foregroundStyle(.secondary)
+            // Breakdown
+            HStack(spacing: 0) {
+                VStack(spacing: 2) {
+                    Text("\(budgetMinutes)")
+                        .font(Theme.titleFont(size: 20))
+                    Text("budget")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity)
+
+                Rectangle()
+                    .fill(.quaternary)
+                    .frame(width: 1, height: 24)
+
+                VStack(spacing: 2) {
+                    Text("+\(earned)")
+                        .font(Theme.titleFont(size: 20))
+                        .foregroundStyle(.accent)
+                    Text("earned")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity)
+
+                Rectangle()
+                    .fill(.quaternary)
+                    .frame(width: 1, height: 24)
+
+                VStack(spacing: 2) {
+                    Text("\(usedMinutes)")
+                        .font(Theme.titleFont(size: 20))
+                        .foregroundStyle(.secondary)
+                    Text("used")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity)
+            }
 
             // Status line
             if shieldsUp {
@@ -224,6 +262,41 @@ struct DashboardView: View {
             Text(monitoring ? "monitoring on" : "monitoring off")
                 .font(.caption)
                 .foregroundStyle(.secondary)
+        }
+    }
+
+    // MARK: - Usage
+
+    @available(iOS 26.4, *)
+    private func loadUsage() async {
+        let today = Calendar.current.startOfDay(for: .now)
+        let selection = SelectionManager.shared.selection
+
+        let filter = DeviceActivityFilter(
+            segment: .hourly(during: DateInterval(start: today, end: .now)),
+            users: .all,
+            devices: .init([.iPhone]),
+            applications: selection.applicationTokens,
+            categories: selection.categoryTokens
+        )
+
+        var totalSeconds: TimeInterval = 0
+        do {
+            for try await activityData in DeviceActivityData.activityData(filteredBy: filter, using: .cached) {
+                for await segment in activityData.activitySegments {
+                    for await category in segment.categories {
+                        for await app in category.applications {
+                            totalSeconds += app.totalActivityDuration
+                        }
+                    }
+                }
+            }
+        } catch {
+            print("Dashboard: failed to fetch usage: \(error)")
+        }
+
+        await MainActor.run {
+            usedMinutes = Int(totalSeconds / 60)
         }
     }
 
