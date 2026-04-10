@@ -9,27 +9,8 @@ import SwiftUI
 import SwiftData
 
 @MainActor
-private func reconcileShields(modelContext: ModelContext) {
-    let descriptor = FetchDescriptor<UserSettings>()
-    guard let settings = try? modelContext.fetch(descriptor).first else { return }
-
-    let today = Calendar.current.startOfDay(for: .now)
-    let statsDescriptor = FetchDescriptor<DailyStats>(
-        predicate: #Predicate { $0.date == today }
-    )
-    let earned = (try? modelContext.fetch(statsDescriptor).first?.minutesEarned) ?? 0
-    let used = MonitoringManager.shared.usedMinutesToday
-    let totalAllowed = settings.dailyTimeBudgetMinutes + earned
-
+private func refreshShieldState() {
     ShieldManager.shared.refreshState()
-
-    // If user has remaining time but shields are up, clear them
-    if used < totalAllowed && ShieldManager.shared.shieldsAreActive {
-        ShieldManager.shared.removeShields()
-        if MonitoringManager.shared.isMonitoring {
-            MonitoringManager.shared.startMonitoring(budgetMinutes: totalAllowed)
-        }
-    }
 }
 
 @main
@@ -73,7 +54,7 @@ struct mathblockerApp: App {
             .onChange(of: scenePhase) { _, newPhase in
                 if newPhase == .active {
                     Task { @MainActor in
-                        reconcileShields(modelContext: sharedModelContainer.mainContext)
+                        refreshShieldState()
                     }
                 }
             }

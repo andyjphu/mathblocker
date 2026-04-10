@@ -100,77 +100,37 @@ struct DashboardView: View {
 
     private var heroSection: some View {
         let earned = todayStats?.minutesEarned ?? 0
-        let used = MonitoringManager.shared.usedMinutesToday
-        let remaining = max(0, budgetMinutes + earned - used)
-        let shieldManager = ShieldManager.shared
-        let shieldsUp = shieldManager.shieldsAreActive && remaining == 0
+        let timerEnd = MonitoringManager.shared.earnedTimerEnd
+        let shieldsUp = ShieldManager.shared.shieldsAreActive && timerEnd == nil
 
         return VStack(spacing: 16) {
-            // Remaining is the hero number (upper bound — actual could be less)
-            VStack(spacing: 4) {
-                Text(used > 0 && remaining > 0 ? "≤\(remaining)" : "\(remaining)")
-                    .font(Theme.titleFont(size: 64))
-                    .foregroundStyle(remaining == 0 ? .orange : .primary)
-
-                Text("minutes remaining")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-            }
-
-            // Breakdown
-            HStack(spacing: 0) {
-                VStack(spacing: 2) {
-                    Text("\(budgetMinutes)")
-                        .font(Theme.titleFont(size: 20))
-                    Text("budget")
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
-                }
-                .frame(maxWidth: .infinity)
-
-                Rectangle()
-                    .fill(.quaternary)
-                    .frame(width: 1, height: 24)
-
-                VStack(spacing: 2) {
+            if let endDate = timerEnd {
+                // Active earned timer — show countdown
+                CountdownView(endDate: endDate)
+            } else {
+                // Show earned today as the hero
+                VStack(spacing: 4) {
                     Text("+\(earned)")
-                        .font(Theme.titleFont(size: 20))
-                        .foregroundStyle(.accent)
-                    Text("earned")
-                        .font(.caption2)
+                        .font(Theme.titleFont(size: 64))
+                        .foregroundStyle(earned > 0 ? .accent : .primary)
+
+                    Text("minutes earned today")
+                        .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
-                .frame(maxWidth: .infinity)
-
-                Rectangle()
-                    .fill(.quaternary)
-                    .frame(width: 1, height: 24)
-
-                VStack(spacing: 2) {
-                    Text(used > 0 ? "≥\(used)" : "\(used)")
-                        .font(Theme.titleFont(size: 20))
-                        .foregroundStyle(.secondary)
-                    Text("used")
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
-                }
-                .frame(maxWidth: .infinity)
             }
 
-            // Status line
-            if shieldsUp {
-                HStack(spacing: 4) {
-                    Text("apps are blocked, solve problems to earn time; times are approximate for privacy reasons")
-                        .font(.caption)
-                        .foregroundStyle(.orange)
-                        .multilineTextAlignment(.center)
+            // Budget context
+            Text("\(budgetMinutes) min daily budget")
+                .font(.caption)
+                .foregroundStyle(.secondary)
 
-                    Link(destination: URL(string: "https://recursn.com/mathblocker/privacy-policy")!) {
-                        Image(systemName: "info.circle")
-                            .font(.caption)
-                            .foregroundStyle(.orange)
-                    }
-                }
+            // Status line (only when blocked)
+            if shieldsUp {
+                Text("apps are blocked, solve problems to earn time")
+                    .font(.caption)
+                    .foregroundStyle(.orange)
+                    .multilineTextAlignment(.center)
             }
         }
         .frame(maxWidth: .infinity)
@@ -181,8 +141,6 @@ struct DashboardView: View {
         .cardShadow()
         .padding(.horizontal)
     }
-
-    // MARK: - CTA
 
     // MARK: - Stats Row
 
@@ -248,14 +206,27 @@ struct DashboardView: View {
             applications: selection.applicationTokens,
             categories: selection.categoryTokens
         )
-        return DeviceActivityReport(
-            DeviceActivityReport.Context("totalUsage"),
-            filter: filter
-        )
-        .frame(height: 280)
-        .background(Theme.cardBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-        .cardShadow()
+        return VStack(spacing: 8) {
+            DeviceActivityReport(
+                DeviceActivityReport.Context("totalUsage"),
+                filter: filter
+            )
+            .frame(height: 280)
+            .background(Theme.cardBackground)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .cardShadow()
+
+            HStack(spacing: 4) {
+                Text("usage data is rendered privately on-device")
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+                Link(destination: URL(string: "https://recursn.com/mathblocker/privacy-policy")!) {
+                    Image(systemName: "info.circle")
+                        .font(.caption2)
+                        .foregroundStyle(.tertiary)
+                }
+            }
+        }
         .padding(.horizontal)
     }
 

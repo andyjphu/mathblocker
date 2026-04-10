@@ -132,28 +132,12 @@ class ChallengeViewModel {
         }
     }
 
-    /// After a session, removes shields and restarts monitoring with the
-    /// budget extended by the minutes earned this session.
+    /// After a session, starts a calendar-time earned timer.
+    /// The timer counts wall-clock minutes from now and re-applies shields
+    /// when it expires.
     private func redeemEarnedMinutes(modelContext: ModelContext) {
         guard minutesEarned > 0 else { return }
-
-        // Remove shields if active
-        ShieldManager.shared.removeShields()
-
-        // Restart monitoring with extended budget (original + total earned today)
-        let descriptor = FetchDescriptor<UserSettings>()
-        guard let settings = try? modelContext.fetch(descriptor).first else { return }
-
-        let today = Calendar.current.startOfDay(for: .now)
-        let todayDescriptor = FetchDescriptor<DailyStats>(
-            predicate: #Predicate { $0.date == today }
-        )
-        let totalEarnedToday = (try? modelContext.fetch(todayDescriptor).first?.minutesEarned) ?? minutesEarned
-        let newBudget = settings.dailyTimeBudgetMinutes + totalEarnedToday
-
-        if MonitoringManager.shared.isMonitoring {
-            MonitoringManager.shared.startMonitoring(budgetMinutes: newBudget)
-        }
+        MonitoringManager.shared.startEarnedTimer(minutes: minutesEarned)
     }
 
     private func recordDailyStats(modelContext: ModelContext) {

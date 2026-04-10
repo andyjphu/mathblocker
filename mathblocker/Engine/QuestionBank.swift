@@ -22,6 +22,34 @@ struct BundledQuestion: Codable, Sendable {
 actor QuestionBank {
     static let shared = QuestionBank()
 
+    /// Substring markers for LaTeX features we can't render. Questions whose
+    /// `question` or `choices` contain any of these are dropped at load time.
+    /// Keep in sync with MathText.rewriteForSwiftMath — anything we can rewrite
+    /// should NOT be here.
+    private static let unsupportedMarkers: [String] = [
+        "[asy]",                // Asymptote vector graphics (~418 questions)
+        "\\begin{tabular}",     // tables — too complex to rewrite
+        "\\begin{align*}",      // display-mode align, not `aligned`
+        "\\begin{align}",       // same
+        "\\begin{eqnarray*}",   // starred eqnarray not supported
+        "\\stackrel",           // stacked symbols, no SwiftMath equivalent
+        "\\hspace",             // horizontal spacing, rare
+        "\\vspace",             // vertical spacing, rare
+        "\\renewcommand",       // macro redefinition
+        "\\newcommand",         // ditto
+        "\\includegraphics",    // embedded images
+    ]
+
+    private static func isRenderable(_ q: BundledQuestion) -> Bool {
+        let haystacks = [q.question] + q.choices
+        for marker in unsupportedMarkers {
+            for h in haystacks where h.contains(marker) {
+                return false
+            }
+        }
+        return true
+    }
+
     private var questions: [BundledQuestion] = []
     private var bySource: [String: [BundledQuestion]] = [:]
     private var loaded = false
@@ -35,8 +63,10 @@ actor QuestionBank {
             do {
                 let data = try Data(contentsOf: url)
                 let bundled = try JSONDecoder().decode([BundledQuestion].self, from: data)
-                questions.append(contentsOf: bundled)
-                print("QuestionBank: loaded \(bundled.count) bundled questions")
+                let filtered = bundled.filter(Self.isRenderable)
+                questions.append(contentsOf: filtered)
+                let dropped = bundled.count - filtered.count
+                print("QuestionBank: loaded \(filtered.count) bundled questions (\(dropped) dropped as unrenderable)")
             } catch {
                 print("QuestionBank: failed to load bundle: \(error)")
             }
@@ -50,8 +80,10 @@ actor QuestionBank {
                 do {
                     let data = try Data(contentsOf: file)
                     let packQuestions = try JSONDecoder().decode([BundledQuestion].self, from: data)
-                    questions.append(contentsOf: packQuestions)
-                    print("QuestionBank: loaded \(packQuestions.count) from \(file.lastPathComponent)")
+                    let filtered = packQuestions.filter(Self.isRenderable)
+                    questions.append(contentsOf: filtered)
+                    let dropped = packQuestions.count - filtered.count
+                    print("QuestionBank: loaded \(filtered.count) from \(file.lastPathComponent) (\(dropped) dropped)")
                 } catch {
                     print("QuestionBank: failed to load \(file.lastPathComponent): \(error)")
                 }
@@ -102,8 +134,7 @@ actor QuestionBank {
 
         guard !pool.isEmpty else { return [] }
 
-        // Exclude diagram questions (Asymptote code) and recently shown
-        pool = pool.filter { !$0.question.contains("[asy]") }
+        // Exclude recently shown (unrenderable content already filtered at load time)
         var fresh = pool.filter { !recentlyShown.contains($0.question) }
         if fresh.count < count {
             // Pool exhausted — reset and use full pool

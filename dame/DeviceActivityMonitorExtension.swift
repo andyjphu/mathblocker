@@ -11,6 +11,11 @@ import FamilyControls
 import Foundation
 import UserNotifications
 
+/// Handles two activity types:
+/// 1. `mathblocker.daily` — daily budget monitoring. Fires the budget event
+///    when the user has used the blocked apps for `budgetMinutes`.
+/// 2. `mathblocker.earnedTimer` — calendar timer. `intervalDidEnd` fires
+///    after the wall-clock duration that was earned via problem-solving.
 class DeviceActivityMonitorExtension: DeviceActivityMonitor {
 
     private let store = ManagedSettingsStore(
@@ -19,13 +24,9 @@ class DeviceActivityMonitorExtension: DeviceActivityMonitor {
 
     private let suiteName = "group.andyjphu.mathblocker"
     private let selectionKey = "activitySelection"
-    private let usageKey = "cumulativeMinutesUsed"
-    private let usageDateKey = "usageTrackingDate"
-    private let offsetKey = "monitoringOffset"
 
-    /// Tracking milestones used per monitoring window. Sparse so we stay
-    /// well under iOS's ~20-event-per-schedule limit.
-    private let trackingMilestones = [1, 5, 15, 30, 60, 90, 120]
+    private let earnedActivityName = "mathblocker.earnedTimer"
+    private let budgetEventName = "mathblocker.threshold"
 
     private var defaults: UserDefaults? {
         UserDefaults(suiteName: suiteName)
@@ -37,114 +38,27 @@ class DeviceActivityMonitorExtension: DeviceActivityMonitor {
         defaults?.set(existing + "\n[\(timestamp)] \(message)", forKey: "extensionLog")
     }
 
-    // MARK: - Usage Tracking
-
-    /// Records cumulative usage. Each event minute is added to the
-    /// current monitoring offset to get the absolute total today.
-    private func recordUsage(eventMinutes: Int) {
-        guard let defaults else { return }
-        resetIfNewDay()
-
-        let offset = defaults.integer(forKey: offsetKey)
-        let absolute = offset + eventMinutes
-
-        let current = defaults.integer(forKey: usageKey)
-        guard absolute > current else {
-            log("usage \(absolute) (skipped, current is \(current))")
-            return
-        }
-
-        defaults.set(absolute, forKey: usageKey)
-        log("usage: \(absolute) min (offset \(offset) + event \(eventMinutes))")
-    }
-
-    /// Resets usage counter and offset at the start of a new day.
-    private func resetIfNewDay() {
-        guard let defaults else { return }
-        let today = Calendar.current.startOfDay(for: .now).timeIntervalSince1970
-        let lastDate = defaults.double(forKey: usageDateKey)
-
-        if lastDate < today {
-            defaults.set(0, forKey: usageKey)
-            defaults.set(0, forKey: offsetKey)
-            defaults.set(today, forKey: usageDateKey)
-            log("usage reset for new day")
-        }
-    }
-
-    // MARK: - Dynamic Re-registration
-
-    /// Restarts monitoring with a fresh window starting from the current
-    /// cumulative usage. iOS resets its internal counter on restart, so
-    /// we bump the offset by the highest milestone of the prior window.
-    private func restartMonitoringFromCurrentPoint() {
-        guard let defaults,
-              let data = defaults.data(forKey: selectionKey),
-              let selection = try? JSONDecoder().decode(FamilyActivitySelection.self, from: data)
-        else {
-            log("restart: no selection, skipping")
-            return
-        }
-
-        let newOffset = defaults.integer(forKey: usageKey)
-        let budgetMinutes = defaults.integer(forKey: "dailyBudgetMinutes")
-
-        // Stop current monitoring
-        let center = DeviceActivityCenter()
-        center.stopMonitoring()
-
-        // Build new events relative to the new starting point
-        var events: [DeviceActivityEvent.Name: DeviceActivityEvent] = [:]
-
-        for minutes in trackingMilestones {
-            let eventName = DeviceActivityEvent.Name("usage.\(minutes)")
-            events[eventName] = DeviceActivityEvent(
-                applications: selection.applicationTokens,
-                categories: selection.categoryTokens,
-                webDomains: selection.webDomainTokens,
-                threshold: DateComponents(minute: minutes)
-            )
-        }
-
-        // Budget event with adjusted threshold
-        let remainingBudget = max(1, budgetMinutes - newOffset)
-        let budgetEventName = DeviceActivityEvent.Name(rawValue: "mathblocker.threshold")
-        events[budgetEventName] = DeviceActivityEvent(
-            applications: selection.applicationTokens,
-            categories: selection.categoryTokens,
-            webDomains: selection.webDomainTokens,
-            threshold: DateComponents(minute: remainingBudget)
-        )
-
-        let activityName = DeviceActivityName(rawValue: "mathblocker.daily")
-        let schedule = DeviceActivitySchedule(
-            intervalStart: DateComponents(hour: 0, minute: 0),
-            intervalEnd: DateComponents(hour: 23, minute: 59),
-            repeats: true,
-            warningTime: DateComponents(minute: 5)
-        )
-
-        do {
-            try center.startMonitoring(activityName, during: schedule, events: events)
-            defaults.set(newOffset, forKey: offsetKey)
-            log("restart ok: offset=\(newOffset), remaining budget=\(remainingBudget)")
-        } catch {
-            log("restart failed: \(error)")
-        }
-    }
-
     // MARK: - Callbacks
 
     override func intervalDidStart(for activity: DeviceActivityName) {
         super.intervalDidStart(for: activity)
         log("intervalDidStart: \(activity.rawValue)")
-        resetIfNewDay()
     }
 
     override func intervalDidEnd(for activity: DeviceActivityName) {
         super.intervalDidEnd(for: activity)
         log("intervalDidEnd: \(activity.rawValue)")
-        store.clearAllSettings()
+
+        if activity.rawValue == earnedActivityName {
+            // Earned timer expired — re-block
+            applyShields()
+            store.dateAndTime.requireAutomaticDateAndTime = true
+            defaults?.removeObject(forKey: "earnedTimerEnd")
+            log("earned timer expired, shields applied")
+        } else {
+            // Daily interval ended — clear all settings
+            store.clearAllSettings()
+        }
     }
 
     override func eventDidReachThreshold(_ event: DeviceActivityEvent.Name,
@@ -152,26 +66,10 @@ class DeviceActivityMonitorExtension: DeviceActivityMonitor {
         super.eventDidReachThreshold(event, activity: activity)
         log("eventDidReachThreshold: \(event.rawValue)")
 
-        let thresholdEventName = "mathblocker.threshold"
-
-        if event.rawValue.hasPrefix("usage."),
-           let minutes = Int(event.rawValue.replacingOccurrences(of: "usage.", with: "")) {
-            recordUsage(eventMinutes: minutes)
-
-            // If we just hit the highest milestone, restart with a fresh window
-            if minutes == trackingMilestones.max() {
-                restartMonitoringFromCurrentPoint()
-            }
-        }
-
-        if event.rawValue == thresholdEventName {
-            if store.shield.applications == nil && store.shield.applicationCategories == nil {
-                applyShields()
-                store.dateAndTime.requireAutomaticDateAndTime = true
-                log("shields applied")
-            } else {
-                log("shields already active, skipping")
-            }
+        if event.rawValue == budgetEventName {
+            applyShields()
+            store.dateAndTime.requireAutomaticDateAndTime = true
+            log("budget threshold hit, shields applied")
         }
     }
 
@@ -180,7 +78,7 @@ class DeviceActivityMonitorExtension: DeviceActivityMonitor {
         super.eventWillReachThresholdWarning(event, activity: activity)
         log("eventWillReachThresholdWarning: \(event.rawValue)")
 
-        guard event.rawValue == "mathblocker.threshold" else { return }
+        guard event.rawValue == budgetEventName else { return }
 
         let lastWarning = defaults?.double(forKey: "lastWarningTimestamp") ?? 0
         let now = Date().timeIntervalSince1970

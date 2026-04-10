@@ -51,6 +51,12 @@ class ShieldManager {
     }
 
     func removeShields() {
+        // Explicitly nil each shield property in addition to clearAllSettings
+        // for maximum propagation reliability across processes.
+        store.shield.applications = nil
+        store.shield.applicationCategories = nil
+        store.shield.webDomains = nil
+        store.shield.webDomainCategories = nil
         store.clearAllSettings()
         refreshState()
     }

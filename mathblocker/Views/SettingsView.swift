@@ -25,6 +25,7 @@ struct SettingsView: View {
     @State private var monitoringManager = MonitoringManager.shared
     @State private var showingAppPicker = false
     @State private var showingResetConfirmation = false
+    @State private var pendingBudgetUpdate: DispatchWorkItem?
 
     var body: some View {
         NavigationStack {
@@ -155,9 +156,16 @@ struct SettingsView: View {
                 get: { currentSettings.dailyTimeBudgetMinutes },
                 set: { newValue in
                     currentSettings.dailyTimeBudgetMinutes = newValue
-                    if monitoringManager.isMonitoring {
-                        monitoringManager.startMonitoring(budgetMinutes: newValue)
+                    // Debounce: only restart monitoring 1s after the user
+                    // stops adjusting the stepper.
+                    pendingBudgetUpdate?.cancel()
+                    let work = DispatchWorkItem {
+                        if monitoringManager.isMonitoring {
+                            monitoringManager.startMonitoring(budgetMinutes: newValue)
+                        }
                     }
+                    pendingBudgetUpdate = work
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: work)
                 }
             ), in: 0...1440, step: 5) {
                 HStack {
@@ -207,6 +215,14 @@ struct SettingsView: View {
                         .foregroundStyle(.secondary)
                 }
             }
+
+            #if DEBUG
+            NavigationLink {
+                LaTeXTestView()
+            } label: {
+                Label("LaTeX Test", systemImage: "function")
+            }
+            #endif
         } header: {
             Text("Questions")
         }
