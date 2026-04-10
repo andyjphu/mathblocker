@@ -144,8 +144,9 @@ class ChallengeViewModel {
         let descriptor = FetchDescriptor<UserSettings>()
         guard let settings = try? modelContext.fetch(descriptor).first else { return }
 
+        let today = Calendar.current.startOfDay(for: .now)
         let todayDescriptor = FetchDescriptor<DailyStats>(
-            predicate: #Predicate { $0.date == Calendar.current.startOfDay(for: .now) }
+            predicate: #Predicate { $0.date == today }
         )
         let totalEarnedToday = (try? modelContext.fetch(todayDescriptor).first?.minutesEarned) ?? minutesEarned
         let newBudget = settings.dailyTimeBudgetMinutes + totalEarnedToday
