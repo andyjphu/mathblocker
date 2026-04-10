@@ -16,6 +16,7 @@ import ManagedSettings
 struct DashboardView: View {
     @Query(sort: \DailyStats.date, order: .reverse) private var allStats: [DailyStats]
     @Query private var settings: [UserSettings]
+    @State private var showReport = false
 
     private var budgetMinutes: Int { settings.first?.dailyTimeBudgetMinutes ?? 30 }
     private var perCorrect: Int { settings.first?.minutesPerCorrectAnswer ?? 2 }
@@ -53,7 +54,15 @@ struct DashboardView: View {
 
                     // Screen time usage (rendered by report extension)
                     if MonitoringManager.shared.isMonitoring {
-                        usageReport
+                        if showReport {
+                            usageReport
+                        } else {
+                            ShimmerView()
+                                .frame(height: 280)
+                                .clipShape(RoundedRectangle(cornerRadius: 12))
+                                .cardShadow()
+                                .padding(.horizontal)
+                        }
                     }
 
                     // Monitoring status
@@ -67,6 +76,13 @@ struct DashboardView: View {
                 .padding(.top, 12)
             }
             .fontDesign(.serif)
+            .onAppear {
+                if !showReport {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                        showReport = true
+                    }
+                }
+            }
             .scrollContentBackground(.hidden)
             .background { FrostedBackground() }
             .toolbarBackground(.ultraThinMaterial, for: .navigationBar)
@@ -186,16 +202,11 @@ struct DashboardView: View {
             applications: selection.applicationTokens,
             categories: selection.categoryTokens
         )
-        return ZStack {
-            ShimmerView()
-                .frame(height: 280)
-
-            DeviceActivityReport(
-                DeviceActivityReport.Context("totalUsage"),
-                filter: filter
-            )
-            .frame(height: 280)
-        }
+        return DeviceActivityReport(
+            DeviceActivityReport.Context("totalUsage"),
+            filter: filter
+        )
+        .frame(height: 280)
         .background(Theme.cardBackground)
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .cardShadow()
@@ -249,6 +260,6 @@ struct DashboardView: View {
 }
 
 #Preview {
-    DashboardView(goToPractice: {})
+    DashboardView()
         .modelContainer(for: [QuestionAttempt.self, DailyStats.self, UserSettings.self], inMemory: true)
 }

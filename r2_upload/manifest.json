@@ -1,0 +1,58 @@
+{
+  "packs": [
+    {
+      "id": "agieval_sat",
+      "name": "SAT Math",
+      "description": "official SAT math questions with LaTeX notation",
+      "count": 220,
+      "sizeMB": 0.1,
+      "difficulty": "medium",
+      "url": "https://cdn.recursn.com/packs/agieval_sat.json"
+    },
+    {
+      "id": "mmlu",
+      "name": "MMLU Math",
+      "description": "college-level math from the MMLU benchmark",
+      "count": 1204,
+      "sizeMB": 0.4,
+      "difficulty": "mixed",
+      "url": "https://cdn.recursn.com/packs/mmlu.json"
+    },
+    {
+      "id": "mmlu_extended",
+      "name": "MMLU Math & Science",
+      "description": "algebra, statistics, physics, formal logic",
+      "count": 1678,
+      "sizeMB": 0.6,
+      "difficulty": "hard",
+      "url": "https://cdn.recursn.com/packs/mmlu_extended.json"
+    },
+    {
+      "id": "mmlu_pro",
+      "name": "MMLU-Pro",
+      "description": "harder college math, physics, CS, economics",
+      "count": 4873,
+      "sizeMB": 2.9,
+      "difficulty": "hard",
+      "url": "https://cdn.recursn.com/packs/mmlu_pro.json"
+    },
+    {
+      "id": "hendrycks_math",
+      "name": "Competition Math",
+      "description": "AMC, AIME-style competition problems",
+      "count": 5136,
+      "sizeMB": 1.8,
+      "difficulty": "very hard",
+      "url": "https://cdn.recursn.com/packs/hendrycks_math.json"
+    },
+    {
+      "id": "aqua_rat",
+      "name": "AQUA-RAT",
+      "description": "algebraic word problems, quantitative reasoning",
+      "count": 97975,
+      "sizeMB": 30.7,
+      "difficulty": "mixed",
+      "url": "https://cdn.recursn.com/packs/aqua_rat.json"
+    }
+  ]
+}

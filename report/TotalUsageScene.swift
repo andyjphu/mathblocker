@@ -26,22 +26,21 @@ struct TotalUsageScene: DeviceActivityReportScene {
 
         for await activityData in data {
             for await segment in activityData.activitySegments {
-                totalDuration += segment.totalActivityDuration
-
-                // Bucket by hour
                 let hour = Calendar.current.component(.hour, from: segment.dateInterval.start)
-                hourlyDurations[hour, default: 0] += segment.totalActivityDuration
 
-                // Per-app breakdown (segment → categories → applications)
+                // Sum from app-level data only (segment.totalActivityDuration includes all apps, not just filtered ones)
                 for await category in segment.categories {
                     for await appActivity in category.applications {
                         let name = appActivity.application.localizedDisplayName ?? "unknown"
+                        let dur = appActivity.totalActivityDuration
+                        let picks = appActivity.numberOfPickups
+
+                        totalDuration += dur
+                        totalPickups += picks
+                        hourlyDurations[hour, default: 0] += dur
+
                         let existing = appDurations[name] ?? (0, 0)
-                        appDurations[name] = (
-                            existing.duration + appActivity.totalActivityDuration,
-                            existing.pickups + appActivity.numberOfPickups
-                        )
-                        totalPickups += appActivity.numberOfPickups
+                        appDurations[name] = (existing.duration + dur, existing.pickups + picks)
                     }
                 }
             }

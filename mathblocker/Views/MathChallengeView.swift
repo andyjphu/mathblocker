@@ -48,7 +48,8 @@ struct MathChallengeView: View {
                 let diff = currentSettings?.difficultyLevel ?? 1
                 let count = currentSettings?.questionsPerSession ?? 5
                 viewModel.minutesPerCorrect = currentSettings?.minutesPerCorrectAnswer ?? 2
-                viewModel.startSession(difficulty: diff, count: count)
+                let source = currentSettings?.selectedSource ?? "hendrycks_math"
+                viewModel.startSession(difficulty: diff, count: count, source: source)
             }
         }
     }
@@ -205,7 +206,8 @@ struct MathChallengeView: View {
                     withAnimation {
                         let diff = currentSettings?.difficultyLevel ?? 1
                         let count = currentSettings?.questionsPerSession ?? 5
-                        viewModel.startSession(difficulty: diff, count: count)
+                        let source = currentSettings?.selectedSource ?? "hendrycks_math"
+                viewModel.startSession(difficulty: diff, count: count, source: source)
                     }
                 } label: {
                     Text("go again")

@@ -17,12 +17,14 @@ final class UserSettings {
     var questionsPerSession: Int
     var difficultyLevel: Int // 1-5
     var isMonitoringEnabled: Bool
+    var selectedSource: String // "all", "aqua_rat", "hendrycks_math", "mmlu"
 
-    init(dailyTimeBudgetMinutes: Int = 30, minutesPerCorrectAnswer: Int = 2, questionsPerSession: Int = 5, difficultyLevel: Int = 1, isMonitoringEnabled: Bool = false) {
+    init(dailyTimeBudgetMinutes: Int = 30, minutesPerCorrectAnswer: Int = 2, questionsPerSession: Int = 5, difficultyLevel: Int = 1, isMonitoringEnabled: Bool = false, selectedSource: String = "hendrycks_math") {
         self.dailyTimeBudgetMinutes = dailyTimeBudgetMinutes
         self.minutesPerCorrectAnswer = minutesPerCorrectAnswer
         self.questionsPerSession = questionsPerSession
         self.difficultyLevel = difficultyLevel
         self.isMonitoringEnabled = isMonitoringEnabled
+        self.selectedSource = selectedSource
     }
 }

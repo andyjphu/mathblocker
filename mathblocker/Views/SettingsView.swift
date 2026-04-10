@@ -37,8 +37,8 @@ struct SettingsView: View {
                 timeSection
                     .listRowBackground(Theme.cardBackground)
 
-                // Difficulty
-                difficultySection
+                // Question pack
+                questionPackSection
                     .listRowBackground(Theme.cardBackground)
 
                 // Data
@@ -184,22 +184,43 @@ struct SettingsView: View {
         }
     }
 
-    // MARK: - Difficulty
+    // MARK: - Question Pack
 
-    private var difficultySection: some View {
+    private var questionPackSection: some View {
         Section {
-            Picker(selection: Bindable(currentSettings).difficultyLevel) {
-                Text("Pre-Algebra").tag(1)
-                Text("Elementary Algebra").tag(2)
-                Text("Intermediate Algebra").tag(3)
-                Text("Coordinate Geometry").tag(4)
-                Text("Trigonometry").tag(5)
+            Picker(selection: Bindable(currentSettings).selectedSource) {
+                Text("all packs").tag("all")
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Competition Math")
+                    Text("AMC & AIME style — 5,136 questions")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
+                .tag("hendrycks_math")
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("MMLU Math")
+                    Text("college-level algebra & geometry — 1,204 questions")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
+                .tag("mmlu")
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("AQUA-RAT")
+                    Text("word problems & quantitative reasoning — 97,975 questions")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
+                .tag("aqua_rat")
             } label: {
-                Label("Difficulty", systemImage: "chart.bar.fill")
+                Label("Question Pack", systemImage: "book.closed")
             }
             .tint(.primary)
+            .pickerStyle(.navigationLink)
         } header: {
-            Text("Math")
+            Text("Questions")
         }
     }
 

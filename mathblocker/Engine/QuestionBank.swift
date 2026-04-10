@@ -46,8 +46,15 @@ actor QuestionBank {
     var isLoaded: Bool { loaded }
     var totalCount: Int { questions.count }
 
-    func randomQuestions(difficulty: Int, count: Int) -> [MathQuestion] {
-        let pool = byDifficulty[difficulty] ?? byDifficulty[2] ?? []
+    func randomQuestions(difficulty: Int, count: Int, source: String = "all") -> [MathQuestion] {
+        var pool = byDifficulty[difficulty] ?? byDifficulty[2] ?? []
+        if source != "all" {
+            pool = pool.filter { $0.source == source }
+        }
+        // Fall back to all sources if filtered pool is empty
+        if pool.isEmpty {
+            pool = byDifficulty[difficulty] ?? byDifficulty[2] ?? []
+        }
         guard !pool.isEmpty else { return [] }
 
         let selected = pool.shuffled().prefix(count)

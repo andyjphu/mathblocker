@@ -45,11 +45,11 @@ class ChallengeViewModel {
 
     /// Starts a new session by loading questions from the bank (with procedural fallback)
     /// and resetting all state.
-    func startSession(difficulty: Int = 1, count: Int = 5) {
+    func startSession(difficulty: Int = 1, count: Int = 5, source: String = "all") {
         let task = Task {
             let bank = QuestionBank.shared
             await bank.load()
-            return await bank.randomQuestions(difficulty: difficulty, count: count)
+            return await bank.randomQuestions(difficulty: difficulty, count: count, source: source)
         }
         // Procedural fallback while bank loads
         questions = QuestionGenerator.generate(difficulty: difficulty, count: count)
