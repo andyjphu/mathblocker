@@ -82,6 +82,9 @@ class DeviceActivityMonitorExtension: DeviceActivityMonitor {
         log("eventDidReachThreshold: \(event.rawValue)")
         recordThresholdReached()
         applyShields()
+
+        // Prevent clock-change bypass
+        store.dateAndTime.requireAutomaticDateAndTime = true
     }
 
     override func eventWillReachThresholdWarning(_ event: DeviceActivityEvent.Name,
