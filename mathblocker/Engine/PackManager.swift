@@ -34,8 +34,15 @@ class PackManager {
     var downloadingPacks: Set<String> = []
     var downloadProgress: [String: Double] = [:]
     var errorMessage: String?
+    /// Observable set of installed pack IDs. Updated on download/delete
+    /// so SwiftUI re-renders the pack list immediately.
+    var installedIds: Set<String> = []
 
     private let fileManager = FileManager.default
+
+    init() {
+        refreshInstalledIds()
+    }
 
     /// Directory where downloaded packs are stored.
     private var packsDirectory: URL {
@@ -43,6 +50,15 @@ class PackManager {
         let dir = docs.appendingPathComponent("QuestionPacks", isDirectory: true)
         try? fileManager.createDirectory(at: dir, withIntermediateDirectories: true)
         return dir
+    }
+
+    /// Re-scans the packs directory and updates `installedIds`.
+    func refreshInstalledIds() {
+        let files = (try? fileManager.contentsOfDirectory(at: packsDirectory, includingPropertiesForKeys: nil)) ?? []
+        let ids = files
+            .filter { $0.pathExtension == "json" }
+            .map { $0.deletingPathExtension().lastPathComponent }
+        installedIds = Set(ids)
     }
 
     /// Fetch the manifest from the server.
@@ -53,6 +69,7 @@ class PackManager {
             await MainActor.run {
                 self.availablePacks = manifest.packs
                 self.errorMessage = nil
+                self.refreshInstalledIds()
             }
         } catch {
             await MainActor.run {
@@ -63,7 +80,7 @@ class PackManager {
 
     /// Whether a pack is downloaded locally.
     func isInstalled(_ packId: String) -> Bool {
-        fileManager.fileExists(atPath: localPath(for: packId).path)
+        installedIds.contains(packId)
     }
 
     /// Download a pack from its URL and save locally.
@@ -85,6 +102,7 @@ class PackManager {
             await MainActor.run {
                 downloadingPacks.remove(pack.id)
                 downloadProgress.removeValue(forKey: pack.id)
+                installedIds.insert(pack.id)
             }
         } catch {
             await MainActor.run {
@@ -98,6 +116,7 @@ class PackManager {
     /// Delete a downloaded pack.
     func delete(_ packId: String) {
         try? fileManager.removeItem(at: localPath(for: packId))
+        installedIds.remove(packId)
     }
 
     /// Load questions from all installed packs.
@@ -115,7 +134,7 @@ class PackManager {
 
     /// IDs of all installed packs.
     var installedPackIds: [String] {
-        availablePacks.filter { isInstalled($0.id) }.map(\.id)
+        Array(installedIds).sorted()
     }
 
     private func localPath(for packId: String) -> URL {

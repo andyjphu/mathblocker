@@ -142,7 +142,7 @@ struct SettingsView: View {
             } else if !monitoringManager.isMonitoring {
                 Text("turn on monitoring to start tracking and blocking")
             } else {
-                Text("budget counts from when monitoring was turned on. set budget to 0 to block immediately.")
+                Text("set budget to 0 to block immediately")
             }
         }
     }

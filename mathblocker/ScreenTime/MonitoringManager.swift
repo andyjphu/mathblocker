@@ -59,9 +59,13 @@ class MonitoringManager {
             warningTime: DateComponents(minute: 5)
         )
 
-        // iOS limits events per schedule (~20 max). Pick a sparse set
-        // of milestones that cover a reasonable usage range.
-        let trackingMilestones = [1, 5, 10, 15, 30, 45, 60, 90, 120, 180, 240, 360, 480, 600]
+        // Sparse window — dame extension dynamically restarts with a fresh
+        // window when the highest milestone is hit, giving continuous tracking
+        // with 5-min granularity at low values and ~30-min at high values.
+        let trackingMilestones = [1, 5, 15, 30, 60, 90, 120]
+
+        // Reset offset on initial start
+        AppGroupConstants.sharedDefaults?.set(0, forKey: "monitoringOffset")
         var events: [DeviceActivityEvent.Name: DeviceActivityEvent] = [:]
 
         for minutes in trackingMilestones {

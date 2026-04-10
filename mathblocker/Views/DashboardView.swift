@@ -105,9 +105,9 @@ struct DashboardView: View {
         let shieldsUp = ShieldManager.shared.shieldsAreActive
 
         return VStack(spacing: 16) {
-            // Remaining is the hero number
+            // Remaining is the hero number (upper bound — actual could be less)
             VStack(spacing: 4) {
-                Text("\(remaining)")
+                Text(used > 0 && remaining > 0 ? "≤\(remaining)" : "\(remaining)")
                     .font(Theme.titleFont(size: 64))
                     .foregroundStyle(remaining == 0 ? .orange : .primary)
 
@@ -146,7 +146,7 @@ struct DashboardView: View {
                     .frame(width: 1, height: 24)
 
                 VStack(spacing: 2) {
-                    Text("\(used)")
+                    Text(used > 0 ? "≥\(used)" : "\(used)")
                         .font(Theme.titleFont(size: 20))
                         .foregroundStyle(.secondary)
                     Text("used")
@@ -158,10 +158,18 @@ struct DashboardView: View {
 
             // Status line
             if shieldsUp {
-                Text("apps are blocked — solve problems to earn time")
-                    .font(.caption)
-                    .foregroundStyle(.orange)
-                    .multilineTextAlignment(.center)
+                HStack(spacing: 4) {
+                    Text("apps are blocked, solve problems to earn time; times are approximate for privacy reasons")
+                        .font(.caption)
+                        .foregroundStyle(.orange)
+                        .multilineTextAlignment(.center)
+
+                    Link(destination: URL(string: "https://recursn.com/mathblocker/privacy-policy")!) {
+                        Image(systemName: "info.circle")
+                            .font(.caption)
+                            .foregroundStyle(.orange)
+                    }
+                }
             }
         }
         .frame(maxWidth: .infinity)
