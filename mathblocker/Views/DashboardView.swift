@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import DeviceActivity
 
 /// Dashboard answering one question: "how much time do I have,
 /// and how do I get more?"
@@ -53,6 +54,11 @@ struct DashboardView: View {
                     // Secondary stats
                     statsRow
 
+                    // Screen time usage (rendered by report extension)
+                    if MonitoringManager.shared.isMonitoring {
+                        usageReport
+                    }
+
                     // Monitoring status
                     monitoringPill
 
@@ -67,37 +73,75 @@ struct DashboardView: View {
             .scrollContentBackground(.hidden)
             .background { FrostedBackground() }
             .toolbarBackground(.hidden, for: .navigationBar)
-            .navigationTitle("MathBlocker")
+            .navigationTitle("")
+            .toolbar {
+                ToolbarItem(placement: .principal) {
+                    Text("Dashboard")
+                        .font(Theme.titleFont(size: 20))
+                }
+            }
         }
     }
 
     // MARK: - Hero
 
     private var heroSection: some View {
-        VStack(spacing: 8) {
-            Text("\(todayStats?.minutesEarned ?? 0)")
-                .font(Theme.titleFont(size: 64))
-                .foregroundStyle(.primary)
+        let earned = todayStats?.minutesEarned ?? 0
+        let available = budgetMinutes + earned
+        let shieldsUp = ShieldManager.shared.shieldsAreActive
 
-            Text("minutes earned today")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
+        return VStack(spacing: 16) {
+            // Available time — the one number that matters
+            VStack(spacing: 4) {
+                Text("\(available)")
+                    .font(Theme.titleFont(size: 64))
+                    .foregroundStyle(shieldsUp ? .orange : .primary)
 
-            if budgetMinutes > 0 {
-                let earned = todayStats?.minutesEarned ?? 0
-                let remaining = max(0, budgetMinutes - earned)
-                Text(earned >= budgetMinutes ? "you've hit your limit — solve more to keep going" : "\(remaining) min until your apps get blocked")
+                Text("minutes available")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
+
+            // Breakdown
+            HStack(spacing: 0) {
+                VStack(spacing: 2) {
+                    Text("\(budgetMinutes)")
+                        .font(Theme.titleFont(size: 22))
+                    Text("budget")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity)
+
+                Rectangle()
+                    .fill(.quaternary)
+                    .frame(width: 1, height: 28)
+
+                VStack(spacing: 2) {
+                    Text("+\(earned)")
+                        .font(Theme.titleFont(size: 22))
+                        .foregroundStyle(.accent)
+                    Text("earned")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity)
+            }
+
+            // Status line
+            if shieldsUp {
+                Text("apps are blocked — solve problems to earn time")
                     .font(.caption)
-                    .foregroundStyle(earned >= budgetMinutes ? .orange : .secondary)
+                    .foregroundStyle(.orange)
                     .multilineTextAlignment(.center)
-                    .padding(.top, 2)
             }
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, 28)
+        .padding(.vertical, 24)
         .padding(.horizontal, 24)
         .background(Theme.cardBackground)
         .clipShape(RoundedRectangle(cornerRadius: 16))
+        .cardShadow()
         .padding(.horizontal)
     }
 
@@ -119,6 +163,7 @@ struct DashboardView: View {
             .background(.accent)
             .clipShape(RoundedRectangle(cornerRadius: 12))
         }
+        .cardShadow()
         .padding(.horizontal)
     }
 
@@ -167,6 +212,23 @@ struct DashboardView: View {
         .padding(.vertical, 14)
         .background(Theme.cardBackground)
         .clipShape(RoundedRectangle(cornerRadius: 12))
+        .cardShadow()
+    }
+
+    // MARK: - Usage Report
+
+    private var usageReport: some View {
+        let today = Calendar.current.startOfDay(for: .now)
+        let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: today)!
+        let filter = DeviceActivityFilter(
+            segment: .daily(during: DateInterval(start: today, end: tomorrow))
+        )
+        return DeviceActivityReport(.init(rawValue: "totalUsage"), filter: filter)
+            .frame(height: 60)
+            .background(Theme.cardBackground)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .cardShadow()
+            .padding(.horizontal)
     }
 
     // MARK: - Monitoring
@@ -210,6 +272,7 @@ struct DashboardView: View {
         .padding(.vertical, 16)
         .background(Theme.cardBackground)
         .clipShape(RoundedRectangle(cornerRadius: 16))
+        .cardShadow()
         .padding(.horizontal)
     }
 }

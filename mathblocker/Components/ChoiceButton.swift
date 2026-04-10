@@ -25,7 +25,7 @@ struct ChoiceButton: View {
                 .foregroundStyle(foregroundForLabel)
                 .clipShape(Circle())
 
-            Text(text)
+            MathText(text: text)
                 .font(.body)
                 .fontWeight(.medium)
                 .foregroundStyle(foregroundForText)
@@ -50,6 +50,7 @@ struct ChoiceButton: View {
             RoundedRectangle(cornerRadius: 12)
                 .stroke(borderColor, lineWidth: state == .neutral ? 0 : 2)
         )
+        .cardShadow()
         .contentShape(Rectangle())
         .onTapGesture {
             action()

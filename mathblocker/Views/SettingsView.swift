@@ -53,7 +53,14 @@ struct SettingsView: View {
             .scrollContentBackground(.hidden)
             .background { FrostedBackground(image: "olive-mountain") }
             .toolbarBackground(.hidden, for: .navigationBar)
-            .navigationTitle("Settings")
+            .navigationTitle("")
+            .toolbar {
+                ToolbarItem(placement: .principal) {
+                    Text("Settings")
+                        .font(Theme.titleFont(size: 20))
+                }
+            }
+            .onAppear { authManager.refreshStatus() }
         }
         .confirmationDialog("Reset all stats?", isPresented: $showingResetConfirmation, titleVisibility: .visible) {
             Button("Reset", role: .destructive) { resetStats() }
@@ -97,6 +104,7 @@ struct SettingsView: View {
                 } label: {
                     HStack {
                         Label("Blocked Apps", systemImage: "apps.iphone")
+                            .foregroundStyle(.primary)
                         Spacer()
                         Text(selectionManager.hasSelection ? "Configured" : "Not set")
                             .foregroundStyle(selectionManager.hasSelection ? .green : .secondary)
@@ -189,6 +197,7 @@ struct SettingsView: View {
             } label: {
                 Label("Difficulty", systemImage: "chart.bar.fill")
             }
+            .tint(.primary)
         } header: {
             Text("Math")
         }

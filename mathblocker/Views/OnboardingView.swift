@@ -38,9 +38,12 @@ struct OnboardingView: View {
         VStack(spacing: 24) {
             Spacer()
 
-            Image(systemName: "brain.head.profile")
-                .font(.system(size: 80))
-                .foregroundStyle(.accent)
+            Image("logo4xbg")
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 120, height: 120)
+                .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
+                .shadow(color: .black.opacity(0.12), radius: 10, y: 4)
                 .padding(.bottom, 8)
 
             Text("MathBlocker")
@@ -273,11 +276,11 @@ struct OnboardingView: View {
     }
 
     private func stepRow(icon: String, color: Color, title: String, subtitle: String) -> some View {
-        HStack(alignment: .top, spacing: 16) {
+        HStack(alignment: .center, spacing: 14) {
             Image(systemName: icon)
-                .font(.title2)
+                .font(.title3)
                 .foregroundStyle(color)
-                .frame(width: 36)
+                .frame(width: 32)
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
@@ -286,7 +289,13 @@ struct OnboardingView: View {
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
+
+            Spacer()
         }
+        .padding(14)
+        .background(Theme.cardBackground)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .cardShadow()
     }
 
     private func featureRow(icon: String, text: String) -> some View {

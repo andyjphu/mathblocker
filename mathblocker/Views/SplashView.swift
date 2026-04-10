@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import LaTeXSwiftUI
 
 struct SplashView: View {
     @State private var progress: Double = 0
@@ -16,22 +17,21 @@ struct SplashView: View {
         ZStack {
             FrostedBackground()
 
+            // Pre-warm MathJax engine so first answer doesn't freeze
+            LaTeX("$x$")
+                .frame(width: 0, height: 0)
+                .opacity(0)
+
             VStack(spacing: 28) {
                 Spacer()
 
-                // App icon
-                if let icon = UIImage(named: "AppIcon") {
-                    Image(uiImage: icon)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: 120, height: 120)
-                        .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
-                        .shadow(color: .black.opacity(0.15), radius: 12, y: 6)
-                } else {
-                    Image(systemName: "brain.head.profile")
-                        .font(.system(size: 72))
-                        .foregroundStyle(.accent)
-                }
+                // Logo
+                Image("logo4xbg")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 140, height: 140)
+                    .clipShape(RoundedRectangle(cornerRadius: 32, style: .continuous))
+                    .shadow(color: .black.opacity(0.12), radius: 10, y: 4)
 
                 Text("MathBlocker")
                     .font(Theme.titleFont(size: 32))

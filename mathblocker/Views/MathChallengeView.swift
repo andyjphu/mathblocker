@@ -29,13 +29,16 @@ struct MathChallengeView: View {
             }
             .fontDesign(.serif)
             .background { FrostedBackground(image: "dense-fern") }
-            .navigationTitle("Practice")
+            .navigationTitle("")
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(.ultraThinMaterial, for: .navigationBar)
             .toolbar {
-                if !viewModel.sessionComplete {
-                    ToolbarItem(placement: .principal) {
+                ToolbarItem(placement: .principal) {
+                    if !viewModel.sessionComplete {
                         progressIndicator
+                    } else {
+                        Text("Practice")
+                            .font(Theme.titleFont(size: 20))
                     }
                 }
             }
@@ -65,11 +68,12 @@ struct MathChallengeView: View {
                         .padding(.vertical, 6)
                         .background(Theme.cardBackground)
                         .clipShape(Capsule())
+                        .cardShadow()
                         .padding(.bottom, 16)
                         .padding(.top, 16)
 
                     // Question text
-                    Text(viewModel.currentQuestion?.text ?? "")
+                    MathText(text: viewModel.currentQuestion?.text ?? "")
                         .font(.body)
                         .fontWeight(.medium)
                         .multilineTextAlignment(.center)
@@ -77,6 +81,7 @@ struct MathChallengeView: View {
                         .padding(.vertical, 12)
                         .background(Theme.cardBackground)
                         .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .cardShadow()
                         .padding(.horizontal, 24)
                         .padding(.bottom, 32)
 
@@ -88,9 +93,7 @@ struct MathChallengeView: View {
                                 text: choice,
                                 state: viewModel.choiceState(for: index)
                             ) {
-                                withAnimation(.spring(response: 0.3)) {
-                                    viewModel.selectAnswer(index)
-                                }
+                                viewModel.selectAnswer(index)
                             }
                         }
                     }
@@ -107,6 +110,7 @@ struct MathChallengeView: View {
                             .padding(12)
                             .background(Theme.cardBackground)
                             .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .cardShadow()
                             .padding(.horizontal, 24)
                             .padding(.top, 16)
                             .transition(.move(edge: .bottom).combined(with: .opacity))

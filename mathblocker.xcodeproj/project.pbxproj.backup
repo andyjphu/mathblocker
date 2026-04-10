@@ -15,8 +15,6 @@
 		5A95AF712F87BD0000A12617 /* dame.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 5A95AF3D2F87BC0100A12617 /* dame.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		5A95AF722F87BD0000A12617 /* shconf.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 5A95AF4F2F87BC3600A12617 /* shconf.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		5A95AF732F87BD0000A12617 /* shconfig.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 5A95AF622F87BC5100A12617 /* shconfig.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		5A95AFAA2F87BF0000A12617 /* report.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 5A95AFA12F87BF0000A12617 /* report.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		5A95AFAD2F87BF0000A12617 /* DeviceActivity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A95AF2F2F87BB8E00A12617 /* DeviceActivity.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -55,13 +53,6 @@
 			remoteGlobalIDString = 5A95AF612F87BC5100A12617;
 			remoteInfo = shconfig;
 		};
-		5A95AFAB2F87BF0000A12617 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 5A61C0312F87A5C100EAA886 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 5A95AFA02F87BF0000A12617;
-			remoteInfo = report;
-		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -74,7 +65,6 @@
 				5A95AF712F87BD0000A12617 /* dame.appex in Embed Foundation Extensions */,
 				5A95AF722F87BD0000A12617 /* shconf.appex in Embed Foundation Extensions */,
 				5A95AF732F87BD0000A12617 /* shconfig.appex in Embed Foundation Extensions */,
-				5A95AFAA2F87BF0000A12617 /* report.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -82,7 +72,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		5A95AFA12F87BF0000A12617 /* report.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = report.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		5A61C0392F87A5C100EAA886 /* mathblocker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = mathblocker.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5A61C0482F87A5C400EAA886 /* mathblockerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = mathblockerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		5A61C0522F87A5C400EAA886 /* mathblockerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = mathblockerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -123,13 +112,6 @@
 			);
 			target = 5A95AF612F87BC5100A12617 /* shconfig */;
 		};
-		5A95AFA62F87BF0000A12617 /* Exceptions for "report" folder in "report" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Info.plist,
-			);
-			target = 5A95AFA02F87BF0000A12617 /* report */;
-		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -149,14 +131,6 @@
 		5A61C0552F87A5C400EAA886 /* mathblockerUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = mathblockerUITests;
-			sourceTree = "<group>";
-		};
-		5A95AFA52F87BF0000A12617 /* report */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				5A95AFA62F87BF0000A12617 /* Exceptions for "report" folder in "report" target */,
-			);
-			path = report;
 			sourceTree = "<group>";
 		};
 		5A95AF3F2F87BC0100A12617 /* dame */ = {
@@ -233,14 +207,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		5A95AFA32F87BF0000A12617 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				5A95AFAD2F87BF0000A12617 /* DeviceActivity.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -253,7 +219,6 @@
 				5A95AF3F2F87BC0100A12617 /* dame */,
 				5A95AF522F87BC3600A12617 /* shconf */,
 				5A95AF662F87BC5100A12617 /* shconfig */,
-				5A95AFA52F87BF0000A12617 /* report */,
 				5A95AF2E2F87BB8E00A12617 /* Frameworks */,
 				5A61C03A2F87A5C100EAA886 /* Products */,
 			);
@@ -268,7 +233,6 @@
 				5A95AF3D2F87BC0100A12617 /* dame.appex */,
 				5A95AF4F2F87BC3600A12617 /* shconf.appex */,
 				5A95AF622F87BC5100A12617 /* shconfig.appex */,
-				5A95AFA12F87BF0000A12617 /* report.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -301,7 +265,6 @@
 				5A95AF792F87BD0000A12617 /* PBXTargetDependency */,
 				5A95AF7A2F87BD0000A12617 /* PBXTargetDependency */,
 				5A95AF7B2F87BD0000A12617 /* PBXTargetDependency */,
-				5A95AFAC2F87BF0000A12617 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				5A61C03B2F87A5C100EAA886 /* mathblocker */,
@@ -426,28 +389,6 @@
 			productReference = 5A95AF622F87BC5100A12617 /* shconfig.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
-		5A95AFA02F87BF0000A12617 /* report */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 5A95AFA72F87BF0000A12617 /* Build configuration list for PBXNativeTarget "report" */;
-			buildPhases = (
-				5A95AFA22F87BF0000A12617 /* Sources */,
-				5A95AFA32F87BF0000A12617 /* Frameworks */,
-				5A95AFA42F87BF0000A12617 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			fileSystemSynchronizedGroups = (
-				5A95AFA52F87BF0000A12617 /* report */,
-			);
-			name = report;
-			packageProductDependencies = (
-			);
-			productName = report;
-			productReference = 5A95AFA12F87BF0000A12617 /* report.appex */;
-			productType = "com.apple.product-type.app-extension";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -479,9 +420,6 @@
 						CreatedOnToolsVersion = 26.4;
 					};
 				};
-				5A95AFA02F87BF0000A12617 = {
-					CreatedOnToolsVersion = 26.4;
-				};
 			};
 			buildConfigurationList = 5A61C0342F87A5C100EAA886 /* Build configuration list for PBXProject "mathblocker" */;
 			developmentRegion = en;
@@ -506,7 +444,6 @@
 				5A95AF3C2F87BC0100A12617 /* dame */,
 				5A95AF4E2F87BC3600A12617 /* shconf */,
 				5A95AF612F87BC5100A12617 /* shconfig */,
-				5A95AFA02F87BF0000A12617 /* report */,
 			);
 		};
 /* End PBXProject section */
@@ -548,13 +485,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		5A95AF602F87BC5100A12617 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		5A95AFA42F87BF0000A12617 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -606,13 +536,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		5A95AFA22F87BF0000A12617 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -640,11 +563,6 @@
 			isa = PBXTargetDependency;
 			target = 5A95AF612F87BC5100A12617 /* shconfig */;
 			targetProxy = 5A95AF772F87BD0000A12617 /* PBXContainerItemProxy */;
-		};
-		5A95AFAC2F87BF0000A12617 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 5A95AFA02F87BF0000A12617 /* report */;
-			targetProxy = 5A95AFAB2F87BF0000A12617 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -1096,68 +1014,6 @@
 			};
 			name = Release;
 		};
-		5A95AFA82F87BF0000A12617 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = report/report.entitlements;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = Q6YN8K63U3;
-				EXTENSIONKIT_EXTENSION_POINT_IDENTIFIER = com.apple.deviceactivity.report;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = report/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = report;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = andyjphu.mathblocker.report;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Debug;
-		};
-		5A95AFA92F87BF0000A12617 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = report/report.entitlements;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = Q6YN8K63U3;
-				EXTENSIONKIT_EXTENSION_POINT_IDENTIFIER = com.apple.deviceactivity.report;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = report/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = report;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = andyjphu.mathblocker.report;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1220,15 +1076,6 @@
 			buildConfigurations = (
 				5A95AF702F87BC5100A12617 /* Debug */,
 				5A95AF712F87BC5100A12617 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		5A95AFA72F87BF0000A12617 /* Build configuration list for PBXNativeTarget "report" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				5A95AFA82F87BF0000A12617 /* Debug */,
-				5A95AFA92F87BF0000A12617 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

@@ -39,6 +39,7 @@ struct StatCard: View {
         .padding(16)
         .background(Theme.cardBackground)
         .clipShape(RoundedRectangle(cornerRadius: 14))
+        .cardShadow()
     }
 }
 
