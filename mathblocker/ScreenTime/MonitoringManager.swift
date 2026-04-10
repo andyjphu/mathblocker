@@ -27,6 +27,14 @@ class MonitoringManager {
         let selection = SelectionManager.shared.selection
         guard !selection.applicationTokens.isEmpty || !selection.categoryTokens.isEmpty else { return }
 
+        // Zero budget = block immediately, no monitoring needed
+        if budgetMinutes <= 0 {
+            ShieldManager.shared.applyShields()
+            isMonitoring = true
+            syncToAppGroup(budgetMinutes: 0)
+            return
+        }
+
         let activityName = DeviceActivityName(rawValue: AppGroupConstants.activityName)
         let eventName = DeviceActivityEvent.Name(rawValue: AppGroupConstants.thresholdEventName)
 

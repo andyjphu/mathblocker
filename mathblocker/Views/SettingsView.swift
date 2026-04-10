@@ -149,7 +149,15 @@ struct SettingsView: View {
 
     private var timeSection: some View {
         Section {
-            Stepper(value: Bindable(currentSettings).dailyTimeBudgetMinutes, in: 0...120, step: 5) {
+            Stepper(value: Binding(
+                get: { currentSettings.dailyTimeBudgetMinutes },
+                set: { newValue in
+                    currentSettings.dailyTimeBudgetMinutes = newValue
+                    if monitoringManager.isMonitoring {
+                        monitoringManager.startMonitoring(budgetMinutes: newValue)
+                    }
+                }
+            ), in: 0...1440, step: 5) {
                 HStack {
                     Label("Daily Budget", systemImage: "clock")
                     Spacer()
