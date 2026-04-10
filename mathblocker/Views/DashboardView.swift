@@ -102,7 +102,8 @@ struct DashboardView: View {
         let earned = todayStats?.minutesEarned ?? 0
         let used = MonitoringManager.shared.usedMinutesToday
         let remaining = max(0, budgetMinutes + earned - used)
-        let shieldsUp = ShieldManager.shared.shieldsAreActive
+        let shieldManager = ShieldManager.shared
+        let shieldsUp = shieldManager.shieldsAreActive && remaining == 0
 
         return VStack(spacing: 16) {
             // Remaining is the hero number (upper bound — actual could be less)
