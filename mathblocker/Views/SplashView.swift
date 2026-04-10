@@ -19,8 +19,8 @@ struct SplashView: View {
 
             // Pre-warm MathJax engine so first answer doesn't freeze
             LaTeX("$x$")
-                .frame(width: 0, height: 0)
-                .opacity(0)
+                .frame(width: 1, height: 1)
+                .opacity(0.01)
 
             VStack(spacing: 28) {
                 Spacer()
@@ -59,6 +59,9 @@ struct SplashView: View {
     }
 
     private func loadWithProgress() async {
+        // Pre-warm haptic engine
+        Haptics.prepare()
+
         // Animate to 30% quickly (file read)
         withAnimation(.easeOut(duration: 0.3)) {
             progress = 0.3
