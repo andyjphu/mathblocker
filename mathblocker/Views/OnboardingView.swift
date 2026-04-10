@@ -7,6 +7,7 @@
 
 import SwiftUI
 import FamilyControls
+import UserNotifications
 
 struct OnboardingView: View {
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
@@ -126,7 +127,12 @@ struct OnboardingView: View {
                 nextButton(page: 2)
             } else {
                 Button {
-                    Task { await authManager.requestAuthorization() }
+                    Task {
+                        await authManager.requestAuthorization()
+                        // Also request notifications for "5 min left" warnings
+                        _ = try? await UNUserNotificationCenter.current()
+                            .requestAuthorization(options: [.alert, .sound])
+                    }
                 } label: {
                     Text("Authorize")
                         .font(.headline)
@@ -239,12 +245,17 @@ struct OnboardingView: View {
             Spacer()
 
             Button {
-                // Start monitoring if authorized and apps selected
-                if authManager.isAuthorized && selectionManager.hasSelection {
-                    MonitoringManager.shared.startMonitoring(budgetMinutes: 30)
-                }
-                withAnimation {
-                    hasCompletedOnboarding = true
+                Task {
+                    // Request notification permission
+                    _ = try? await UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound])
+
+                    // Start monitoring if authorized and apps selected
+                    if authManager.isAuthorized && selectionManager.hasSelection {
+                        MonitoringManager.shared.startMonitoring(budgetMinutes: 30)
+                    }
+                    withAnimation {
+                        hasCompletedOnboarding = true
+                    }
                 }
             } label: {
                 Text("let's go")

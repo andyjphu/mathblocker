@@ -7,7 +7,6 @@
 
 import SwiftUI
 import LaTeXSwiftUI
-import UserNotifications
 
 struct SplashView: View {
     @State private var progress: Double = 0
@@ -62,9 +61,6 @@ struct SplashView: View {
     private func loadWithProgress() async {
         // Pre-warm haptic engine
         Haptics.prepare()
-
-        // Request notification permission for threshold warnings
-        _ = try? await UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound])
 
         // Animate to 30% quickly (file read)
         withAnimation(.easeOut(duration: 0.3)) {

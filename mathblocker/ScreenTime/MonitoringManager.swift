@@ -8,8 +8,6 @@
 import DeviceActivity
 import FamilyControls
 import Foundation
-import ManagedSettings
-import SwiftUI
 
 /// Starts and stops DeviceActivity monitoring schedules.
 /// Uses iOS 26.4's DeviceActivityData.activityData() to read
@@ -40,12 +38,7 @@ class MonitoringManager {
 
         // Use iOS 26.4 API to get actual usage before setting threshold
         Task { @MainActor in
-            let usedMinutes: Int
-            if #available(iOS 26.4, *) {
-                usedMinutes = await self.fetchTodayUsageMinutes()
-            } else {
-                usedMinutes = 0
-            }
+            let usedMinutes = self.readUsageFromAppGroup()
 
             if usedMinutes >= budgetMinutes {
                 // Already over budget — block immediately
@@ -91,38 +84,13 @@ class MonitoringManager {
         }
     }
 
-    /// Fetches today's total usage on blocked apps using iOS 26.4 API.
-    @available(iOS 26.4, *)
-    private func fetchTodayUsageMinutes() async -> Int {
-        let today = Calendar.current.startOfDay(for: .now)
-        let now = Date.now
-        let selection = SelectionManager.shared.selection
-
-        let filter = DeviceActivityFilter(
-            segment: .hourly(during: DateInterval(start: today, end: now)),
-            users: .all,
-            devices: .init([.iPhone]),
-            applications: selection.applicationTokens,
-            categories: selection.categoryTokens
-        )
-
-        var totalSeconds: TimeInterval = 0
-
-        do {
-            for try await activityData in DeviceActivityData.activityData(filteredBy: filter, using: .cached) {
-                for await segment in activityData.activitySegments {
-                    for await category in segment.categories {
-                        for await app in category.applications {
-                            totalSeconds += app.totalActivityDuration
-                        }
-                    }
-                }
-            }
-        } catch {
-            print("MonitoringManager: failed to fetch usage: \(error)")
-        }
-
-        return Int(totalSeconds / 60)
+    /// Reads usage minutes written by the report extension via app group.
+    private func readUsageFromAppGroup() -> Int {
+        guard let defaults = AppGroupConstants.sharedDefaults else { return 0 }
+        let timestamp = defaults.double(forKey: "reportUsedTimestamp")
+        let today = Calendar.current.startOfDay(for: .now).timeIntervalSince1970
+        guard timestamp >= today else { return 0 }
+        return defaults.integer(forKey: "reportUsedMinutesToday")
     }
 
     func stopMonitoring() {

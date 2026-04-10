@@ -46,6 +46,13 @@ struct TotalUsageScene: DeviceActivityReportScene {
             }
         }
 
+        // Write total to app group so the main app can read it
+        let usedMinutes = Int(totalDuration / 60)
+        if let defaults = UserDefaults(suiteName: "group.andyjphu.mathblocker") {
+            defaults.set(usedMinutes, forKey: "reportUsedMinutesToday")
+            defaults.set(Date().timeIntervalSince1970, forKey: "reportUsedTimestamp")
+        }
+
         // Top apps sorted by duration
         let topApps = appDurations
             .map { AppUsage(name: $0.key, duration: $0.value.duration, pickups: $0.value.pickups) }

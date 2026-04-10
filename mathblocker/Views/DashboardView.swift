@@ -84,9 +84,7 @@ struct DashboardView: View {
                         showReport = true
                     }
                 }
-                if #available(iOS 26.4, *) {
-                    Task { await loadUsage() }
-                }
+                loadUsageFromAppGroup()
             }
             .scrollContentBackground(.hidden)
             .background { FrostedBackground() }
@@ -105,27 +103,26 @@ struct DashboardView: View {
 
     private var heroSection: some View {
         let earned = todayStats?.minutesEarned ?? 0
-        let remaining = max(0, budgetMinutes + earned - usedMinutes)
         let shieldsUp = ShieldManager.shared.shieldsAreActive
 
         return VStack(spacing: 16) {
-            // Remaining is the hero number
+            // Earned is the hero — the number they control
             VStack(spacing: 4) {
-                Text("\(remaining)")
+                Text("+\(earned)")
                     .font(Theme.titleFont(size: 64))
-                    .foregroundStyle(remaining == 0 ? .orange : .primary)
+                    .foregroundStyle(earned > 0 ? .accent : .primary)
 
-                Text("minutes remaining")
+                Text("minutes earned today")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
 
-            // Breakdown
+            // Budget context
             HStack(spacing: 0) {
                 VStack(spacing: 2) {
                     Text("\(budgetMinutes)")
                         .font(Theme.titleFont(size: 20))
-                    Text("budget")
+                    Text("daily budget")
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                 }
@@ -136,24 +133,9 @@ struct DashboardView: View {
                     .frame(width: 1, height: 24)
 
                 VStack(spacing: 2) {
-                    Text("+\(earned)")
+                    Text("\(todayStats?.questionsCorrect ?? 0)/\(todayStats?.questionsAttempted ?? 0)")
                         .font(Theme.titleFont(size: 20))
-                        .foregroundStyle(.accent)
-                    Text("earned")
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
-                }
-                .frame(maxWidth: .infinity)
-
-                Rectangle()
-                    .fill(.quaternary)
-                    .frame(width: 1, height: 24)
-
-                VStack(spacing: 2) {
-                    Text("\(usedMinutes)")
-                        .font(Theme.titleFont(size: 20))
-                        .foregroundStyle(.secondary)
-                    Text("used")
+                    Text("solved today")
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                 }
@@ -166,12 +148,6 @@ struct DashboardView: View {
                     .font(.caption)
                     .foregroundStyle(.orange)
                     .multilineTextAlignment(.center)
-            }
-
-            if let usageError {
-                Text(usageError)
-                    .font(.caption2)
-                    .foregroundStyle(.red)
             }
         }
         .frame(maxWidth: .infinity)
@@ -276,48 +252,16 @@ struct DashboardView: View {
 
     // MARK: - Usage
 
-    @available(iOS 26.4, *)
-    private func loadUsage() async {
-        let today = Calendar.current.startOfDay(for: .now)
-        let selection = SelectionManager.shared.selection
+    /// Reads usage minutes written by the report extension via app group.
+    private func loadUsageFromAppGroup() {
+        guard let defaults = AppGroupConstants.sharedDefaults else { return }
+        let timestamp = defaults.double(forKey: "reportUsedTimestamp")
+        let today = Calendar.current.startOfDay(for: .now).timeIntervalSince1970
 
-        let filter = DeviceActivityFilter(
-            segment: .hourly(during: DateInterval(start: today, end: .now)),
-            users: .all,
-            devices: .init([.iPhone]),
-            applications: selection.applicationTokens,
-            categories: selection.categoryTokens
-        )
-
-        var totalSeconds: TimeInterval = 0
-        var segmentCount = 0
-        var appCount = 0
-
-        do {
-            for try await activityData in DeviceActivityData.activityData(filteredBy: filter, using: .cached) {
-                for await segment in activityData.activitySegments {
-                    segmentCount += 1
-                    totalSeconds += segment.totalActivityDuration
-                    for await category in segment.categories {
-                        for await app in category.applications {
-                            appCount += 1
-                        }
-                    }
-                }
-            }
-            await MainActor.run {
-                usedMinutes = Int(totalSeconds / 60)
-                if totalSeconds == 0 {
-                    usageError = "api ok, \(segmentCount) segments, \(appCount) apps, 0s total"
-                } else {
-                    usageError = nil
-                }
-            }
-        } catch {
-            await MainActor.run {
-                usageError = "usage api: \(error.localizedDescription)"
-                usedMinutes = 0
-            }
+        // Only use if the report wrote data today
+        if timestamp >= today {
+            usedMinutes = defaults.integer(forKey: "reportUsedMinutesToday")
+            usageError = nil
         }
     }
 
