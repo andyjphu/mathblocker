@@ -36,7 +36,7 @@ class DeviceActivityMonitorExtension: DeviceActivityMonitor {
     private let budgetEventName = "mathblocker.threshold"
 
     private static let logger = Logger(
-        subsystem: "andyjphu.mathblocker.dame",
+        subsystem: "andyjphu.mathblocker.Monitor",
         category: "DeviceActivityMonitor"
     )
 

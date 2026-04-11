@@ -11,10 +11,10 @@
 		5A95AF512F87BC3600A12617 /* ManagedSettings.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A95AF502F87BC3600A12617 /* ManagedSettings.framework */; };
 		5A95AF632F87BC5100A12617 /* ManagedSettings.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A95AF502F87BC3600A12617 /* ManagedSettings.framework */; };
 		5A95AF652F87BC5100A12617 /* ManagedSettingsUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A95AF642F87BC5100A12617 /* ManagedSettingsUI.framework */; };
-		5A95AF712F87BD0000A12617 /* Monitor.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 5A95AF3D2F87BC0100A12617 /* Monitor.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		5A95AF722F87BD0000A12617 /* ShieldAction.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 5A95AF4F2F87BC3600A12617 /* ShieldAction.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		5A95AF732F87BD0000A12617 /* ShieldConfig.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 5A95AF622F87BC5100A12617 /* ShieldConfig.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		5A95AFAA2F87BF0000A12617 /* UsageReport.appex in Embed ExtensionKit Extensions */ = {isa = PBXBuildFile; fileRef = 5A95AFA12F87BF0000A12617 /* UsageReport.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		5A95AF712F87BD0000A12617 /* dame.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 5A95AF3D2F87BC0100A12617 /* dame.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		5A95AF722F87BD0000A12617 /* shconf.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 5A95AF4F2F87BC3600A12617 /* shconf.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		5A95AF732F87BD0000A12617 /* shconfig.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 5A95AF622F87BC5100A12617 /* shconfig.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		5A95AFAA2F87BF0000A12617 /* report.appex in Embed ExtensionKit Extensions */ = {isa = PBXBuildFile; fileRef = 5A95AFA12F87BF0000A12617 /* report.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		5A95AFAD2F87BF0000A12617 /* DeviceActivity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A95AF2F2F87BB8E00A12617 /* DeviceActivity.framework */; };
 		5AB1C0012F900000000C0001 /* SwiftMath in Frameworks */ = {isa = PBXBuildFile; productRef = 5AB1C0002F900000000C0001 /* SwiftMath */; };
 /* End PBXBuildFile section */
@@ -39,28 +39,28 @@
 			containerPortal = 5A61C0312F87A5C100EAA886 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 5A95AF3C2F87BC0100A12617;
-			remoteInfo = Monitor;
+			remoteInfo = dame;
 		};
 		5A95AF762F87BD0000A12617 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 5A61C0312F87A5C100EAA886 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 5A95AF4E2F87BC3600A12617;
-			remoteInfo = ShieldAction;
+			remoteInfo = shconf;
 		};
 		5A95AF772F87BD0000A12617 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 5A61C0312F87A5C100EAA886 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 5A95AF612F87BC5100A12617;
-			remoteInfo = ShieldConfig;
+			remoteInfo = shconfig;
 		};
 		5A95AFAB2F87BF0000A12617 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 5A61C0312F87A5C100EAA886 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 5A95AFA02F87BF0000A12617;
-			remoteInfo = UsageReport;
+			remoteInfo = report;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -71,9 +71,9 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				5A95AF712F87BD0000A12617 /* Monitor.appex in Embed Foundation Extensions */,
-				5A95AF722F87BD0000A12617 /* ShieldAction.appex in Embed Foundation Extensions */,
-				5A95AF732F87BD0000A12617 /* ShieldConfig.appex in Embed Foundation Extensions */,
+				5A95AF712F87BD0000A12617 /* dame.appex in Embed Foundation Extensions */,
+				5A95AF722F87BD0000A12617 /* shconf.appex in Embed Foundation Extensions */,
+				5A95AF732F87BD0000A12617 /* shconfig.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -84,7 +84,7 @@
 			dstPath = "$(EXTENSIONS_FOLDER_PATH)";
 			dstSubfolderSpec = 16;
 			files = (
-				5A95AFAA2F87BF0000A12617 /* UsageReport.appex in Embed ExtensionKit Extensions */,
+				5A95AFAA2F87BF0000A12617 /* report.appex in Embed ExtensionKit Extensions */,
 			);
 			name = "Embed ExtensionKit Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -96,12 +96,12 @@
 		5A61C0482F87A5C400EAA886 /* mathblockerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = mathblockerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		5A61C0522F87A5C400EAA886 /* mathblockerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = mathblockerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		5A95AF2F2F87BB8E00A12617 /* DeviceActivity.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DeviceActivity.framework; path = System/Library/Frameworks/DeviceActivity.framework; sourceTree = SDKROOT; };
-		5A95AF3D2F87BC0100A12617 /* Monitor.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = Monitor.appex; sourceTree = BUILT_PRODUCTS_DIR; };
-		5A95AF4F2F87BC3600A12617 /* ShieldAction.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ShieldAction.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		5A95AF3D2F87BC0100A12617 /* dame.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = dame.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		5A95AF4F2F87BC3600A12617 /* shconf.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = shconf.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		5A95AF502F87BC3600A12617 /* ManagedSettings.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ManagedSettings.framework; path = System/Library/Frameworks/ManagedSettings.framework; sourceTree = SDKROOT; };
-		5A95AF622F87BC5100A12617 /* ShieldConfig.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ShieldConfig.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		5A95AF622F87BC5100A12617 /* shconfig.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = shconfig.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		5A95AF642F87BC5100A12617 /* ManagedSettingsUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ManagedSettingsUI.framework; path = System/Library/Frameworks/ManagedSettingsUI.framework; sourceTree = SDKROOT; };
-		5A95AFA12F87BF0000A12617 /* UsageReport.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = UsageReport.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		5A95AFA12F87BF0000A12617 /* report.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = report.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -112,33 +112,33 @@
 			);
 			target = 5A61C0382F87A5C100EAA886 /* mathblocker */;
 		};
-		5A95AF472F87BC0100A12617 /* Exceptions for "Monitor" folder in "Monitor" target */ = {
+		5A95AF472F87BC0100A12617 /* Exceptions for "dame" folder in "dame" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
 			);
-			target = 5A95AF3C2F87BC0100A12617 /* Monitor */;
+			target = 5A95AF3C2F87BC0100A12617 /* dame */;
 		};
-		5A95AF5A2F87BC3600A12617 /* Exceptions for "ShieldAction" folder in "ShieldAction" target */ = {
+		5A95AF5A2F87BC3600A12617 /* Exceptions for "shconf" folder in "shconf" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
 			);
-			target = 5A95AF4E2F87BC3600A12617 /* ShieldAction */;
+			target = 5A95AF4E2F87BC3600A12617 /* shconf */;
 		};
-		5A95AF6E2F87BC5100A12617 /* Exceptions for "ShieldConfig" folder in "ShieldConfig" target */ = {
+		5A95AF6E2F87BC5100A12617 /* Exceptions for "shconfig" folder in "shconfig" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
 			);
-			target = 5A95AF612F87BC5100A12617 /* ShieldConfig */;
+			target = 5A95AF612F87BC5100A12617 /* shconfig */;
 		};
-		5A95AFA62F87BF0000A12617 /* Exceptions for "UsageReport" folder in "UsageReport" target */ = {
+		5A95AFA62F87BF0000A12617 /* Exceptions for "report" folder in "report" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
 			);
-			target = 5A95AFA02F87BF0000A12617 /* UsageReport */;
+			target = 5A95AFA02F87BF0000A12617 /* report */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
@@ -161,36 +161,36 @@
 			path = mathblockerUITests;
 			sourceTree = "<group>";
 		};
-		5A95AF3F2F87BC0100A12617 /* Monitor */ = {
+		5A95AF3F2F87BC0100A12617 /* dame */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				5A95AF472F87BC0100A12617 /* Exceptions for "Monitor" folder in "Monitor" target */,
+				5A95AF472F87BC0100A12617 /* Exceptions for "dame" folder in "dame" target */,
 			);
-			path = Monitor;
+			path = dame;
 			sourceTree = "<group>";
 		};
-		5A95AF522F87BC3600A12617 /* ShieldAction */ = {
+		5A95AF522F87BC3600A12617 /* shconf */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				5A95AF5A2F87BC3600A12617 /* Exceptions for "ShieldAction" folder in "ShieldAction" target */,
+				5A95AF5A2F87BC3600A12617 /* Exceptions for "shconf" folder in "shconf" target */,
 			);
-			path = ShieldAction;
+			path = shconf;
 			sourceTree = "<group>";
 		};
-		5A95AF662F87BC5100A12617 /* ShieldConfig */ = {
+		5A95AF662F87BC5100A12617 /* shconfig */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				5A95AF6E2F87BC5100A12617 /* Exceptions for "ShieldConfig" folder in "ShieldConfig" target */,
+				5A95AF6E2F87BC5100A12617 /* Exceptions for "shconfig" folder in "shconfig" target */,
 			);
-			path = ShieldConfig;
+			path = shconfig;
 			sourceTree = "<group>";
 		};
-		5A95AFA52F87BF0000A12617 /* UsageReport */ = {
+		5A95AFA52F87BF0000A12617 /* report */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				5A95AFA62F87BF0000A12617 /* Exceptions for "UsageReport" folder in "UsageReport" target */,
+				5A95AFA62F87BF0000A12617 /* Exceptions for "report" folder in "report" target */,
 			);
-			path = UsageReport;
+			path = report;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -260,10 +260,10 @@
 				5A61C03B2F87A5C100EAA886 /* mathblocker */,
 				5A61C04B2F87A5C400EAA886 /* mathblockerTests */,
 				5A61C0552F87A5C400EAA886 /* mathblockerUITests */,
-				5A95AF3F2F87BC0100A12617 /* Monitor */,
-				5A95AF522F87BC3600A12617 /* ShieldAction */,
-				5A95AF662F87BC5100A12617 /* ShieldConfig */,
-				5A95AFA52F87BF0000A12617 /* UsageReport */,
+				5A95AF3F2F87BC0100A12617 /* dame */,
+				5A95AF522F87BC3600A12617 /* shconf */,
+				5A95AF662F87BC5100A12617 /* shconfig */,
+				5A95AFA52F87BF0000A12617 /* report */,
 				5A95AF2E2F87BB8E00A12617 /* Frameworks */,
 				5A61C03A2F87A5C100EAA886 /* Products */,
 			);
@@ -275,10 +275,10 @@
 				5A61C0392F87A5C100EAA886 /* mathblocker.app */,
 				5A61C0482F87A5C400EAA886 /* mathblockerTests.xctest */,
 				5A61C0522F87A5C400EAA886 /* mathblockerUITests.xctest */,
-				5A95AF3D2F87BC0100A12617 /* Monitor.appex */,
-				5A95AF4F2F87BC3600A12617 /* ShieldAction.appex */,
-				5A95AF622F87BC5100A12617 /* ShieldConfig.appex */,
-				5A95AFA12F87BF0000A12617 /* UsageReport.appex */,
+				5A95AF3D2F87BC0100A12617 /* dame.appex */,
+				5A95AF4F2F87BC3600A12617 /* shconf.appex */,
+				5A95AF622F87BC5100A12617 /* shconfig.appex */,
+				5A95AFA12F87BF0000A12617 /* report.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -371,9 +371,9 @@
 			productReference = 5A61C0522F87A5C400EAA886 /* mathblockerUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
-		5A95AF3C2F87BC0100A12617 /* Monitor */ = {
+		5A95AF3C2F87BC0100A12617 /* dame */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 5A95AF482F87BC0100A12617 /* Build configuration list for PBXNativeTarget "Monitor" */;
+			buildConfigurationList = 5A95AF482F87BC0100A12617 /* Build configuration list for PBXNativeTarget "dame" */;
 			buildPhases = (
 				5A95AF392F87BC0100A12617 /* Sources */,
 				5A95AF3A2F87BC0100A12617 /* Frameworks */,
@@ -384,18 +384,18 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				5A95AF3F2F87BC0100A12617 /* Monitor */,
+				5A95AF3F2F87BC0100A12617 /* dame */,
 			);
-			name = Monitor;
+			name = dame;
 			packageProductDependencies = (
 			);
-			productName = Monitor;
-			productReference = 5A95AF3D2F87BC0100A12617 /* Monitor.appex */;
+			productName = dame;
+			productReference = 5A95AF3D2F87BC0100A12617 /* dame.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
-		5A95AF4E2F87BC3600A12617 /* ShieldAction */ = {
+		5A95AF4E2F87BC3600A12617 /* shconf */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 5A95AF5B2F87BC3600A12617 /* Build configuration list for PBXNativeTarget "ShieldAction" */;
+			buildConfigurationList = 5A95AF5B2F87BC3600A12617 /* Build configuration list for PBXNativeTarget "shconf" */;
 			buildPhases = (
 				5A95AF4B2F87BC3600A12617 /* Sources */,
 				5A95AF4C2F87BC3600A12617 /* Frameworks */,
@@ -406,18 +406,18 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				5A95AF522F87BC3600A12617 /* ShieldAction */,
+				5A95AF522F87BC3600A12617 /* shconf */,
 			);
-			name = ShieldAction;
+			name = shconf;
 			packageProductDependencies = (
 			);
-			productName = ShieldAction;
-			productReference = 5A95AF4F2F87BC3600A12617 /* ShieldAction.appex */;
+			productName = shconf;
+			productReference = 5A95AF4F2F87BC3600A12617 /* shconf.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
-		5A95AF612F87BC5100A12617 /* ShieldConfig */ = {
+		5A95AF612F87BC5100A12617 /* shconfig */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 5A95AF6F2F87BC5100A12617 /* Build configuration list for PBXNativeTarget "ShieldConfig" */;
+			buildConfigurationList = 5A95AF6F2F87BC5100A12617 /* Build configuration list for PBXNativeTarget "shconfig" */;
 			buildPhases = (
 				5A95AF5E2F87BC5100A12617 /* Sources */,
 				5A95AF5F2F87BC5100A12617 /* Frameworks */,
@@ -428,18 +428,18 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				5A95AF662F87BC5100A12617 /* ShieldConfig */,
+				5A95AF662F87BC5100A12617 /* shconfig */,
 			);
-			name = ShieldConfig;
+			name = shconfig;
 			packageProductDependencies = (
 			);
-			productName = ShieldConfig;
-			productReference = 5A95AF622F87BC5100A12617 /* ShieldConfig.appex */;
+			productName = shconfig;
+			productReference = 5A95AF622F87BC5100A12617 /* shconfig.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
-		5A95AFA02F87BF0000A12617 /* UsageReport */ = {
+		5A95AFA02F87BF0000A12617 /* report */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 5A95AFA72F87BF0000A12617 /* Build configuration list for PBXNativeTarget "UsageReport" */;
+			buildConfigurationList = 5A95AFA72F87BF0000A12617 /* Build configuration list for PBXNativeTarget "report" */;
 			buildPhases = (
 				5A95AFA22F87BF0000A12617 /* Sources */,
 				5A95AFA32F87BF0000A12617 /* Frameworks */,
@@ -450,13 +450,13 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				5A95AFA52F87BF0000A12617 /* UsageReport */,
+				5A95AFA52F87BF0000A12617 /* report */,
 			);
-			name = UsageReport;
+			name = report;
 			packageProductDependencies = (
 			);
-			productName = UsageReport;
-			productReference = 5A95AFA12F87BF0000A12617 /* UsageReport.appex */;
+			productName = report;
+			productReference = 5A95AFA12F87BF0000A12617 /* report.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
@@ -514,10 +514,10 @@
 				5A61C0382F87A5C100EAA886 /* mathblocker */,
 				5A61C0472F87A5C400EAA886 /* mathblockerTests */,
 				5A61C0512F87A5C400EAA886 /* mathblockerUITests */,
-				5A95AF3C2F87BC0100A12617 /* Monitor */,
-				5A95AF4E2F87BC3600A12617 /* ShieldAction */,
-				5A95AF612F87BC5100A12617 /* ShieldConfig */,
-				5A95AFA02F87BF0000A12617 /* UsageReport */,
+				5A95AF3C2F87BC0100A12617 /* dame */,
+				5A95AF4E2F87BC3600A12617 /* shconf */,
+				5A95AF612F87BC5100A12617 /* shconfig */,
+				5A95AFA02F87BF0000A12617 /* report */,
 			);
 		};
 /* End PBXProject section */
@@ -639,22 +639,22 @@
 		};
 		5A95AF792F87BD0000A12617 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 5A95AF3C2F87BC0100A12617 /* Monitor */;
+			target = 5A95AF3C2F87BC0100A12617 /* dame */;
 			targetProxy = 5A95AF752F87BD0000A12617 /* PBXContainerItemProxy */;
 		};
 		5A95AF7A2F87BD0000A12617 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 5A95AF4E2F87BC3600A12617 /* ShieldAction */;
+			target = 5A95AF4E2F87BC3600A12617 /* shconf */;
 			targetProxy = 5A95AF762F87BD0000A12617 /* PBXContainerItemProxy */;
 		};
 		5A95AF7B2F87BD0000A12617 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 5A95AF612F87BC5100A12617 /* ShieldConfig */;
+			target = 5A95AF612F87BC5100A12617 /* shconfig */;
 			targetProxy = 5A95AF772F87BD0000A12617 /* PBXContainerItemProxy */;
 		};
 		5A95AFAC2F87BF0000A12617 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 5A95AFA02F87BF0000A12617 /* UsageReport */;
+			target = 5A95AFA02F87BF0000A12617 /* report */;
 			targetProxy = 5A95AFAB2F87BF0000A12617 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -796,7 +796,7 @@
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -810,7 +810,7 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1";
 			};
 			name = Debug;
 		};
@@ -829,7 +829,7 @@
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -843,7 +843,7 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1";
 			};
 			name = Release;
 		};
@@ -864,7 +864,7 @@
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/mathblocker.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/mathblocker";
 			};
 			name = Debug;
@@ -886,7 +886,7 @@
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/mathblocker.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/mathblocker";
 			};
 			name = Release;
@@ -906,7 +906,7 @@
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1";
 				TEST_TARGET_NAME = mathblocker;
 			};
 			name = Debug;
@@ -926,7 +926,7 @@
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1";
 				TEST_TARGET_NAME = mathblocker;
 			};
 			name = Release;
@@ -934,13 +934,13 @@
 		5A95AF492F87BC0100A12617 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = Monitor/Monitor.entitlements;
+				CODE_SIGN_ENTITLEMENTS = dame/dame.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = Q6YN8K63U3;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Monitor/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = Monitor;
+				INFOPLIST_FILE = dame/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = dame;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -948,7 +948,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = andyjphu.mathblocker.Monitor;
+				PRODUCT_BUNDLE_IDENTIFIER = andyjphu.mathblocker.dame;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -956,20 +956,20 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1";
 			};
 			name = Debug;
 		};
 		5A95AF4A2F87BC0100A12617 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = Monitor/Monitor.entitlements;
+				CODE_SIGN_ENTITLEMENTS = dame/dame.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = Q6YN8K63U3;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Monitor/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = Monitor;
+				INFOPLIST_FILE = dame/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = dame;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -977,7 +977,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = andyjphu.mathblocker.Monitor;
+				PRODUCT_BUNDLE_IDENTIFIER = andyjphu.mathblocker.dame;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -985,20 +985,20 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1";
 			};
 			name = Release;
 		};
 		5A95AF5C2F87BC3600A12617 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = ShieldAction/ShieldAction.entitlements;
+				CODE_SIGN_ENTITLEMENTS = shconf/shconf.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = Q6YN8K63U3;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = ShieldAction/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = ShieldAction;
+				INFOPLIST_FILE = shconf/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = shconf;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1006,7 +1006,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = andyjphu.mathblocker.ShieldAction;
+				PRODUCT_BUNDLE_IDENTIFIER = andyjphu.mathblocker.shconf;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -1014,20 +1014,20 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1";
 			};
 			name = Debug;
 		};
 		5A95AF5D2F87BC3600A12617 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = ShieldAction/ShieldAction.entitlements;
+				CODE_SIGN_ENTITLEMENTS = shconf/shconf.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = Q6YN8K63U3;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = ShieldAction/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = ShieldAction;
+				INFOPLIST_FILE = shconf/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = shconf;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1035,7 +1035,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = andyjphu.mathblocker.ShieldAction;
+				PRODUCT_BUNDLE_IDENTIFIER = andyjphu.mathblocker.shconf;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -1043,20 +1043,20 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1";
 			};
 			name = Release;
 		};
 		5A95AF702F87BC5100A12617 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = ShieldConfig/ShieldConfig.entitlements;
+				CODE_SIGN_ENTITLEMENTS = shconfig/shconfig.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = Q6YN8K63U3;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = ShieldConfig/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = ShieldConfig;
+				INFOPLIST_FILE = shconfig/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = shconfig;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1064,7 +1064,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = andyjphu.mathblocker.ShieldConfig;
+				PRODUCT_BUNDLE_IDENTIFIER = andyjphu.mathblocker.shconfig;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -1072,20 +1072,20 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1";
 			};
 			name = Debug;
 		};
 		5A95AF712F87BC5100A12617 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = ShieldConfig/ShieldConfig.entitlements;
+				CODE_SIGN_ENTITLEMENTS = shconfig/shconfig.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = Q6YN8K63U3;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = ShieldConfig/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = ShieldConfig;
+				INFOPLIST_FILE = shconfig/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = shconfig;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1093,7 +1093,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = andyjphu.mathblocker.ShieldConfig;
+				PRODUCT_BUNDLE_IDENTIFIER = andyjphu.mathblocker.shconfig;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -1101,21 +1101,21 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1";
 			};
 			name = Release;
 		};
 		5A95AFA82F87BF0000A12617 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = UsageReport/UsageReport.entitlements;
+				CODE_SIGN_ENTITLEMENTS = report/report.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = Q6YN8K63U3;
 				EXTENSIONKIT_EXTENSION_POINT_IDENTIFIER = "com.apple.deviceactivityui.report-extension";
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = UsageReport/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = UsageReport;
+				INFOPLIST_FILE = report/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = report;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1124,7 +1124,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = andyjphu.mathblocker.UsageReport;
+				PRODUCT_BUNDLE_IDENTIFIER = andyjphu.mathblocker.report;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -1132,21 +1132,21 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1";
 			};
 			name = Debug;
 		};
 		5A95AFA92F87BF0000A12617 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = UsageReport/UsageReport.entitlements;
+				CODE_SIGN_ENTITLEMENTS = report/report.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = Q6YN8K63U3;
 				EXTENSIONKIT_EXTENSION_POINT_IDENTIFIER = "com.apple.deviceactivityui.report-extension";
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = UsageReport/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = UsageReport;
+				INFOPLIST_FILE = report/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = report;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1155,7 +1155,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = andyjphu.mathblocker.UsageReport;
+				PRODUCT_BUNDLE_IDENTIFIER = andyjphu.mathblocker.report;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -1163,7 +1163,7 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1";
 			};
 			name = Release;
 		};
@@ -1206,7 +1206,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		5A95AF482F87BC0100A12617 /* Build configuration list for PBXNativeTarget "Monitor" */ = {
+		5A95AF482F87BC0100A12617 /* Build configuration list for PBXNativeTarget "dame" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				5A95AF492F87BC0100A12617 /* Debug */,
@@ -1215,7 +1215,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		5A95AF5B2F87BC3600A12617 /* Build configuration list for PBXNativeTarget "ShieldAction" */ = {
+		5A95AF5B2F87BC3600A12617 /* Build configuration list for PBXNativeTarget "shconf" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				5A95AF5C2F87BC3600A12617 /* Debug */,
@@ -1224,7 +1224,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		5A95AF6F2F87BC5100A12617 /* Build configuration list for PBXNativeTarget "ShieldConfig" */ = {
+		5A95AF6F2F87BC5100A12617 /* Build configuration list for PBXNativeTarget "shconfig" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				5A95AF702F87BC5100A12617 /* Debug */,
@@ -1233,7 +1233,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		5A95AFA72F87BF0000A12617 /* Build configuration list for PBXNativeTarget "UsageReport" */ = {
+		5A95AFA72F87BF0000A12617 /* Build configuration list for PBXNativeTarget "report" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				5A95AFA82F87BF0000A12617 /* Debug */,
