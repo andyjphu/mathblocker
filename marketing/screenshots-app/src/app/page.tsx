@@ -5,15 +5,15 @@ import { toPng } from "html-to-image";
 
 /* ----------------------------- Constants ------------------------------ */
 
-// Design canvas — iPhone 6.9" (largest App Store size)
-const W = 1320;
-const H = 2868;
+// Design canvas — iPhone 6.7" (1284 × 2778). This matches the largest
+// allowed Apple App Store portrait export, so the 6.7" export is 1:1
+// and the 6.5" export downscales by a negligible ~3%.
+const W = 1284;
+const H = 2778;
 
 const IPHONE_SIZES = [
-  { label: '6.9"', w: 1320, h: 2868 },
-  { label: '6.5"', w: 1284, h: 2778 },
-  { label: '6.3"', w: 1206, h: 2622 },
-  { label: '6.1"', w: 1125, h: 2436 },
+  { label: '6.7"', w: 1284, h: 2778 },
+  { label: '6.5"', w: 1242, h: 2688 },
 ] as const;
 
 // Mockup.png measurements (pre-measured)
@@ -71,8 +71,8 @@ const TERRA = "#C7502E";
      }
 
    ---- Split pair knobs (SPLIT_PLACEMENT) ----
-   Each pair ("split-30", "split-45", "split-60") is shared by its two
-   halves, so editing one key affects both slides of that pair.
+   Each pair key (e.g. "split-30") is shared by its two halves, so
+   editing one key affects both slides of that pair.
 
    - widthPct:         phone width as % of canvas width
                        (splits use 65 by default since rotation enlarges
@@ -124,8 +124,6 @@ type SplitPlacement = {
 
 const SPLIT_PLACEMENT: Record<string, SplitPlacement> = {
   "split-30": { widthPct: 115, verticalCenterPct: 50, translateXPct: -25, angleDeg: 30, abOffsetYPct:3 },
-  "split-45": { widthPct: 65, verticalCenterPct: 55, angleDeg: 45 },
-  "split-60": { widthPct: 65, verticalCenterPct: 55, angleDeg: 60 },
 };
 
 // Shared phone style for the main (non-split) slides — bottom-anchored,
@@ -747,10 +745,6 @@ const slideSplit30R = makeTiltedSplit(
     ),
   },
 );
-const slideSplit45L = makeTiltedSplit("split-45", "left", <>the block.</>);
-const slideSplit45R = makeTiltedSplit("split-45", "right", <>the fix.</>);
-const slideSplit60L = makeTiltedSplit("split-60", "left", <>the block.</>);
-const slideSplit60R = makeTiltedSplit("split-60", "right", <>the fix.</>);
 
 const SLIDES: SlideDef[] = [
   slide1,
@@ -760,10 +754,6 @@ const SLIDES: SlideDef[] = [
   slide5,
   slideSplit30L,
   slideSplit30R,
-  slideSplit45L,
-  slideSplit45R,
-  slideSplit60L,
-  slideSplit60R,
 ];
 
 /* -------------------------- Preview Component ------------------------- */
