@@ -123,6 +123,86 @@ in `.com.apple.mobile_container_manager.metadata.plist` under each
 
 ---
 
+## Two Clocks: Daily Budget vs. Earned Time
+
+The app tracks *two* separate time allowances for the user, and they work
+very differently. This is a forced consequence of the iOS `DeviceActivity`
+API surface, not a design preference.
+
+| | Daily budget (e.g. 30 min) | Earned time (from math) |
+|---|---|---|
+| **Unit** | Real screen time | Wall clock |
+| **Source of truth** | iOS `DeviceActivityEvent` counter | `earnedTimerEnd` in app group |
+| **Reset** | `intervalDidStart` at midnight | Fixed deadline; no reset until user earns more |
+| **Who enforces** | `dame.eventDidReachThreshold` → `applyShields` | Main app in-app `Timer` + `dame.intervalDidEnd` (belt and suspenders) |
+| **Can "add more"?** | Kind of — tear down schedule and re-register with higher threshold (flaky) | Yes, just extend `earnedTimerEnd` |
+
+**Why they're different:** iOS's `DeviceActivityEvent` has no "increment
+by N minutes" API. You register a threshold, iOS counts toward it, fires
+once. There is no way to tell iOS "actually the user earned 5 more
+minutes, please don't fire until 35 min instead of 30." The only lever
+is `DeviceActivitySchedule.startMonitoring` with a different event config,
+which resets the counter as a side effect (lesson #4), and on my device
+`includesPastActivity: true` has been inconsistent about honoring past
+usage after a re-register. So earned time lives in a separate wall-clock
+clock that we can freely extend.
+
+**The UX cost:** a user who solves math while still under their daily
+budget *loses* that earned time. The earned timer is a wall-clock window;
+it starts ticking immediately, and if the user isn't actively burning
+blocked apps, those minutes are wasted. See "Open question: banking
+earned time" below.
+
+**If there were an easy path to a single clock, we'd take it.** The most
+plausible single-clock design would be re-registering the budget event
+with `threshold: budget + bankedMinutes` on every earn, but:
+1. Re-registering resets iOS's counter.
+2. `includesPastActivity: true` is supposed to re-include past usage but
+   my device has shown at least one case where it fired only the
+   `eventWillReachThresholdWarning` and not `eventDidReachThreshold`
+   after a restart, so relying on it for the user's total time is risky.
+3. Threshold can only go up over time (per-interval); hard to reconcile
+   with "the user spent their earned time already."
+
+For now we accept the split and document it loudly.
+
+### Banked earned time (implemented 2026-04-10)
+
+A user who solves math while still under the daily budget doesn't lose
+that earned time anymore. `ChallengeViewModel.redeemEarnedMinutes`
+checks the current state:
+
+| State at earn time | Action |
+|---|---|
+| Shields up (over budget) | `startEarnedTimer` — removes shields, starts the wall-clock countdown immediately |
+| Earned timer already active | `startEarnedTimer` — stacks on the existing timer |
+| Under budget, no active timer | `bankMinutes` — writes to `bankedMinutes` in app group, dashboard shows a pill |
+
+When the daily budget threshold eventually fires, `dame.eventDidReachThreshold`
+reads `bankedMinutes`. If non-zero, it **redeems the banked time instead
+of applying shields**: writes `earnedTimerEnd = now + banked*60`,
+registers the `mathblocker.earnedTimer` schedule so dame's
+`intervalDidEnd` can re-apply shields at deadline, clears
+`bankedMinutes`, and returns without shielding. The main app picks up
+the new `earnedTimerEnd` on the next dashboard poll (2s) or scene
+foreground, and the countdown hero appears automatically.
+
+Failure modes covered:
+- **dame's earned-timer registration fails during redemption**: main app's
+  `scheduleExpiryTimer` still runs the wall-clock Timer in the main app
+  process, so shields re-apply when the user foregrounds after expiry
+  (`refreshFromStorage` detects the stale timestamp).
+- **User toggles monitoring off**: `stopMonitoring` clears banked minutes
+  (meaningless without active monitoring).
+- **User doesn't hit budget all day**: banked minutes persist across days
+  until redeemed. Design choice — the user earned them.
+
+This doesn't unify the two clocks. Banked time is still wall-clock once
+redeemed — the user can't spend it whenever, only sequentially after
+their daily budget exhausts. Making earned time count against the real
+budget counter still requires the threshold-in-place update which iOS
+doesn't support cleanly.
+
 ## Calendar-Time Earned Timer (current architecture)
 
 After repeated failures with screen-time tracking workarounds, we switched

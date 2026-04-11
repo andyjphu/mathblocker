@@ -137,12 +137,38 @@ class ChallengeViewModel {
         }
     }
 
-    /// After a session, starts a calendar-time earned timer.
-    /// The timer counts wall-clock minutes from now and re-applies shields
-    /// when it expires.
+    /// Records whether the most recent `redeemEarnedMinutes` call banked
+    /// the earned time (user was under budget and not in an active earned
+    /// timer) vs. redeemed it immediately. Used by the session-complete
+    /// view to show the right messaging.
+    var lastRedemptionWasBanked: Bool = false
+
+    /// After a session, either starts a wall-clock earned timer immediately
+    /// (when the user is already blocked or in an active earned timer) or
+    /// banks the minutes for later redemption when the budget exhausts.
+    ///
+    /// Banking avoids the failure mode where a user solves math while under
+    /// budget and watches the earned time tick away while they're still
+    /// consuming their free daily budget — previously those minutes fell
+    /// on the floor.
     private func redeemEarnedMinutes(modelContext: ModelContext) {
         guard minutesEarned > 0 else { return }
-        MonitoringManager.shared.startEarnedTimer(minutes: minutesEarned)
+
+        let shieldsUp = ShieldManager.shared.shieldsAreActive
+        let timerActive = MonitoringManager.shared.earnedTimerEnd != nil
+        let shouldRedeemNow = shieldsUp || timerActive
+
+        AppGroupConstants.appendDiagnosticLog(
+            "ChallengeViewModel.redeemEarnedMinutes: minutesEarned=\(minutesEarned) score=\(score)/\(questions.count) shieldsUp=\(shieldsUp) timerActive=\(timerActive) → \(shouldRedeemNow ? "redeem" : "bank")"
+        )
+
+        if shouldRedeemNow {
+            lastRedemptionWasBanked = false
+            MonitoringManager.shared.startEarnedTimer(minutes: minutesEarned)
+        } else {
+            lastRedemptionWasBanked = true
+            MonitoringManager.shared.bankMinutes(minutesEarned)
+        }
     }
 
     private func recordDailyStats(modelContext: ModelContext) {

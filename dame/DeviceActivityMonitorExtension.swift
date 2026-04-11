@@ -12,6 +12,12 @@ import Foundation
 import UserNotifications
 import os.log
 
+private let bankedMinutesKey = "bankedMinutes"
+private let earnedTimerEndKey = "earnedTimerEnd"
+private let budgetHitDateKey = "budgetHitDate"
+private let budgetHitThresholdKey = "budgetHitThreshold"
+private let dailyBudgetMinutesKey = "dailyBudgetMinutes"
+
 /// Handles two activity types:
 /// 1. `mathblocker.daily` — daily budget monitoring. Fires the budget event
 ///    when the user has used the blocked apps for `budgetMinutes`.
@@ -61,10 +67,25 @@ class DeviceActivityMonitorExtension: DeviceActivityMonitor {
         log("intervalDidEnd: \(activity.rawValue)")
 
         if activity.rawValue == earnedActivityName {
-            // Earned timer expired — re-block
+            // Guard against the restart race: main app may have just
+            // replaced the earned-timer schedule with a fresh one, in
+            // which case this `intervalDidEnd` is the old schedule
+            // tearing down, not an actual expiry. If
+            // `earnedTimerEnd` in the shared defaults is still in the
+            // future, the user is in an active earned timer and we
+            // must NOT re-apply shields (doing so would stomp on
+            // main's `removeShields` call during the restart).
+            let storedEnd = defaults?.double(forKey: earnedTimerEndKey) ?? 0
+            let now = Date().timeIntervalSince1970
+            if storedEnd > now + 5 {
+                log("intervalDidEnd earnedTimer: stored end is in future (+\(Int(storedEnd - now))s), skipping applyShields (restart in progress)")
+                return
+            }
+
+            // Actually expired — re-block.
             applyShields()
             store.dateAndTime.requireAutomaticDateAndTime = true
-            defaults?.removeObject(forKey: "earnedTimerEnd")
+            defaults?.removeObject(forKey: earnedTimerEndKey)
             log("earned timer expired, shields applied")
         }
         // NOTE: We previously called `store.clearAllSettings()` here for
@@ -87,18 +108,80 @@ class DeviceActivityMonitorExtension: DeviceActivityMonitor {
         super.eventDidReachThreshold(event, activity: activity)
         log("eventDidReachThreshold: \(event.rawValue)")
 
-        if event.rawValue == budgetEventName {
-            applyShields()
-            store.dateAndTime.requireAutomaticDateAndTime = true
-            // Flag for the main app: "budget was hit today". Main app reads
-            // this on foreground and re-applies shields if they've silently
-            // dropped (e.g. from a failed earned-timer schedule). Format:
-            // `yyyy-MM-dd` in the device's local timezone.
-            let fmt = DateFormatter()
-            fmt.dateFormat = "yyyy-MM-dd"
-            fmt.timeZone = .current
-            defaults?.set(fmt.string(from: Date()), forKey: "budgetHitDate")
-            log("budget threshold hit, shields applied")
+        guard event.rawValue == budgetEventName else { return }
+
+        // Always flag that the budget was hit today — even if we're about
+        // to redeem banked time, the main app needs to know the threshold
+        // fired for reconciliation logic on foreground. Record the
+        // threshold value too so the main app can detect stale hits:
+        // if the user later raises their budget above `budgetHitThreshold`,
+        // the hit is obsolete and shields should drop.
+        let fmt = DateFormatter()
+        fmt.dateFormat = "yyyy-MM-dd"
+        fmt.timeZone = .current
+        defaults?.set(fmt.string(from: Date()), forKey: budgetHitDateKey)
+        let currentBudget = defaults?.integer(forKey: dailyBudgetMinutesKey) ?? 0
+        defaults?.set(currentBudget, forKey: budgetHitThresholdKey)
+
+        // Banked-minute redemption: if the user solved math while under
+        // budget, we stashed the earned minutes in `bankedMinutes`. Now
+        // that the budget just exhausted, redeem them as an earned timer
+        // instead of applying shields.
+        let banked = defaults?.integer(forKey: bankedMinutesKey) ?? 0
+        if banked > 0 {
+            log("budget threshold hit, redeeming \(banked) banked min instead of shielding")
+            redeemBankedMinutes(banked)
+            defaults?.removeObject(forKey: bankedMinutesKey)
+            return
+        }
+
+        applyShields()
+        store.dateAndTime.requireAutomaticDateAndTime = true
+        log("budget threshold hit, shields applied")
+    }
+
+    /// Converts `minutes` of banked earned time into an active earned timer.
+    /// Called from `eventDidReachThreshold` when the daily budget exhausts
+    /// and there's banked time to spend first.
+    private func redeemBankedMinutes(_ minutes: Int) {
+        let now = Date()
+        let totalSeconds = TimeInterval(minutes * 60)
+        let endDate = now.addingTimeInterval(totalSeconds)
+
+        // Write the earned-timer end (at the TRUE earned amount, not the
+        // padded schedule end) so the main app's countdown UI picks it up
+        // on next `refreshFromStorage` / dashboard poll.
+        defaults?.set(endDate.timeIntervalSince1970, forKey: earnedTimerEndKey)
+
+        // iOS rejects `DeviceActivitySchedule` intervals shorter than
+        // about 15 minutes. Pad the schedule up to that minimum so dame's
+        // `intervalDidEnd` still fires as the backup shield-reapply
+        // mechanism for when the main app is backgrounded during expiry.
+        let iosMinScheduleSeconds: TimeInterval = 15 * 60
+        let scheduleEndDate = now.addingTimeInterval(max(totalSeconds, iosMinScheduleSeconds))
+
+        let calendar = Calendar.current
+        let startComponents = calendar.dateComponents(
+            [.year, .month, .day, .hour, .minute, .second],
+            from: now
+        )
+        let endComponents = calendar.dateComponents(
+            [.year, .month, .day, .hour, .minute, .second],
+            from: scheduleEndDate
+        )
+        let schedule = DeviceActivitySchedule(
+            intervalStart: startComponents,
+            intervalEnd: endComponents,
+            repeats: false
+        )
+
+        let earnedActivity = DeviceActivityName(rawValue: earnedActivityName)
+        let center = DeviceActivityCenter()
+        do {
+            try center.startMonitoring(earnedActivity, during: schedule, events: [:])
+            log("redeemBankedMinutes: registered schedule until \(ISO8601DateFormatter().string(from: scheduleEndDate)), real end \(ISO8601DateFormatter().string(from: endDate))")
+        } catch {
+            log("redeemBankedMinutes: failed to register earned timer (main app will handle expiry): \(error.localizedDescription)")
         }
     }
 

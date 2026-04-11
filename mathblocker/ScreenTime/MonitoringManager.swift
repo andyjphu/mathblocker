@@ -39,6 +39,11 @@ class MonitoringManager {
     /// of truth and sync this stored value on every write / on scene resume.
     private(set) var earnedTimerEnd: Date?
 
+    /// Minutes the user has solved math for while *not* over budget, stored
+    /// for redemption when the budget threshold eventually fires. Backed by
+    /// the app group so `dame` can read and clear it when applying shields.
+    private(set) var bankedMinutes: Int = 0
+
     /// `isMonitoring` lives in the app group so the monitoring extension
     /// can read/write it. Observability for this flag currently relies on
     /// scene-phase refresh — see `refreshFromStorage()`.
@@ -62,6 +67,33 @@ class MonitoringManager {
                 MonitoringManager.shared.scheduleExpiryTimer()
             }
         }
+        self.bankedMinutes = AppGroupConstants.sharedDefaults?.integer(forKey: AppGroupConstants.bankedMinutesKey) ?? 0
+
+        // Restore the last-started budget so "budget raised → drop shields"
+        // detection works across app relaunches. Without this, the first
+        // budget change after a cold launch always sees `prevBudget=nil`
+        // and silently skips the drop-shields branch.
+        //
+        // First-launch migration: if the key is absent but a `budgetHitDate`
+        // exists, we're on the first boot of a build that persists
+        // `lastStartedBudgetMinutes`. The pre-existing `budgetHitDate`
+        // references an old budget threshold we can't verify against the
+        // current budget, so clear it — the main app's reconcile path will
+        // then drop shields if the user is under their current budget, and
+        // dame will re-fire if they're still over.
+        let defaults = AppGroupConstants.sharedDefaults
+        if let stored = defaults?.object(forKey: AppGroupConstants.lastStartedBudgetMinutesKey) as? Int {
+            self.lastStartedBudgetMinutes = stored
+        } else {
+            if defaults?.string(forKey: AppGroupConstants.budgetHitDateKey) != nil {
+                AppGroupConstants.appendDiagnosticLog("init: migration — no persisted lastStartedBudgetMinutes but budgetHitDate is set; clearing so next reconcile re-evaluates")
+                defaults?.removeObject(forKey: AppGroupConstants.budgetHitDateKey)
+                defaults?.removeObject(forKey: AppGroupConstants.budgetHitThresholdKey)
+            }
+            // Write the sentinel so next launch skips the migration branch.
+            defaults?.set(0, forKey: AppGroupConstants.lastStartedBudgetMinutesKey)
+            self.lastStartedBudgetMinutes = 0
+        }
     }
 
     /// Re-read the earned timer end from UserDefaults and publish it via
@@ -83,14 +115,31 @@ class MonitoringManager {
         let timestamp = defaults?.double(forKey: "earnedTimerEnd") ?? 0
         let now = Date.now.timeIntervalSince1970
 
+        // Pick up any banked-minute changes made by dame (e.g. it redeemed
+        // banked time on threshold fire and cleared the key).
+        let storedBanked = defaults?.integer(forKey: AppGroupConstants.bankedMinutesKey) ?? 0
+        if storedBanked != bankedMinutes {
+            bankedMinutes = storedBanked
+        }
+
+        ShieldManager.shared.refreshState()
+
         if timestamp > now {
+            // Active earned timer: shields should be OFF. If they drifted
+            // on for any reason, drop them explicitly so the user doesn't
+            // have to wait for the next dame event to unblock.
             setEarnedTimerEnd(Date(timeIntervalSince1970: timestamp))
+            if ShieldManager.shared.shieldsAreActive {
+                AppGroupConstants.appendDiagnosticLog("refreshFromStorage: active earned timer but shields on, removing")
+                ShieldManager.shared.removeShields(reason: "refresh-active-timer")
+            }
         } else {
             if timestamp > 0 {
                 // Timer was set at some point but has since expired.
                 // Reapply shields defensively in case dame didn't.
                 Self.logger.notice("refreshFromStorage: expired earnedTimerEnd (\(timestamp, privacy: .public)), reapplying shields")
-                ShieldManager.shared.applyShields()
+                AppGroupConstants.appendDiagnosticLog("refreshFromStorage: expired earnedTimerEnd, reapplying shields")
+                ShieldManager.shared.applyShields(reason: "refreshFromStorage-expired-timer")
                 defaults?.removeObject(forKey: "earnedTimerEnd")
             }
             setEarnedTimerEnd(nil)
@@ -98,21 +147,81 @@ class MonitoringManager {
         }
     }
 
-    /// If dame has logged that today's budget was blown and there's no
-    /// active earned timer, the user should be shielded. Reapply if
-    /// `ShieldManager` says shields are currently off.
+    /// Add `minutes` to the user's banked stash. Banked minutes are
+    /// redeemed by `dame` when the daily budget threshold fires: dame
+    /// registers an earned timer for the banked amount *instead of*
+    /// applying shields, letting the user spend their math-earned time
+    /// before they get blocked.
+    func bankMinutes(_ minutes: Int) {
+        guard minutes > 0 else { return }
+        let defaults = AppGroupConstants.sharedDefaults
+        let current = defaults?.integer(forKey: AppGroupConstants.bankedMinutesKey) ?? 0
+        let newTotal = current + minutes
+        defaults?.set(newTotal, forKey: AppGroupConstants.bankedMinutesKey)
+        Task { @MainActor in
+            self.bankedMinutes = newTotal
+        }
+        AppGroupConstants.appendDiagnosticLog("bankMinutes: added \(minutes), new total=\(newTotal)")
+        Self.logger.notice("bankMinutes: +\(minutes, privacy: .public), total=\(newTotal, privacy: .public)")
+    }
+
+    /// Bidirectional shield reconciliation when there's no active earned
+    /// timer. Decides from budget signals and converges `ShieldManager`
+    /// to the right state — apply if should be on, remove if should be off.
+    /// This is the "open app, be in the right state immediately" path.
     @MainActor
     private func reconcileShieldsWithBudget() {
         guard earnedTimerEnd == nil else { return }
         let defaults = AppGroupConstants.sharedDefaults
-        guard let hitDateString = defaults?.string(forKey: "budgetHitDate") else { return }
+        let hitDateString = defaults?.string(forKey: "budgetHitDate")
         let todayString = MonitoringManager.todayKey()
-        guard hitDateString == todayString else { return }
+        let budget = defaults?.integer(forKey: AppGroupConstants.budgetMinutesKey) ?? 0
 
         ShieldManager.shared.refreshState()
-        if !ShieldManager.shared.shieldsAreActive {
-            Self.logger.notice("reconcileShieldsWithBudget: budget was hit today (\(hitDateString, privacy: .public)) but shields are off, reapplying")
-            ShieldManager.shared.applyShields()
+        let currentlyActive = ShieldManager.shared.shieldsAreActive
+
+        // Zero budget = block unconditionally (user explicitly wants zero
+        // free time per day, math-only access).
+        if budget <= 0 && isMonitoring {
+            if !currentlyActive {
+                AppGroupConstants.appendDiagnosticLog("reconcile: zero budget, applying shields")
+                ShieldManager.shared.applyShields(reason: "reconcile-zero-budget")
+            }
+            return
+        }
+
+        if hitDateString == todayString {
+            // Budget was blown today. But was it blown at the *current*
+            // budget, or at an older (lower) threshold that the user has
+            // since raised past? Compare against `budgetHitThreshold`: if
+            // the user's current budget is higher than the threshold that
+            // fired, the hit is obsolete and shields should drop.
+            let hitThreshold = defaults?.integer(forKey: AppGroupConstants.budgetHitThresholdKey) ?? 0
+            if hitThreshold > 0 && budget > hitThreshold {
+                AppGroupConstants.appendDiagnosticLog("reconcile: stale hit — budgetHitThreshold=\(hitThreshold) but current budget=\(budget), clearing hit and dropping shields")
+                defaults?.removeObject(forKey: AppGroupConstants.budgetHitDateKey)
+                defaults?.removeObject(forKey: AppGroupConstants.budgetHitThresholdKey)
+                if currentlyActive && isMonitoring {
+                    ShieldManager.shared.removeShields(reason: "reconcile-obsolete-hit-\(hitThreshold)-to-\(budget)")
+                }
+                return
+            }
+
+            // Hit is fresh. Shields should be ON.
+            if !currentlyActive {
+                Self.logger.notice("reconcile: budget hit today but shields are off, reapplying")
+                AppGroupConstants.appendDiagnosticLog("reconcile: budget hit today but shields off, reapplying")
+                ShieldManager.shared.applyShields(reason: "reconcile-budgetHitToday")
+            }
+        } else {
+            // No budget hit today, no active timer → user is under budget.
+            // Shields should be OFF. This fires on "open app after new
+            // day rollover" and "open app after raising budget" so the
+            // user doesn't wait for dame's next event to unblock.
+            if currentlyActive && isMonitoring {
+                AppGroupConstants.appendDiagnosticLog("reconcile: no budget hit today, shields were on, removing")
+                ShieldManager.shared.removeShields(reason: "reconcile-no-budget-hit")
+            }
         }
     }
 
@@ -138,14 +247,17 @@ class MonitoringManager {
         let interval = end.timeIntervalSinceNow
         guard interval > 0 else {
             earnedTimerEnd = nil
-            ShieldManager.shared.applyShields()
+            AppGroupConstants.appendDiagnosticLog("scheduleExpiryTimer: end already in past, reapplying shields immediately")
+            ShieldManager.shared.applyShields(reason: "expiry-already-past")
             return
         }
+        AppGroupConstants.appendDiagnosticLog("scheduleExpiryTimer: in-app Timer scheduled for \(Int(interval))s")
         expiryTimer = Timer.scheduledTimer(withTimeInterval: interval, repeats: false) { _ in
             Task { @MainActor in
                 MonitoringManager.shared.earnedTimerEnd = nil
+                AppGroupConstants.appendDiagnosticLog("earned timer expired in main app, reapplying shields")
                 // Main-app-side shield reapply — belt to dame's suspenders.
-                ShieldManager.shared.applyShields()
+                ShieldManager.shared.applyShields(reason: "earned-timer-expiry")
                 Self.logger.notice("earned timer expired in main app, shields reapplied")
             }
         }
@@ -155,8 +267,20 @@ class MonitoringManager {
     /// the local Timer that clears it once the wall-clock deadline passes,
     /// so the dashboard automatically flips back to the "earned today" state
     /// without needing a manual refresh.
+    ///
+    /// Idempotent: if the new date is within 1 second of the current value
+    /// we skip the re-schedule, so the dashboard's 2-second `refreshFromStorage`
+    /// poll doesn't repeatedly invalidate and recreate the expiry Timer.
     @MainActor
     private func setEarnedTimerEnd(_ date: Date?) {
+        switch (earnedTimerEnd, date) {
+        case (nil, nil):
+            return
+        case (let current?, let new?) where abs(current.timeIntervalSince(new)) < 1:
+            return
+        default:
+            break
+        }
         earnedTimerEnd = date
         scheduleExpiryTimer()
     }
@@ -182,9 +306,12 @@ class MonitoringManager {
         let selection = SelectionManager.shared.selection
         let appCount = selection.applicationTokens.count
         let catCount = selection.categoryTokens.count
+        let previousBudget = lastStartedBudgetMinutes
         Self.logger.notice("startMonitoring called: budgetMinutes=\(budgetMinutes, privacy: .public), apps=\(appCount, privacy: .public), categories=\(catCount, privacy: .public)")
+        AppGroupConstants.appendDiagnosticLog("startMonitoring called budgetMinutes=\(budgetMinutes) apps=\(appCount) cats=\(catCount) prevBudget=\(previousBudget.map(String.init) ?? "nil")")
         guard appCount > 0 || catCount > 0 else {
             Self.logger.notice("startMonitoring: empty selection, bailing out")
+            AppGroupConstants.appendDiagnosticLog("startMonitoring: empty selection, bailing out")
             return
         }
 
@@ -194,12 +321,14 @@ class MonitoringManager {
         let selectionFingerprint = (try? JSONEncoder().encode(selection))?.hashValue
 
         if budgetMinutes <= 0 {
-            ShieldManager.shared.applyShields()
+            ShieldManager.shared.applyShields(reason: "startMonitoring-zero-budget")
             isMonitoring = true
             syncBudgetToAppGroup(budgetMinutes)
             lastStartedBudgetMinutes = 0
             lastStartedSelectionHash = selectionFingerprint
+            AppGroupConstants.sharedDefaults?.set(0, forKey: AppGroupConstants.lastStartedBudgetMinutesKey)
             Self.logger.notice("startMonitoring: budget<=0, applied shields immediately")
+            AppGroupConstants.appendDiagnosticLog("startMonitoring: budget<=0, applied shields immediately")
             return
         }
 
@@ -212,6 +341,7 @@ class MonitoringManager {
            lastStartedSelectionHash == fp {
             syncBudgetToAppGroup(budgetMinutes)
             Self.logger.notice("startMonitoring: idempotency skip (same budget and selection already registered)")
+            AppGroupConstants.appendDiagnosticLog("startMonitoring: idempotency skip")
             return
         }
 
@@ -244,10 +374,28 @@ class MonitoringManager {
             syncBudgetToAppGroup(budgetMinutes)
             lastStartedBudgetMinutes = budgetMinutes
             lastStartedSelectionHash = selectionFingerprint
+            // Persist across app relaunches so budget-raise detection
+            // survives the MonitoringManager singleton being re-initialized.
+            AppGroupConstants.sharedDefaults?.set(budgetMinutes, forKey: AppGroupConstants.lastStartedBudgetMinutesKey)
             let registered = center.activities.map(\.rawValue).joined(separator: ",")
             Self.logger.notice("startMonitoring: registered budget event, threshold=\(budgetMinutes, privacy: .public) min, includesPastActivity=true, center.activities=[\(registered, privacy: .public)]")
+            AppGroupConstants.appendDiagnosticLog("startMonitoring: registered threshold=\(budgetMinutes)min includesPastActivity=true activities=[\(registered)]")
+
+            // If the user raised their budget, they're explicitly asking
+            // for more free time. Drop shields so the new (higher)
+            // threshold gets a chance to evaluate cleanly. If they're
+            // still over the new threshold, iOS will re-fire
+            // `eventDidReachThreshold` within seconds and dame will
+            // reapply. If they're now under, shields stay off and the
+            // next math-earn will bank instead of redeem.
+            if let old = previousBudget, budgetMinutes > old {
+                AppGroupConstants.appendDiagnosticLog("startMonitoring: budget raised \(old)→\(budgetMinutes), clearing budgetHitDate and dropping shields so new threshold re-evaluates")
+                AppGroupConstants.sharedDefaults?.removeObject(forKey: "budgetHitDate")
+                ShieldManager.shared.removeShields(reason: "budget-raised-\(old)-to-\(budgetMinutes)")
+            }
         } catch {
             Self.logger.error("startMonitoring: center.startMonitoring threw: \(error.localizedDescription, privacy: .public)")
+            AppGroupConstants.appendDiagnosticLog("startMonitoring THREW: \(error.localizedDescription)")
             isMonitoring = false
         }
     }
@@ -261,10 +409,20 @@ class MonitoringManager {
 
     func stopMonitoring() {
         Self.logger.notice("stopMonitoring called, tearing down all DeviceActivity schedules")
+        AppGroupConstants.appendDiagnosticLog("stopMonitoring called, tearing down schedules")
         center.stopMonitoring()
         isMonitoring = false
         lastStartedBudgetMinutes = nil
         lastStartedSelectionHash = nil
+        // Clear the persisted last budget too; any subsequent `startMonitoring`
+        // should be a fresh start, not a comparison against stale data.
+        AppGroupConstants.sharedDefaults?.removeObject(forKey: AppGroupConstants.lastStartedBudgetMinutesKey)
+        // Banked time is meaningless without monitoring — clear it so the
+        // dashboard pill doesn't lie to a paused user.
+        AppGroupConstants.sharedDefaults?.removeObject(forKey: AppGroupConstants.bankedMinutesKey)
+        Task { @MainActor in
+            self.bankedMinutes = 0
+        }
         clearEarnedTimer()
     }
 
@@ -275,6 +433,7 @@ class MonitoringManager {
     /// remaining time so the user never loses earned credit.
     func startEarnedTimer(minutes: Int) {
         guard minutes > 0 else { return }
+        AppGroupConstants.appendDiagnosticLog("startEarnedTimer called minutes=\(minutes)")
 
         let now = Date.now
 
@@ -290,8 +449,26 @@ class MonitoringManager {
         let totalSeconds = remaining + TimeInterval(minutes * 60)
         let endDate = now.addingTimeInterval(totalSeconds)
 
-        // Stop any existing timer schedule
-        center.stopMonitoring([earnedActivity])
+        // iOS rejects `DeviceActivitySchedule` intervals shorter than about
+        // 15 minutes ("The activity's schedule is too short"). Pad the
+        // schedule up to the minimum so dame's `intervalDidEnd` can still
+        // fire as a backup shield-reapply mechanism, but keep the real
+        // `earnedTimerEnd` at the user's actual earned duration so the UI
+        // countdown and main-app expiry Timer use the correct value.
+        let iosMinScheduleSeconds: TimeInterval = 15 * 60
+        let scheduleEndDate = now.addingTimeInterval(max(totalSeconds, iosMinScheduleSeconds))
+
+        AppGroupConstants.appendDiagnosticLog("startEarnedTimer: stack-remaining=\(Int(remaining))s total=\(Int(totalSeconds))s endDate=\(ISO8601DateFormatter().string(from: endDate)) scheduleEnd=\(ISO8601DateFormatter().string(from: scheduleEndDate))")
+
+        // Do NOT call `center.stopMonitoring([earnedActivity])` here.
+        // `startMonitoring` replaces any existing schedule with the same
+        // activity name. Calling `stopMonitoring` first triggers dame's
+        // `intervalDidEnd` callback for the old schedule, which calls
+        // `applyShields()` as its expiry behavior — creating a race with
+        // the `removeShields` call below. When dame's apply lands after
+        // main's remove in iOS's enforcement layer, the user stays shielded
+        // even though the logical state says they're in a fresh earned
+        // timer. Just register the new schedule directly.
 
         let calendar = Calendar.current
         let startComponents = calendar.dateComponents(
@@ -300,7 +477,7 @@ class MonitoringManager {
         )
         let endComponents = calendar.dateComponents(
             [.year, .month, .day, .hour, .minute, .second],
-            from: endDate
+            from: scheduleEndDate
         )
 
         let schedule = DeviceActivitySchedule(
@@ -322,14 +499,19 @@ class MonitoringManager {
         Task { @MainActor in
             setEarnedTimerEnd(endDate)
         }
-        ShieldManager.shared.removeShields()
+        ShieldManager.shared.removeShields(reason: "startEarnedTimer")
 
         do {
             try center.startMonitoring(earnedActivity, during: schedule, events: [:])
             Self.logger.notice("earned timer registered, ends at \(endDate, privacy: .public)")
+            AppGroupConstants.appendDiagnosticLog("startEarnedTimer: dame schedule registered")
         } catch {
-            // UI state is already committed above; log and continue.
+            // UI state is already committed above; log and continue. The
+            // main-app in-app Timer + refreshFromStorage on foreground will
+            // re-apply shields when the wall-clock time expires, even if
+            // dame never fires `intervalDidEnd` for the earned timer.
             Self.logger.error("failed to register earned timer schedule (countdown will still show, but shields may not re-apply at expiry): \(error.localizedDescription, privacy: .public)")
+            AppGroupConstants.appendDiagnosticLog("startEarnedTimer: dame schedule registration FAILED: \(error.localizedDescription)")
         }
     }
 

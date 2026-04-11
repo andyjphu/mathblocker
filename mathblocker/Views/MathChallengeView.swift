@@ -176,13 +176,22 @@ struct MathChallengeView: View {
 
             let earned = viewModel.minutesEarned
             if earned > 0 {
-                Text("+\(earned) min earned")
-                    .font(.headline)
-                    .foregroundStyle(.accent)
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 10)
-                    .background(.accent.opacity(0.1))
-                    .clipShape(Capsule())
+                VStack(spacing: 6) {
+                    Text("+\(earned) min earned")
+                        .font(.headline)
+                        .foregroundStyle(.accent)
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 10)
+                        .background(.accent.opacity(0.1))
+                        .clipShape(Capsule())
+                    if viewModel.lastRedemptionWasBanked {
+                        Text("banked, applied automatically when your free budget runs out")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 24)
+                    }
+                }
             }
 
             Spacer()

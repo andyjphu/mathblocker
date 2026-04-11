@@ -209,12 +209,25 @@ struct MathText: View {
         return result
     }
 
-    /// Wraps LaTeX-looking tokens in a prose string with `$..$`. Covers
-    /// backslash commands (`\dots`, `\frac{a}{b}`), subscripts (`a_1`,
-    /// `x_{12}`), and superscripts (`x^2`). Word-boundary prefixed to
-    /// avoid wrongly matching `my_var`-style non-math underscores.
+    /// Wraps LaTeX-looking tokens in a prose string with `$..$`.
+    ///
+    /// Alternation priority (first match wins):
+    /// 1. `\left…\right` paired groups, captured as a single block so the
+    ///    inner expression (which may contain fractions, subscripts, etc.)
+    ///    is passed to SwiftMath intact.
+    /// 2. `\frac` with shorthand or braced args: `\frac12`, `\frac1{2}`,
+    ///    `\frac{1}2`, `\frac{1}{2}`. Without this, the general command
+    ///    rule would match just `\frac` and wrap `$\frac$` which is broken.
+    /// 3. General backslash commands with optional braced args: `\dots`,
+    ///    `\cdot`, `\overline{...}`, `\text{...}`.
+    /// 4. Subscripts: `a_1`, `x_{12}`, `a_1^2`.
+    /// 5. Superscripts: `x^2`, `x^{12}`, `x^{2}_{1}`.
+    ///
+    /// Word-boundary prefixed on sub/sup to avoid matching `my_var`-style
+    /// underscores. `\left…\right` uses `[^a-zA-Z]` after both keywords so
+    /// it requires an actual delimiter (`(`, `[`, `|`, `\`, `)` etc).
     private func wrapLatexTokensInProse(_ prose: String) -> String {
-        let pattern = #"\\[a-zA-Z]+(?:\{[^}]*\})*|\b[a-zA-Z]_(?:\{[^}]*\}|[a-zA-Z0-9])(?:\^(?:\{[^}]*\}|[a-zA-Z0-9]))?|\b[a-zA-Z]\^(?:\{[^}]*\}|[a-zA-Z0-9])(?:_(?:\{[^}]*\}|[a-zA-Z0-9]))?"#
+        let pattern = #"\\left[^a-zA-Z].*?\\right[^a-zA-Z]?|\\frac(?:\d|\{[^}]*\})(?:\d|\{[^}]*\})|\\[a-zA-Z]+(?:\{[^}]*\})*|\b[a-zA-Z]_(?:\{[^}]*\}|[a-zA-Z0-9])(?:\^(?:\{[^}]*\}|[a-zA-Z0-9]))?|\b[a-zA-Z]\^(?:\{[^}]*\}|[a-zA-Z0-9])(?:_(?:\{[^}]*\}|[a-zA-Z0-9]))?"#
         return prose.replacingOccurrences(
             of: pattern,
             with: "\\$$0\\$",

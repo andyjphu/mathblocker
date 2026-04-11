@@ -94,8 +94,10 @@ struct DashboardView: View {
                 }
             }
             .onReceive(shieldRefreshTimer) { _ in
-                // Cross-process sync: `dame` may have just applied shields.
+                // Cross-process sync: `dame` may have just applied shields
+                // or redeemed banked time into an earned timer.
                 ShieldManager.shared.refreshState()
+                MonitoringManager.shared.refreshFromStorage()
             }
             .scrollContentBackground(.hidden)
             .background { FrostedBackground() }
@@ -156,11 +158,39 @@ struct DashboardView: View {
                 // and "time's up" (over budget) internally, so the display
                 // stays correct even if `ShieldManager.shieldsAreActive` is
                 // stale or lags behind the dame threshold event.
+                //
+                // `.id(budgetMinutes)` forces the DAR view to be torn down
+                // and rebuilt whenever the user changes their budget.
+                // Without this, SwiftUI reuses the existing DAR instance
+                // and the stale render persists across budget changes
+                // until some other event triggers a re-render (e.g. tab
+                // switch).
                 DeviceActivityReport(
                     DeviceActivityReport.Context("budgetRemaining"),
                     filter: overageFilter
                 )
                 .frame(height: 160)
+                .id(budgetMinutes)
+            }
+
+            // Banked-minutes pill — shows when the user solved math while
+            // under budget. The minutes are redeemed automatically by dame
+            // when the budget threshold next fires, so the user doesn't
+            // lose their work.
+            let banked = MonitoringManager.shared.bankedMinutes
+            if banked > 0 && timerEnd == nil && monitoring {
+                HStack(spacing: 6) {
+                    Image(systemName: "bolt.fill")
+                        .font(.caption)
+                        .foregroundStyle(.accent)
+                    Text("\(banked) min banked, applied when time runs out")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+                .background(Color.accentColor.opacity(0.1))
+                .clipShape(Capsule())
             }
 
             // Persistent mechanic explainer — always visible so the two-part
@@ -253,17 +283,6 @@ struct DashboardView: View {
             .background(Theme.cardBackground)
             .clipShape(RoundedRectangle(cornerRadius: 12))
             .cardShadow()
-
-            HStack(spacing: 4) {
-                Text("your usage stays on this iPhone")
-                    .font(.caption2)
-                    .foregroundStyle(.tertiary)
-                Link(destination: URL(string: "https://recursn.com/mathblocker/privacy-policy")!) {
-                    Image(systemName: "info.circle")
-                        .font(.caption2)
-                        .foregroundStyle(.tertiary)
-                }
-            }
         }
         .padding(.horizontal)
     }

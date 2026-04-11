@@ -132,7 +132,7 @@ struct SettingsView: View {
                                 currentSettings.isMonitoringEnabled = true
                             } else {
                                 monitoringManager.stopMonitoring()
-                                ShieldManager.shared.removeShields()
+                                ShieldManager.shared.removeShields(reason: "settings-toggle-off")
                                 currentSettings.isMonitoringEnabled = false
                             }
                         }
@@ -164,8 +164,18 @@ struct SettingsView: View {
                 get: { currentSettings.dailyTimeBudgetMinutes },
                 set: { newValue in
                     currentSettings.dailyTimeBudgetMinutes = newValue
+                    // Immediately sync to app group so the DAR
+                    // `BudgetRemainingScene` (which reads from the app
+                    // group, not SwiftData) picks up the new budget on
+                    // its next rebuild. Without this, the hero shows a
+                    // stale remaining value during the 1-second debounce
+                    // window until startMonitoring fires and writes the
+                    // new budget itself.
+                    AppGroupConstants.sharedDefaults?.set(newValue, forKey: AppGroupConstants.budgetMinutesKey)
                     // Debounce: only restart monitoring 1s after the user
-                    // stops adjusting the stepper.
+                    // stops adjusting the stepper. Re-registering the iOS
+                    // schedule is expensive and resets the counter, so we
+                    // want to do it at most once per gesture.
                     pendingBudgetUpdate?.cancel()
                     let work = DispatchWorkItem {
                         if monitoringManager.isMonitoring {
@@ -262,6 +272,17 @@ struct SettingsView: View {
             } label: {
                 Label("Report a Bug / Contact", systemImage: "envelope")
             }
+
+            Link(destination: URL(string: "https://recursn.com/mathblocker/privacy-policy")!) {
+                HStack {
+                    Label("Privacy Policy", systemImage: "hand.raised")
+                    Spacer()
+                    Image(systemName: "arrow.up.right")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .foregroundStyle(.primary)
         } header: {
             Text("Support")
         }

@@ -35,8 +35,11 @@ class ShieldManager {
             || store.shield.applicationCategories != nil
     }
 
-    func applyShields() {
+    func applyShields(reason: String = "unspecified") {
         let selection = SelectionManager.shared.selection
+        let apps = selection.applicationTokens.count
+        let cats = selection.categoryTokens.count
+        AppGroupConstants.appendDiagnosticLog("ShieldManager.applyShields(reason=\(reason)) apps=\(apps) cats=\(cats) wasActive=\(shieldsAreActive)")
 
         if !selection.applicationTokens.isEmpty {
             store.shield.applications = selection.applicationTokens
@@ -48,9 +51,14 @@ class ShieldManager {
             store.shield.webDomains = selection.webDomainTokens
         }
         refreshState()
+        AppGroupConstants.appendDiagnosticLog("ShieldManager.applyShields done isActive=\(shieldsAreActive)")
     }
 
-    func removeShields() {
+    /// Removes all active shields. The `reason` parameter is recorded in
+    /// the diagnostic log so bug reports show what triggered an unexpected
+    /// unblock (settings toggle, earned timer start, etc).
+    func removeShields(reason: String = "unspecified") {
+        AppGroupConstants.appendDiagnosticLog("ShieldManager.removeShields(reason=\(reason)) wasActive=\(shieldsAreActive)")
         // Explicitly nil each shield property in addition to clearAllSettings
         // for maximum propagation reliability across processes.
         store.shield.applications = nil
@@ -59,5 +67,6 @@ class ShieldManager {
         store.shield.webDomainCategories = nil
         store.clearAllSettings()
         refreshState()
+        AppGroupConstants.appendDiagnosticLog("ShieldManager.removeShields done isActive=\(shieldsAreActive)")
     }
 }

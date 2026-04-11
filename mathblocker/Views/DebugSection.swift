@@ -150,12 +150,29 @@ struct ReportBugView: View {
         let defaults = AppGroupConstants.sharedDefaults
         let budget = defaults?.integer(forKey: AppGroupConstants.budgetMinutesKey) ?? -1
         let hasSelection = defaults?.data(forKey: AppGroupConstants.selectionKey) != nil
-        let log = defaults?.string(forKey: "extensionLog") ?? ""
+        let banked = defaults?.integer(forKey: AppGroupConstants.bankedMinutesKey) ?? 0
+        let budgetHitDate = defaults?.string(forKey: "budgetHitDate") ?? "(none)"
+        let earnedEndTs = defaults?.double(forKey: "earnedTimerEnd") ?? 0
+        let log = defaults?.string(forKey: AppGroupConstants.diagnosticLogKey) ?? ""
         let monitoring = MonitoringManager.shared.isMonitoring
+        let shieldsActive = ShieldManager.shared.shieldsAreActive
+
+        let earnedEndDesc: String
+        if earnedEndTs > 0 {
+            let date = Date(timeIntervalSince1970: earnedEndTs)
+            let delta = Int(earnedEndTs - Date.now.timeIntervalSince1970)
+            earnedEndDesc = "\(ISO8601DateFormatter().string(from: date)) (\(delta)s from now)"
+        } else {
+            earnedEndDesc = "(none)"
+        }
 
         debugInfo = """
         monitoring: \(monitoring ? "on" : "off")
+        shields active: \(shieldsActive ? "yes" : "no")
         budget: \(budget) min
+        banked: \(banked) min
+        budget hit date: \(budgetHitDate)
+        earned timer end: \(earnedEndDesc)
         selection saved: \(hasSelection ? "yes" : "no")
         """
         debugLog = log.trimmingCharacters(in: .whitespacesAndNewlines)
