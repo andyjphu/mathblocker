@@ -110,29 +110,35 @@ struct DashboardView: View {
         }
     }
 
+    /// DeviceActivityFilter covering today so the budgetOverage DAR scene
+    /// computes over the right interval.
+    private var overageFilter: DeviceActivityFilter {
+        let selection = SelectionManager.shared.selection
+        return DeviceActivityFilter(
+            segment: .hourly(
+                during: DateInterval(
+                    start: Calendar.current.startOfDay(for: .now),
+                    end: .now
+                )
+            ),
+            users: .all,
+            devices: .init([.iPhone]),
+            applications: selection.applicationTokens,
+            categories: selection.categoryTokens
+        )
+    }
+
     // MARK: - Hero
 
     private var heroSection: some View {
         let timerEnd = MonitoringManager.shared.earnedTimerEnd
         let monitoring = MonitoringManager.shared.isMonitoring
-        let shieldsUp = ShieldManager.shared.shieldsAreActive && timerEnd == nil
 
         return VStack(spacing: 16) {
             // Primary display flips based on current state
             if let endDate = timerEnd {
                 // State 2: active earned timer
                 CountdownView(endDate: endDate)
-            } else if shieldsUp {
-                // State 3: budget exhausted or earned timer expired
-                VStack(spacing: 4) {
-                    Text("time's up")
-                        .font(Theme.titleFont(size: 56))
-                        .foregroundStyle(.orange)
-                    Text("solve math to earn more time")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                        .multilineTextAlignment(.center)
-                }
             } else if !monitoring {
                 // State 4: not monitoring
                 VStack(spacing: 4) {
@@ -145,20 +151,21 @@ struct DashboardView: View {
                         .multilineTextAlignment(.center)
                 }
             } else {
-                // State 1: fresh budget, free access available
-                VStack(spacing: 4) {
-                    Text("\(budgetMinutes) min")
-                        .font(Theme.titleFont(size: 64))
-                        .foregroundStyle(.accent)
-                    Text("of free app time today")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                }
+                // State 1/3: data-driven hero. The DAR scene reads real
+                // screen time and flips between "X min left" (under budget)
+                // and "time's up" (over budget) internally, so the display
+                // stays correct even if `ShieldManager.shieldsAreActive` is
+                // stale or lags behind the dame threshold event.
+                DeviceActivityReport(
+                    DeviceActivityReport.Context("budgetRemaining"),
+                    filter: overageFilter
+                )
+                .frame(height: 160)
             }
 
             // Persistent mechanic explainer — always visible so the two-part
             // model (free budget, then earn-to-unlock) stays clear.
-            Text("\(budgetMinutes) min of your real iPhone screen time daily. solve math to earn more when it runs out.")
+            Text("you get \(budgetMinutes) min daily. anything beyond that you need to earn by solving math problems.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)

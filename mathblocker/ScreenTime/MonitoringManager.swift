@@ -67,19 +67,69 @@ class MonitoringManager {
     /// Re-read the earned timer end from UserDefaults and publish it via
     /// the observable `earnedTimerEnd` property. Call this on app foreground
     /// or after any external change.
+    ///
+    /// Also reconciles shield state. Two recovery paths:
+    /// - If a stored `earnedTimerEnd` is already in the past, the timer
+    ///   expired while the app was backgrounded. dame's extension *should*
+    ///   have re-applied shields via `intervalDidEnd`, but its schedule
+    ///   registration may have failed in the first place. Re-apply from
+    ///   the main app as a fallback.
+    /// - If dame logged `budgetHitDate` for today and there's no active
+    ///   earned timer, the user is over budget and shields should be up.
+    ///   Reapply if they've silently dropped.
     @MainActor
     func refreshFromStorage() {
-        let timestamp = AppGroupConstants.sharedDefaults?.double(forKey: "earnedTimerEnd") ?? 0
+        let defaults = AppGroupConstants.sharedDefaults
+        let timestamp = defaults?.double(forKey: "earnedTimerEnd") ?? 0
         let now = Date.now.timeIntervalSince1970
+
         if timestamp > now {
             setEarnedTimerEnd(Date(timeIntervalSince1970: timestamp))
         } else {
+            if timestamp > 0 {
+                // Timer was set at some point but has since expired.
+                // Reapply shields defensively in case dame didn't.
+                Self.logger.notice("refreshFromStorage: expired earnedTimerEnd (\(timestamp, privacy: .public)), reapplying shields")
+                ShieldManager.shared.applyShields()
+                defaults?.removeObject(forKey: "earnedTimerEnd")
+            }
             setEarnedTimerEnd(nil)
+            reconcileShieldsWithBudget()
         }
     }
 
+    /// If dame has logged that today's budget was blown and there's no
+    /// active earned timer, the user should be shielded. Reapply if
+    /// `ShieldManager` says shields are currently off.
+    @MainActor
+    private func reconcileShieldsWithBudget() {
+        guard earnedTimerEnd == nil else { return }
+        let defaults = AppGroupConstants.sharedDefaults
+        guard let hitDateString = defaults?.string(forKey: "budgetHitDate") else { return }
+        let todayString = MonitoringManager.todayKey()
+        guard hitDateString == todayString else { return }
+
+        ShieldManager.shared.refreshState()
+        if !ShieldManager.shared.shieldsAreActive {
+            Self.logger.notice("reconcileShieldsWithBudget: budget was hit today (\(hitDateString, privacy: .public)) but shields are off, reapplying")
+            ShieldManager.shared.applyShields()
+        }
+    }
+
+    /// `yyyy-MM-dd` string for the current local day, used as the
+    /// cross-process key for "budget was hit today" signalling.
+    static func todayKey() -> String {
+        let fmt = DateFormatter()
+        fmt.dateFormat = "yyyy-MM-dd"
+        fmt.timeZone = .current
+        return fmt.string(from: Date())
+    }
+
     /// Schedules the Timer that clears `earnedTimerEnd` when the wall-clock
-    /// deadline passes, so the dashboard flips back to the "earned today" view.
+    /// deadline passes, so the dashboard flips back to the "time's up" view
+    /// and shields are re-applied by the main app even if dame's
+    /// `intervalDidEnd` callback never fires (e.g. the earned-timer
+    /// schedule failed to register on iOS in the first place).
     @MainActor
     private func scheduleExpiryTimer() {
         expiryTimer?.invalidate()
@@ -88,11 +138,15 @@ class MonitoringManager {
         let interval = end.timeIntervalSinceNow
         guard interval > 0 else {
             earnedTimerEnd = nil
+            ShieldManager.shared.applyShields()
             return
         }
         expiryTimer = Timer.scheduledTimer(withTimeInterval: interval, repeats: false) { _ in
             Task { @MainActor in
                 MonitoringManager.shared.earnedTimerEnd = nil
+                // Main-app-side shield reapply — belt to dame's suspenders.
+                ShieldManager.shared.applyShields()
+                Self.logger.notice("earned timer expired in main app, shields reapplied")
             }
         }
     }

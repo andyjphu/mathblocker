@@ -66,10 +66,20 @@ class DeviceActivityMonitorExtension: DeviceActivityMonitor {
             store.dateAndTime.requireAutomaticDateAndTime = true
             defaults?.removeObject(forKey: "earnedTimerEnd")
             log("earned timer expired, shields applied")
-        } else {
-            // Daily interval ended — clear all settings
-            store.clearAllSettings()
         }
+        // NOTE: We previously called `store.clearAllSettings()` here for
+        // the daily activity, intended to reset shields at end-of-day.
+        // The problem: `intervalDidEnd` *also* fires every time the
+        // schedule is restarted mid-day (settings toggle, stepper change,
+        // force re-register). Every restart wiped the shield before the
+        // new interval's threshold event could re-apply it, producing
+        // windows (visible in extensionLog) where shields were off but
+        // the user was well over budget. Shields now persist across
+        // intervals. The main app re-applies / removes them explicitly
+        // via `ShieldManager` when the user earns time or toggles
+        // monitoring; iOS won't enforce an expired shield on a new day
+        // automatically, so `applyShields()` re-runs on the next
+        // `eventDidReachThreshold` for the new day's interval.
     }
 
     override func eventDidReachThreshold(_ event: DeviceActivityEvent.Name,
@@ -80,6 +90,14 @@ class DeviceActivityMonitorExtension: DeviceActivityMonitor {
         if event.rawValue == budgetEventName {
             applyShields()
             store.dateAndTime.requireAutomaticDateAndTime = true
+            // Flag for the main app: "budget was hit today". Main app reads
+            // this on foreground and re-applies shields if they've silently
+            // dropped (e.g. from a failed earned-timer schedule). Format:
+            // `yyyy-MM-dd` in the device's local timezone.
+            let fmt = DateFormatter()
+            fmt.dateFormat = "yyyy-MM-dd"
+            fmt.timeZone = .current
+            defaults?.set(fmt.string(from: Date()), forKey: "budgetHitDate")
             log("budget threshold hit, shields applied")
         }
     }

@@ -46,8 +46,8 @@ struct SettingsView: View {
                 dataSection
                     .listRowBackground(Theme.cardBackground)
 
-                // Debug (diagnose monitoring/shield issues on-device)
-                DebugSection()
+                // Support / bug report (hides logs + diagnostic actions)
+                supportSection
                     .listRowBackground(Theme.cardBackground)
             }
             .fontDesign(.serif)
@@ -250,6 +250,20 @@ struct SettingsView: View {
             }
         } header: {
             Text("Data")
+        }
+    }
+
+    // MARK: - Support
+
+    private var supportSection: some View {
+        Section {
+            NavigationLink {
+                ReportBugView()
+            } label: {
+                Label("Report a Bug / Contact", systemImage: "envelope")
+            }
+        } header: {
+            Text("Support")
         }
     }
 

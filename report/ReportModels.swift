@@ -27,3 +27,16 @@ struct UsageReport {
     let hourlyData: [HourlyBucket]
     let totalPickups: Int
 }
+
+/// Usage-vs-budget summary computed inside the DAR extension (the only
+/// process that can read actual screen time). Used by the dashboard hero to
+/// show either how much free time is left (state 1) or how far over the
+/// budget the user is (state 3).
+struct BudgetStatus {
+    let usage: TimeInterval
+    let budget: TimeInterval
+    /// `max(0, usage - budget)`. Zero means still under budget.
+    var overage: TimeInterval { max(0, usage - budget) }
+    /// `max(0, budget - usage)`. Zero means budget exhausted.
+    var remaining: TimeInterval { max(0, budget - usage) }
+}

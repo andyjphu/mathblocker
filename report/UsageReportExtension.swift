@@ -15,5 +15,11 @@ struct UsageReportExtension: DeviceActivityReportExtension {
         TotalUsageScene { report in
             UsageReportView(report: report)
         }
+        BudgetOverageScene { status in
+            BudgetOverageView(data: status)
+        }
+        BudgetRemainingScene { status in
+            BudgetRemainingView(data: status)
+        }
     }
 }
