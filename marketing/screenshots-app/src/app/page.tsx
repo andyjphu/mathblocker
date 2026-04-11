@@ -45,30 +45,51 @@ const GOLD = "#E6B34B";
 const TERRA = "#C7502E";
 
 /* ---------------------- Phone Placement (EDIT ME) ----------------------
-   Every main slide reads its phone position from PLACEMENT[slide.id].
-   Tweak the numbers here instead of hunting through slide components.
+   All phone positioning lives here. Two configs:
 
-   Per-slide knobs:
+   PLACEMENT       — the 5 main slides. Keyed by slide id.
+   SPLIT_PLACEMENT — the 3 tilted split pairs. Keyed by pair id.
+
+   Every slide reads its phone values from one of these objects. Tweak the
+   numbers here, save, hot-reload picks it up.
+
+   ---- Main slide knobs (PLACEMENT) ----
    - widthPct:      phone LAYOUT size as % of canvas width (77 = 77%).
                     This is the baseline "how big is this phone" dial.
    - translateXPct: shift phone sideways by % of canvas width
                     (positive = right, negative = left, omit = centered)
    - translateYPct: push phone down by % of its OWN height
                     (14 = 14% of the phone hangs off the bottom)
-   - scale:         CSS scale() multiplier applied on top of widthPct
-                    (1 = no change, 0.9 = 10% smaller, 1.1 = 10% bigger).
-                    Use this for fine tuning without resizing the layout.
+   - scale:         CSS scale() multiplier on top of widthPct
+                    (1 = none, 0.9 = 10% smaller, 1.1 = 10% bigger)
    - rotateDeg:     rotate the phone in degrees (omit = upright)
 
-   Example — slide 2's phone smaller, shifted right, slight scale, tilted:
+   Example — slide 2 smaller, nudged right, slightly scaled, tilted:
      block: {
        widthPct: 72, translateXPct: 8, translateYPct: 14,
        scale: 0.95, rotateDeg: -4,
      }
 
-   Split demos: each is a call to makeTiltedSplit(angle, half, id, headline).
-   Edit the angle (30/45/60) or the width/vertical-center inside the factory
-   itself if you want to adjust size or seam position.
+   ---- Split pair knobs (SPLIT_PLACEMENT) ----
+   Each pair ("split-30", "split-45", "split-60") is shared by its two
+   halves, so editing one key affects both slides of that pair.
+
+   - widthPct:         phone width as % of canvas width
+                       (splits use 65 by default since rotation enlarges
+                       the bounding box — crank too high and corners
+                       crash into the top/bottom of the canvas)
+   - verticalCenterPct: where the phone's center sits on the seam
+                       (0 = top of canvas, 100 = bottom, 55 = slightly
+                       below center)
+   - angleDeg:         rotation. 0 = straight-vertical split, 30 = subtle
+                       editorial lean, 45 = full diagonal, 60 = near
+                       horizontal
+   - scale:            scale() multiplier (default 1)
+   - translateXPct:    nudge from the seam in % of canvas width
+                       (same value in both halves shifts the whole phone;
+                       opposite values break the seam illusion)
+   - translateYPct:    extra vertical nudge from verticalCenterPct,
+                       in % of canvas height
 */
 
 type Placement = {
@@ -87,6 +108,26 @@ const PLACEMENT: Record<string, Placement> = {
   real:    { widthPct: 77, translateYPct: 14 },
 };
 
+type SplitPlacement = {
+  widthPct: number;
+  verticalCenterPct: number;
+  angleDeg: number;
+  scale?: number;
+  translateXPct?: number;
+  translateYPct?: number;
+  // How much panel B should sit HIGHER than panel A, in % of canvas
+  // height. Compensates for the visible gap between adjacent screenshots
+  // in the App Store carousel so a tilted phone feels continuous across
+  // the seam. Applied as the outermost (last) transform on panel B only.
+  abOffsetYPct?: number;
+};
+
+const SPLIT_PLACEMENT: Record<string, SplitPlacement> = {
+  "split-30": { widthPct: 115, verticalCenterPct: 50, translateXPct: -25, angleDeg: 30, abOffsetYPct:3 },
+  "split-45": { widthPct: 65, verticalCenterPct: 55, angleDeg: 45 },
+  "split-60": { widthPct: 65, verticalCenterPct: 55, angleDeg: 60 },
+};
+
 // Shared phone style for the main (non-split) slides — bottom-anchored,
 // centered horizontally by default, with optional per-slide overrides.
 function centeredBottomStyle(p: Placement): React.CSSProperties {
@@ -100,6 +141,38 @@ function centeredBottomStyle(p: Placement): React.CSSProperties {
     width: `${p.widthPct}%`,
     left: `calc(50% + ${tx}%)`,
     transform: `translateX(-50%) translateY(${ty}%) scale(${sc}) rotate(${rot}deg)`,
+  };
+}
+
+// Shared phone style for the tilted split halves — center anchored to
+// the seam at left:100% (left half) or left:0% (right half), vertical
+// position from verticalCenterPct. translate(-50%, -50%) lands the
+// phone's center on that anchor, then scale and rotate are applied.
+// For panel B, abOffsetYPct lifts the whole phone up as the final
+// (outermost) transform to compensate for the carousel gap.
+function splitPhoneStyle(
+  p: SplitPlacement,
+  half: "left" | "right",
+  cH: number,
+): React.CSSProperties {
+  const tx = p.translateXPct ?? 0;
+  const ty = p.translateYPct ?? 0;
+  const sc = p.scale ?? 1;
+  const abo = p.abOffsetYPct ?? 0;
+  const anchorX = half === "left" ? "100%" : "0%";
+  // Panel A stays put. Panel B lifts up by abo% of canvas height.
+  // Negative Y = upward in screen coordinates.
+  const outerYPx = half === "right" ? -(abo * cH) / 100 : 0;
+  return {
+    position: "absolute",
+    width: `${p.widthPct}%`,
+    left: `calc(${anchorX} + ${tx}%)`,
+    top: `calc(${p.verticalCenterPct}% + ${ty}%)`,
+    // Leftmost operation in a CSS transform chain is applied LAST. The
+    // translateY(outerYPx) nudge therefore fires after rotate/scale/center,
+    // which is what "applied as last transform" means here.
+    transform: `translateY(${outerYPx}px) translate(-50%, -50%) scale(${sc}) rotate(${p.angleDeg}deg)`,
+    transformOrigin: "center",
   };
 }
 
@@ -189,15 +262,23 @@ function Phone({
 function Caption({
   cW,
   headline,
+  tag,
   fgColor = INK,
   align = "center",
   maxWidth = "86%",
+  headlineScale = 1,
+  tagScale = 1,
+  tagOpacity = 0.72,
 }: {
   cW: number;
   headline: React.ReactNode;
+  tag?: React.ReactNode;
   fgColor?: string;
   align?: "left" | "center" | "right";
   maxWidth?: string;
+  headlineScale?: number;
+  tagScale?: number;
+  tagOpacity?: number;
 }) {
   return (
     <div
@@ -211,7 +292,7 @@ function Caption({
       <div
         style={{
           fontFamily: "var(--font-serif), Georgia, serif",
-          fontSize: cW * 0.098,
+          fontSize: cW * 0.098 * headlineScale,
           fontWeight: 400,
           lineHeight: 1.0,
           letterSpacing: -cW * 0.0012,
@@ -220,6 +301,23 @@ function Caption({
       >
         {headline}
       </div>
+      {tag && (
+        <div
+          style={{
+            fontFamily: "var(--font-serif), Georgia, serif",
+            fontSize: cW * 0.038 * tagScale,
+            fontStyle: "italic",
+            fontWeight: 400,
+            lineHeight: 1.25,
+            letterSpacing: -cW * 0.0004,
+            color: fgColor,
+            marginTop: cW * 0.022,
+            opacity: tagOpacity,
+          }}
+        >
+          {tag}
+        </div>
+      )}
     </div>
   );
 }
@@ -329,23 +427,21 @@ const slide2: SlideDef = {
         <div
           style={{
             position: "absolute",
-            top: cH * 0.085,
-            left: cW * 0.07,
-            width: cW * 0.86,
+            top: cH * 0.075,
+            left: 0,
+            right: 0,
           }}
         >
           <Caption
             cW={cW}
             headline={
               <>
-                the button
+                so earn
                 <br />
-                is math now.
+                it back
               </>
             }
             fgColor="#F6EEE0"
-            align="left"
-            maxWidth="100%"
           />
         </div>
         <Phone
@@ -399,11 +495,9 @@ const slide3: SlideDef = {
             cW={cW}
             headline={
               <>
-                you scrolled
+                interrupt your
                 <br />
-                this because
-                <br />
-                you <span style={{ fontStyle: "italic" }}>chose</span> to.
+                brainrot
               </>
             }
           />
@@ -429,11 +523,11 @@ const slide4: SlideDef = {
           height: "100%",
           position: "relative",
           overflow: "hidden",
-          background: `linear-gradient(200deg, #F1E7D4 0%, ${CREAM} 100%)`,
+          background: `linear-gradient(170deg, ${ESPRESSO} 0%, ${ESPRESSO_2} 60%, #3A2615 100%)`,
         }}
       >
-        <SoftBlob color={ACCENT} size="55%" top="-10%" left="50%" opacity={0.16} />
-        <SoftBlob color={TERRA} size="40%" top="65%" left="-15%" opacity={0.18} />
+        <SoftBlob color={GOLD} size="70%" top="-20%" left="-20%" opacity={0.18} />
+        <SoftBlob color={TERRA} size="55%" top="35%" left="60%" opacity={0.15} />
         <div
           style={{
             position: "absolute",
@@ -446,13 +540,14 @@ const slide4: SlideDef = {
             cW={cW}
             headline={
               <>
-                the receipt
+                watch your
                 <br />
-                you didn&apos;t
+                screen time
                 <br />
-                ask for.
+                go down
               </>
             }
+            fgColor="#F6EEE0"
           />
         </div>
         <Phone
@@ -491,13 +586,20 @@ const slide5: SlideDef = {
         >
           <Caption
             cW={cW}
+            maxWidth="96%"
+            tagScale={1.25}
             headline={
               <>
-                yeah.
+                solve academic
                 <br />
-                the math
+                math problem sets
+              </>
+            }
+            tag={
+              <>
+                you can even download AIME, AMC, Putnam.
                 <br />
-                is <span style={{ fontStyle: "italic" }}>real</span>.
+                good luck with that.
               </>
             }
           />
@@ -518,23 +620,38 @@ const slide5: SlideDef = {
    its half, so when viewed side by side in the App Store carousel the
    phone appears to cross the seam at a diagonal.
 
-   Math: place the phone's center at (100%, 55%) for the LEFT panel and
-   (0%, 55%) for the RIGHT panel, then rotate around that center.
-   translate(-50%, -50%) moves the element's top-left anchor by half its
-   own width/height so the center lands on the anchor. 65% width (vs
-   the 84% used in the main slides) keeps the rotated bounding box from
-   crashing into the top/bottom of the canvas at any angle. */
+   Every split reads its geometry from SPLIT_PLACEMENT[pairKey] at the
+   top of this file. The factory below just wires it into a slide. */
 
 function makeTiltedSplit(
-  angle: number,
+  pairKey: string,
   half: "left" | "right",
-  id: string,
   headline: React.ReactNode,
+  opts: {
+    tag?: React.ReactNode;
+    captionPos?: "top" | "bottom";
+    // Delta applied to the caption's distance from its edge, in % of
+    // canvas height. Negative = shift caption up, positive = shift down.
+    // Works for both captionPos "top" and "bottom".
+    captionOffsetYPct?: number;
+    headlineScale?: number;
+    tagScale?: number;
+    tagOpacity?: number;
+  } = {},
 ): SlideDef {
+  const p = SPLIT_PLACEMENT[pairKey];
+  const captionPos = opts.captionPos ?? "top";
+  const captionOffset = opts.captionOffsetYPct ?? 0;
   return {
-    id,
+    id: `${pairKey}-${half === "left" ? "a" : "b"}`,
     component: ({ cW, cH }) => {
-      const fw = 65;
+      // Default distance from the caption's edge: 6% of canvas height.
+      // For top-anchored captions, a negative offset pulls the caption
+      // toward the top (smaller `top`). For bottom-anchored, a negative
+      // offset pulls it visually up = farther from the bottom edge =
+      // LARGER `bottom` value, which is why we subtract.
+      const topPx = cH * (0.06 + captionOffset / 100);
+      const bottomPx = cH * (0.06 - captionOffset / 100);
       return (
         <div
           style={{
@@ -559,33 +676,33 @@ function makeTiltedSplit(
             left={half === "left" ? "55%" : "-10%"}
             opacity={0.18}
           />
+          <Phone
+            src={img("/screenshots/shield.png")}
+            alt="Shield"
+            style={splitPhoneStyle(p, half, cH)}
+          />
           <div
             style={{
               position: "absolute",
-              top: cH * 0.06,
               left: cW * 0.07,
               right: cW * 0.07,
+              ...(captionPos === "top"
+                ? { top: topPx }
+                : { bottom: bottomPx }),
+              zIndex: 20,
             }}
           >
             <Caption
               cW={cW}
               headline={headline}
+              tag={opts.tag}
+              headlineScale={opts.headlineScale}
+              tagScale={opts.tagScale}
+              tagOpacity={opts.tagOpacity}
               align={half === "left" ? "left" : "right"}
               maxWidth="100%"
             />
           </div>
-          <Phone
-            src={img("/screenshots/shield.png")}
-            alt="Shield"
-            style={{
-              position: "absolute",
-              width: `${fw}%`,
-              left: half === "left" ? "100%" : "0%",
-              top: "55%",
-              transform: `translate(-50%, -50%) rotate(${angle}deg)`,
-              transformOrigin: "center",
-            }}
-          />
         </div>
       );
     },
@@ -593,41 +710,47 @@ function makeTiltedSplit(
 }
 
 const slideSplit30L = makeTiltedSplit(
-  30,
+  "split-30",
   "left",
-  "split-30-a",
-  <>the block.</>,
+  <>
+    interrupt
+    <br />
+    doomscrolling
+    <br />
+    with {"\u201C"}math{"\u201D"}
+  </>,
+  {
+    captionOffsetYPct: -2.5,
+  },
 );
 const slideSplit30R = makeTiltedSplit(
-  30,
+  "split-30",
   "right",
-  "split-30-b",
-  <>the fix.</>,
+  <>
+    make boredom
+    <br />
+    fun again
+  </>,
+  {
+    captionPos: "bottom",
+    headlineScale: 2,
+    tagScale: 2.25,
+    tagOpacity: 0.61,
+    tag: (
+      <>
+        (or scrolling worse,
+        <br />
+        whatever stops
+        <br />
+        your addiction)
+      </>
+    ),
+  },
 );
-const slideSplit45L = makeTiltedSplit(
-  45,
-  "left",
-  "split-45-a",
-  <>the block.</>,
-);
-const slideSplit45R = makeTiltedSplit(
-  45,
-  "right",
-  "split-45-b",
-  <>the fix.</>,
-);
-const slideSplit60L = makeTiltedSplit(
-  60,
-  "left",
-  "split-60-a",
-  <>the block.</>,
-);
-const slideSplit60R = makeTiltedSplit(
-  60,
-  "right",
-  "split-60-b",
-  <>the fix.</>,
-);
+const slideSplit45L = makeTiltedSplit("split-45", "left", <>the block.</>);
+const slideSplit45R = makeTiltedSplit("split-45", "right", <>the fix.</>);
+const slideSplit60L = makeTiltedSplit("split-60", "left", <>the block.</>);
+const slideSplit60R = makeTiltedSplit("split-60", "right", <>the fix.</>);
 
 const SLIDES: SlideDef[] = [
   slide1,
