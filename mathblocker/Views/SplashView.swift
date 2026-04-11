@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import LaTeXSwiftUI
 
 struct SplashView: View {
     @State private var progress: Double = 0
@@ -16,11 +15,6 @@ struct SplashView: View {
     var body: some View {
         ZStack {
             FrostedBackground()
-
-            // Pre-warm MathJax engine so first answer doesn't freeze
-            LaTeX("$x$")
-                .frame(width: 1, height: 1)
-                .opacity(0.01)
 
             VStack(spacing: 28) {
                 Spacer()

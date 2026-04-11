@@ -246,6 +246,16 @@ struct MathText: View {
         s = s.replacingOccurrences(of: "\\\\tfrac(?![a-zA-Z])", with: "\\\\frac", options: .regularExpression)
         s = s.replacingOccurrences(of: "\\\\cfrac(?![a-zA-Z])", with: "\\\\frac", options: .regularExpression)
 
+        // AMS-style context-aware dots. SwiftMath only knows `\ldots`
+        // (low dots) and `\cdots` (centered dots), not the amsmath
+        // variants. Map based on the semantic intent of each command.
+        s = s.replacingOccurrences(of: "\\\\dotsm(?![a-zA-Z])", with: "\\\\cdots", options: .regularExpression) // multiplication dots
+        s = s.replacingOccurrences(of: "\\\\dotsb(?![a-zA-Z])", with: "\\\\cdots", options: .regularExpression) // binary-op dots
+        s = s.replacingOccurrences(of: "\\\\dotsi(?![a-zA-Z])", with: "\\\\cdots", options: .regularExpression) // integral-chain dots
+        s = s.replacingOccurrences(of: "\\\\dotsc(?![a-zA-Z])", with: "\\\\ldots", options: .regularExpression) // comma-list dots
+        s = s.replacingOccurrences(of: "\\\\dotso(?![a-zA-Z])", with: "\\\\ldots", options: .regularExpression) // other dots
+        s = s.replacingOccurrences(of: "\\\\dots(?![a-zA-Z])", with: "\\\\ldots", options: .regularExpression)  // generic dots
+
         // \pmod{arg} → (mod arg) — parenthetical modulo
         s = s.replacingOccurrences(
             of: "\\\\pmod\\s*\\{([^}]*)\\}",

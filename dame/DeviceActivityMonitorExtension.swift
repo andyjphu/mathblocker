@@ -67,14 +67,11 @@ class DeviceActivityMonitorExtension: DeviceActivityMonitor {
         log("intervalDidEnd: \(activity.rawValue)")
 
         if activity.rawValue == earnedActivityName {
-            // Guard against the restart race: main app may have just
-            // replaced the earned-timer schedule with a fresh one, in
-            // which case this `intervalDidEnd` is the old schedule
-            // tearing down, not an actual expiry. If
-            // `earnedTimerEnd` in the shared defaults is still in the
-            // future, the user is in an active earned timer and we
-            // must NOT re-apply shields (doing so would stomp on
-            // main's `removeShields` call during the restart).
+            // Guard 1: restart race. Main app may have just replaced the
+            // earned-timer schedule with a fresh one, in which case this
+            // `intervalDidEnd` is the old schedule tearing down, not an
+            // actual expiry. If `earnedTimerEnd` is still in the future,
+            // skip so we don't stomp on main's removeShields.
             let storedEnd = defaults?.double(forKey: earnedTimerEndKey) ?? 0
             let now = Date().timeIntervalSince1970
             if storedEnd > now + 5 {
@@ -82,7 +79,36 @@ class DeviceActivityMonitorExtension: DeviceActivityMonitor {
                 return
             }
 
-            // Actually expired — re-block.
+            // Guard 2: we only re-apply shields if the user's daily
+            // budget has actually been blown TODAY. If the schedule
+            // outlasts day rollover (padded schedule can extend past
+            // local midnight) or the user raised their budget past the
+            // hit threshold, re-applying shields is wrong — they have
+            // fresh budget and should stay unblocked.
+            let fmt = DateFormatter()
+            fmt.dateFormat = "yyyy-MM-dd"
+            fmt.timeZone = .current
+            let todayString = fmt.string(from: Date())
+            let hitDateString = defaults?.string(forKey: budgetHitDateKey) ?? ""
+
+            if hitDateString != todayString {
+                log("intervalDidEnd earnedTimer: budget not hit today (stored=\(hitDateString), today=\(todayString)), skipping applyShields")
+                defaults?.removeObject(forKey: earnedTimerEndKey)
+                return
+            }
+
+            // Guard 3: the recorded threshold must match the current
+            // budget. If the user raised past the threshold, the hit is
+            // obsolete and shields should stay off.
+            let hitThreshold = defaults?.integer(forKey: budgetHitThresholdKey) ?? 0
+            let currentBudget = defaults?.integer(forKey: dailyBudgetMinutesKey) ?? 0
+            if hitThreshold > 0 && currentBudget > hitThreshold {
+                log("intervalDidEnd earnedTimer: budget raised \(hitThreshold)→\(currentBudget), hit is obsolete, skipping applyShields")
+                defaults?.removeObject(forKey: earnedTimerEndKey)
+                return
+            }
+
+            // Truly expired and user is genuinely over today's budget.
             applyShields()
             store.dateAndTime.requireAutomaticDateAndTime = true
             defaults?.removeObject(forKey: earnedTimerEndKey)

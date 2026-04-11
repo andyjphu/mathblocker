@@ -7,8 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		5A4FA1A12F8872F00016FC02 /* LaTeXSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = 5A95AF912F87BE0000A12617 /* LaTeXSwiftUI */; };
-		5AB1C0012F900000000C0001 /* SwiftMath in Frameworks */ = {isa = PBXBuildFile; productRef = 5AB1C0002F900000000C0001 /* SwiftMath */; };
 		5A95AF3E2F87BC0100A12617 /* DeviceActivity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A95AF2F2F87BB8E00A12617 /* DeviceActivity.framework */; };
 		5A95AF512F87BC3600A12617 /* ManagedSettings.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A95AF502F87BC3600A12617 /* ManagedSettings.framework */; };
 		5A95AF632F87BC5100A12617 /* ManagedSettings.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A95AF502F87BC3600A12617 /* ManagedSettings.framework */; };
@@ -18,6 +16,7 @@
 		5A95AF732F87BD0000A12617 /* shconfig.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 5A95AF622F87BC5100A12617 /* shconfig.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		5A95AFAA2F87BF0000A12617 /* report.appex in Embed ExtensionKit Extensions */ = {isa = PBXBuildFile; fileRef = 5A95AFA12F87BF0000A12617 /* report.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		5A95AFAD2F87BF0000A12617 /* DeviceActivity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A95AF2F2F87BB8E00A12617 /* DeviceActivity.framework */; };
+		5AB1C0012F900000000C0001 /* SwiftMath in Frameworks */ = {isa = PBXBuildFile; productRef = 5AB1C0002F900000000C0001 /* SwiftMath */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -201,7 +200,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5A4FA1A12F8872F00016FC02 /* LaTeXSwiftUI in Frameworks */,
 				5AB1C0012F900000000C0001 /* SwiftMath in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -321,7 +319,6 @@
 			);
 			name = mathblocker;
 			packageProductDependencies = (
-				5A95AF912F87BE0000A12617 /* LaTeXSwiftUI */,
 				5AB1C0002F900000000C0001 /* SwiftMath */,
 			);
 			productName = mathblocker;
@@ -507,7 +504,6 @@
 			mainGroup = 5A61C0302F87A5C100EAA886;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				5A95AF902F87BE0000A12617 /* XCRemoteSwiftPackageReference "LaTeXSwiftUI" */,
 				5AB1C0022F900000000C0002 /* XCRemoteSwiftPackageReference "SwiftMath" */,
 			);
 			preferredProjectObjectVersion = 77;
@@ -800,8 +796,7 @@
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -815,7 +810,7 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1";
 			};
 			name = Debug;
 		};
@@ -834,8 +829,7 @@
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -849,7 +843,7 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1";
 			};
 			name = Release;
 		};
@@ -870,7 +864,7 @@
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/mathblocker.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/mathblocker";
 			};
 			name = Debug;
@@ -892,7 +886,7 @@
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/mathblocker.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/mathblocker";
 			};
 			name = Release;
@@ -912,7 +906,7 @@
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1";
 				TEST_TARGET_NAME = mathblocker;
 			};
 			name = Debug;
@@ -932,7 +926,7 @@
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1";
 				TEST_TARGET_NAME = mathblocker;
 			};
 			name = Release;
@@ -962,7 +956,7 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1";
 			};
 			name = Debug;
 		};
@@ -991,7 +985,7 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1";
 			};
 			name = Release;
 		};
@@ -1020,7 +1014,7 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1";
 			};
 			name = Debug;
 		};
@@ -1049,7 +1043,7 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1";
 			};
 			name = Release;
 		};
@@ -1078,7 +1072,7 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1";
 			};
 			name = Debug;
 		};
@@ -1107,7 +1101,7 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1";
 			};
 			name = Release;
 		};
@@ -1138,7 +1132,7 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1";
 			};
 			name = Debug;
 		};
@@ -1169,7 +1163,7 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1";
 			};
 			name = Release;
 		};
@@ -1251,14 +1245,6 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		5A95AF902F87BE0000A12617 /* XCRemoteSwiftPackageReference "LaTeXSwiftUI" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/colinc86/LaTeXSwiftUI.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.3.2;
-			};
-		};
 		5AB1C0022F900000000C0002 /* XCRemoteSwiftPackageReference "SwiftMath" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/mgriebling/SwiftMath.git";
@@ -1270,11 +1256,6 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		5A95AF912F87BE0000A12617 /* LaTeXSwiftUI */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 5A95AF902F87BE0000A12617 /* XCRemoteSwiftPackageReference "LaTeXSwiftUI" */;
-			productName = LaTeXSwiftUI;
-		};
 		5AB1C0002F900000000C0001 /* SwiftMath */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 5AB1C0022F900000000C0002 /* XCRemoteSwiftPackageReference "SwiftMath" */;

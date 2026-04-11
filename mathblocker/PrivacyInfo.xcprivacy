@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- This app does not perform any form of tracking. -->
+    <key>NSPrivacyTracking</key>
+    <false/>
+    <key>NSPrivacyTrackingDomains</key>
+    <array/>
+
+    <!--
+        Data the app collects.
+
+        - "Other Diagnostic Data" covers the app-group `extensionLog` that
+          gets attached to bug reports when the user taps "send report" in
+          Settings → Report a Bug. The log contains state transitions
+          (monitoring on/off, budget values, shield apply/remove, event
+          fires) but no personal information. It is sent only when the
+          user explicitly submits a bug report.
+
+        - "Crash Data" covers anything Apple's on-device crash reporter
+          collects, which we forward via standard iOS mechanisms.
+
+        Both are NOT linked to identity and NOT used for tracking.
+    -->
+    <key>NSPrivacyCollectedDataTypes</key>
+    <array>
+        <dict>
+            <key>NSPrivacyCollectedDataType</key>
+            <string>NSPrivacyCollectedDataTypeOtherDiagnosticData</string>
+            <key>NSPrivacyCollectedDataTypeLinked</key>
+            <false/>
+            <key>NSPrivacyCollectedDataTypeTracking</key>
+            <false/>
+            <key>NSPrivacyCollectedDataTypePurposes</key>
+            <array>
+                <string>NSPrivacyCollectedDataTypePurposeAppFunctionality</string>
+            </array>
+        </dict>
+        <dict>
+            <key>NSPrivacyCollectedDataType</key>
+            <string>NSPrivacyCollectedDataTypeCrashData</string>
+            <key>NSPrivacyCollectedDataTypeLinked</key>
+            <false/>
+            <key>NSPrivacyCollectedDataTypeTracking</key>
+            <false/>
+            <key>NSPrivacyCollectedDataTypePurposes</key>
+            <array>
+                <string>NSPrivacyCollectedDataTypePurposeAppFunctionality</string>
+            </array>
+        </dict>
+    </array>
+
+    <!--
+        Required-reason API declarations.
+
+        - UserDefaults (CA92.1): "Access info from same app, per
+          documentation". We use the app group UserDefaults suite to
+          share state between the main app and our DeviceActivity /
+          ManagedSettings / Shield extensions. No cross-app access.
+
+        - File timestamp (C617.1): "Inspect the timestamp of files that
+          the user has explicitly saved as a result of their in-app
+          action". SwiftData touches file metadata on its backing store,
+          so we declare this conservatively.
+
+        - System boot time (35F9.1): Declaring because our in-app Timer
+          and Date.now usage may internally rely on boot-time
+          measurement inside Foundation. Conservative declaration.
+    -->
+    <key>NSPrivacyAccessedAPITypes</key>
+    <array>
+        <dict>
+            <key>NSPrivacyAccessedAPIType</key>
+            <string>NSPrivacyAccessedAPICategoryUserDefaults</string>
+            <key>NSPrivacyAccessedAPITypeReasons</key>
+            <array>
+                <string>CA92.1</string>
+            </array>
+        </dict>
+        <dict>
+            <key>NSPrivacyAccessedAPIType</key>
+            <string>NSPrivacyAccessedAPICategoryFileTimestamp</string>
+            <key>NSPrivacyAccessedAPITypeReasons</key>
+            <array>
+                <string>C617.1</string>
+            </array>
+        </dict>
+        <dict>
+            <key>NSPrivacyAccessedAPIType</key>
+            <string>NSPrivacyAccessedAPICategorySystemBootTime</string>
+            <key>NSPrivacyAccessedAPITypeReasons</key>
+            <array>
+                <string>35F9.1</string>
+            </array>
+        </dict>
+    </array>
+</dict>
+</plist>

@@ -218,6 +218,17 @@ class MonitoringManager {
             // Shields should be OFF. This fires on "open app after new
             // day rollover" and "open app after raising budget" so the
             // user doesn't wait for dame's next event to unblock.
+            //
+            // Also clear any stale `budgetHitDate` / `budgetHitThreshold`
+            // lingering from a previous day so dame's earnedTimer
+            // `intervalDidEnd` guards see a clean state and don't
+            // re-apply shields when a padded schedule outlasts
+            // midnight rollover.
+            if hitDateString != nil {
+                defaults?.removeObject(forKey: AppGroupConstants.budgetHitDateKey)
+                defaults?.removeObject(forKey: AppGroupConstants.budgetHitThresholdKey)
+                AppGroupConstants.appendDiagnosticLog("reconcile: cleared stale budgetHitDate=\(hitDateString ?? "")")
+            }
             if currentlyActive && isMonitoring {
                 AppGroupConstants.appendDiagnosticLog("reconcile: no budget hit today, shields were on, removing")
                 ShieldManager.shared.removeShields(reason: "reconcile-no-budget-hit")
